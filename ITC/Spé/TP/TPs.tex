@@ -1,0 +1,46 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+% Chargement des macros et des packages
+\input{../definitions}
+\usepackage[french]{algorithm2e}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------- 
+% Personnalisations générales
+%-------------------------------------------------------------------------------
+% Indication du type de document
+\def\titre{T.P. d'informatique}
+% Pour changer le nom des composantes :
+% La syntaxe est compliquée car on a chargé babel
+\addto\captionsfrench{\renewcommand{\chaptername}{TP}}
+% pagination par chapitre
+\usepackage{chappg}
+%-------------------------------------------------------------------------------
+% Classe(s) concernée(s)
+\def\classe{MP, PC \& PSI}
+%-------------------------------------------------------------------------------
+% Année
+\def\annee{2020-21}  
+%-------------------------------------------------------------------------------
+% Où trouver les images
+\graphicspath{{./Images/}}
+%-------------------------------------------------------------------------------
+% Commande pour les solutions des exercices
+% Si une composante n'a pas de solution, on l'inclut avec \chapitre
+% Sinon on l'inclut avec \chapitreSol
+% Si on veut les solution on l'indique par \reponsestrue
+% Sinon on l'indique par \reponsefalse
+\reponsestrue
+%-------------------------------------------------------------------------- 
+\begin{document}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\premierePage
+\tableofcontents
+\chapitreSol{01_Revisions}
+\chapitreSol{02_Euler}
+\chapitreSol{03_Euler_vect}
+\chapitreSol{04_SQL}
+\chapitreSol{05_ImagesN_B}
+\chapitreSol{06_Images_couleurs}
+\chapitreSol{07_FFT}
+\end{document}

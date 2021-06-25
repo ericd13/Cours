@@ -1,0 +1,307 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Bases de données}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Présentation} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Les questions de ce devoir porteront sur la base de données étudiée en T.P.
+
+On utilisera les tables {\sc Pays}, {\sc Villes}, {\sc Montagne} et {\sc MontagnePays}. 
+
+La table {\sc Pays} contient les attributs
+\begin{itemize}
+    \item {\bf nom} est le nom du pays,
+    \item {\bf capitale} est le nom de la capitale du pays,    
+    \item {\bf superficie} est la surface du pays,
+    \item {\bf population} est le nombre d'habitants du pays,
+    \item {\bf code} est le nom abrégé du pays qui sera utilisé dans les autres tables.
+\end{itemize}
+
+La table {\sc Ville} contient les attributs
+\begin{itemize}
+    \item {\bf nom} est le nom de la ville,
+    \item {\bf population} est le nombre d'habitants de la ville,
+    \item {\bf pays} est le {\bf code} du pays dans lequel est située la ville.
+\end{itemize}
+
+La table {\sc Montagne} contient les attributs
+\begin{itemize}
+    \item {\bf nom} est le nom de la montagne,
+    \item {\bf chaine} est la chaîne de montagnes contenant la montagne (Alpes, Himalaya, \dots),
+    \item {\bf altitude} est l'altitude du sommet.
+\end{itemize}
+
+La table {\sc MontPays} relie les montagnes et les pays
+\begin{itemize}
+    \item {\bf montagne} est le nom de la montagne,
+    \item {\bf pays} est le {\bf code} du pays dans lequel est située la montagne.
+\end{itemize}
+Une montagne peut être dans plusieurs pays et, bien sur un pays peut contenir plusieurs montagnes.
+
+Les liaisons naturelles, qui peuvent servir dans les jointures, sont indiquées dans le diagramme ci-dessous.
+
+\medskip
+%-------------------------------------------------------------------------------
+\begin{center}
+\tikzstyle{table}=[draw,shape=rectangle,text width=20mm,align=center,minimum height=6mm]
+\tikzpicture
+\node[table] at (0, 0.0) {\sc Ville};
+\node[table] at (0,-0.6) (capv) {nom};
+\node[table] at (0,-1.2) {population};
+\node[table] at (0,-1.8) (pv){pays};
+\node[table] at (4, 0.0) {\sc Pays};
+\node[table] at (4,-0.6) {nom};
+\node[table] at (4,-1.2) (cap) {capitale};
+\node[table] at (4,-1.8) {superficie};
+\node[table] at (4,-2.4) {population};
+\node[table] at (4,-3.0) (code) {code};
+\node[table] at (8, 0.0) {\sc MontPays};
+\node[table] at (8,-0.6) (mpm) {montagne};
+\node[table] at (8,-1.2) (mpp) {pays};
+\node[table] at (12, 0.0) {\sc Montagne};
+\node[table] at (12,-0.6) (mon) {nom};
+\node[table] at (12,-1.2) {chaine};
+\node[table] at (12,-1.8) {altitude};
+\draw[thick,dotted, <->] (capv) -- +(2, 0) |-  (cap);
+\draw[thick, <->] (pv) -- +(2, 0) |-  (code);
+\draw[thick, <->] (code) -- +(2 , 0) |-  (mpp);
+\draw[thick, <->] (mpm) -- +(2 , 0) |-  (mon);
+\endtikzpicture
+\end{center}
+%--------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Requêtes} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Requêtes simples} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+\it Écrire une requête qui renvoie le nom et l'altitude des montagnes de plus de 800 mètres d'altitude
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+SELECT nom, altitude
+FROM Montagne
+WHERE altitude > 8000
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+\it Écrire une requête qui renvoie le nom des villes de plus de 5 millions (5e6) d'habitants ainsi que leur population.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+SELECT nom, population
+FROM Ville
+WHERE population > 5e9
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+\it Quels sont les pays dont la densité (population/superficie) est supérieure à 500 ?
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+SELECT nom, population
+FROM Ville
+WHERE population > 5e9
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Agrégations} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+\it Quelle est la moyenne (\type{AVG}) de la population des "gros" pays, ceux ayant plus de 10 millions d'habitants ?
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+SELECT AVG(population)
+FROM Pays
+WHERE population > 1e7
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+\it Écrire une requête qui renvoie le nom des chaînes de montagne ainsi que le nombre de sommets leur appartenant.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+SELECT chaine, count()
+FROM Montagne
+GROUP BY chaines
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+\it Quels sont les code des pays contenant au moins 5 villes de plus de 1 million d'habitants ?
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+SELECT pays, count() AS nb_villes
+FROM Ville
+Where population > 1e6
+GROUP BY pays
+HAVING nb_villes >= 5
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Jointures} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+\it Quels sont les pays dont la capitale a plus de 5 millions d'habitants ?
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+SELECT p.nom, v.Population
+FROM pays AS p JOIN ville AS v on p.capitale = v.Nom
+where v.population > 5e6
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+\it Quelles sont les montagnes en France ? On donnera aussi leur altitude.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+SELECT m.nom, m.Altitude
+FROM Pays AS p JOIN MontaPays AS mp ON p.code = mp.pays
+               JOIN Montagnes AS m ON m.nom = mp.montagne
+WHERE p.nom = "France"
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+\it Quels sont les pays qui contiennent des montagnes de plus de 8000 mètres ?
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+SELECT p.nom, m.nom, m.Altitude
+FROM Pays AS p JOIN MontPays AS mp ON p.code = mp.pays
+               JOIN Montagne AS m ON m.nom = mp.montagne
+WHERE m.altitude > 8000
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+\it Quels sont les pays qui contiennent une montagne de la chaîne des Alpes (\type{"Alps"}) ?
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+SELECT DISTINCT p.nom
+FROM Pays AS p JOIN MontPays AS mp ON p.code = mp.pays
+               JOIN Montagne AS m ON m.nom = mp.montagne
+WHERE m.chaine = "Alps"
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+\it Quels sont les pays qui contiennent au moins 5 montagnes de plus de 6000 mètres ?
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+SELECT p.nom, count() AS nombre
+FROM Pays AS p JOIN MontPays AS mp ON p.code = mp.pays
+               JOIN Montagne AS m ON m.nom = mp.montagne
+WHERE m.altitude > 6000
+GROUP BY p.nom
+HAVING nombre >= 5
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Plus} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+\it Quels sont les pays dont la population est supérieure à 10 fois la moyenne de la population des gros pays (question 4) ?
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+SELECT nom
+FROM pays
+WHERE population >= 10*(SELECT AVG(population)
+                        FROM Pays
+                        WHERE population > 1e7)
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+\it Quels sont les pays pour lesquels la capitale n'est pas la ville la plus peuplée ?
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+On commence par créer la table des pays avec la population maximale d'une ville
+\begin{lstlisting}[language=SQL]
+SELECT p.nom AS pays, MAX(v.population) AS popmax
+FROM Pays AS p JOIN Ville AS v ON v.pays = p.code
+GROUP BY p.nom
+\end{lstlisting}
+
+Cette table va être jointe à \type{Pays} elle même jointe à \type{Villes}
+\begin{lstlisting}[language=SQL]
+SELECT p.nom, p.capitale, v.population, m.popmax
+FROM Pays AS p 
+     JOIN Ville AS v ON v.nom = p.capitale AND v.pays = p.code
+     JOIN (SELECT p.nom AS pays, MAX(v.population) AS popmax
+           FROM Pays AS p JOIN Ville AS v ON v.pays = p.code
+           GROUP BY p.nom) AS m ON m.pays = p.nom
+WHERE v.population <> m.popmax
+\end{lstlisting}
+On doit ajouter la condition \type{AND v.pays = p.code} à la ligne 2 car il y a plusieurs villes qui ont le même nom.
+\newpage
+Si on veut en plus, le nom de la ville la plus peuplée, c'est plus difficile.
+\begin{lstlisting}[language=SQL,numbers=left]
+SELECT p.nom, p.capitale, v.population AS population_c, 
+       vm.ville_m, vm.population_m
+FROM (SELECT m.pays AS pays, v.nom AS ville_m, 
+             m.popmax AS population_m
+        FROM Ville AS v 
+             JOIN (SELECT p.nom AS pays, p.code AS code, 
+                   MAX(v.population) AS popmax
+                   FROM Pays AS p 
+                        JOIN Ville AS v ON v.pays = p.code
+                   GROUP BY p.nom) AS m ON m.code = v.Pays
+        WHERE v.population = m.popmax) AS vm
+     JOIN Pays AS p ON vm.pays = p.nom
+     JOIN Ville AS v ON v.nom = p.capitale and v.pays = p.code
+WHERE p.capitale <> vm.ville_m AND population_c IS NOT NULL
+\end{lstlisting}
+On doit ajouter la condition \type{AND population\_c is not null} à la ligne 14 car il y a des capitales dont la population n'est pas connue
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------

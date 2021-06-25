@@ -1,0 +1,39 @@
+%-------------------------------------------------------------------------------
+\input{definitions}
+%-------------------------------------------------------------------------- 
+% Personnalisations générales
+\def\titre{Cours d'informatique}
+\def\classe{MP, PC et PSI}
+\def\annee{2019-2020}
+\graphicspath{{./Images/}}
+%-------------------------------------------------------------------------------
+% Commande pour les solutions des exercices
+% Si une composante n'a pas de solution, on l'inclut avec \chapitre
+% Sinon on l'inclut avec \chapitreSol
+% Si on veut les solution on l'indique par \reponsestrue
+% Sinon on l'indique par \reponsefalse
+\reponsestrue
+%-------------------------------------------------------------------------- 
+\begin{document}
+%--------------------------------------------------------------------------
+\renewcommand{\thepart}{\Alph{part}}
+\premierePage
+\tableofcontents
+% \part{Révisions de première année}
+% \chapitre{A-modules}
+% \chapitre{B-Euler}
+% \part{Cours de seconde année}
+\chapitre{01-Complexite}
+\chapitre{02-TrisSimples}
+\chapitreSol{03-Recursivite}
+\chapitre{04-TrisRapides}
+\chapitreSol{05-Piles}
+
+%\setcounter{chapter}{0}
+%\renewcommand{\thechapter}{\Roman{chapter} (révisions)}
+%------------------------------------------------------------
+%------------------------------------------------------------
+%------------------------------------------------------------
+%------------------------------------------------------------
+
+\end{document}

@@ -1,0 +1,910 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{SQL : révisions}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+%-------------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\section{Rappels}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\subsection{Structure}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+Les bases de données relationnelles utilisent des données regroupées en {\bf tables} (ou {\bf relations}). 
+
+\begin{itemize}
+    \item Chaque ligne d'une relation représente une {\bf entité} (personne, objet, action, relation, \dots).
+    \item Une entité est un $n$-uplet (tuple) de valeurs.
+    \item L'ensemble des entités est l'{\bf extension} de la relation.
+    \item Chaque élément d'un $n$-uplet est un {\bf attribut} de l'entité.
+    \item L'ensemble des attributs (les colonnes) est le {\bf schéma} de la relation.
+    \item Chaque attribut prend des valeurs dans un ensemble défini : son {\bf domaine}.
+    \item Une {\bf clé primaire} est un ensemble d'attributs qui identifie chaque entité de la relation de manière unique et minimale.
+    \item Souvent, la clé primaire sera un attribut dédié, un identifiant.
+\end{itemize}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\subsection{Requêtes SQL}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+On interroge les bases de données à l'aide d'un langage standardisé : SQL.
+
+Une requête produit un résultat qui est lui même une table (ou une valeur unique), il sera donc possible de composer ou combiner les requêtes.
+
+L'ordre des instructions dans une requête est fixé :
+
+\begin{lstlisting}[language=SQL]
+SELECT ...
+FROM ...
+(WHERE ...)
+(GROUP BY ...)
+(HAVING ...)
+(ORDER BY ...)
+(LIMIT ...)
+(OFFSET ...)
+\end{lstlisting}
+
+Seules les deux premières instructions sont obligatoires. Les instructions à partir de \type{from} sont exécutées dans l'ordre, \type{select} chapeaute la requête.
+
+\newpage
+
+\begin{description}
+    \item[Select] est suivi de l'énumération des valeurs à afficher séparées par des virgules.
+    \begin{itemize}
+        \item Ce peut être des attributs de la tables, {\bf *} si on les veut tous.
+        \item Ce peut être des valeurs calculées à partir des attributs, il sera alors utile de donner un nom (un alias) au résultat : {\it calcul} {\tt as} {\it nom}.
+        \item Ce peut être le résultat d'un calcul statistique sur les lignes sélectionnées, regroupées ou non (voir {\bf Group by}). On peut utiliser la somme des valeurs d'un attribut \type{sum({\it a})}, la moyenne \type{avg({\it a})}, le maximum \type{max({\it a})}, le minimum \type{min({\it a})}, le nombre d'entités sélectionnées \type{count()}.
+        \item Pour éviter les répétitions on peut utiliser {\tt select distinct}.
+
+    \end{itemize}
+    \item[From] est suivi de la table utilisée. Ce peut être
+       \begin{itemize}
+        \item une table simple de la relation,
+        \item un produit de tables, on les énumère avec des virgules pour séparer,
+        \item une {\bf jointure} de tables.
+    \end{itemize}
+    \item[Where] est suivi des conditions que doivent vérifier les attributs (ou les valeurs calculées en utilisant leur alias). On peut les combiner avec \type{and}, \type{or} et \type{not}.
+    \item[Group by] est suivi d'un attribut : il partitionne la table selon les valeurs de cet attribut et permet un calcul statistique par paquet. Quand cette instruction est utilisée on ne peut utiliser dans \type{select} que l'attribut du regroupement\footnote{On peut aussi utiliser des attributs qui ont la même valeur par paquet.} et des valeurs statistiques.
+    \item[Having] n'est utile qu'avec une instruction \type{Group by}. Il permet de donner des conditions portant sur les valeurs statistiques calculées.
+    \item[Order by] suivi d'un nom d'attribut ou d'alias permet de trier par ordre croissant selon les valeurs de cet attribut. On peut faire suivre par \type{desc} si on veut un ordre décroissant.
+    \item[Limit] n'est utile qu'avec une instruction \type{Order by}. Il permet de limiter le nombre de résultats affichés
+    \item[Offset] n'est utile qu'avec une instruction \type{Limit}. Il permet de décaler les instructions. \type{Limit 3 Offset 4} affiche les résultats des rangs 4 à 6.
+\end{description}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\subsection{Jointures}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+{\bf Remarque} : quand on utilise plusieurs tables, on accède aux attributs en donnant aussi la table d'où ils proviennent : {\it table.nom}. 
+
+Il sera souvent utile de donner un alias court aux tables : \type{From} {\it table} \type{as} {\it t}.
+
+\medskip
+
+Quand on utilise plusieurs table, il y a souvent des liens entre celles-ci : un attribut d'une table réfère à un attribut d'une autre table. Cela sera parfois indiqué dans une représentation des schémas.
+
+%-------------------------------------------------------------------------------
+\begin{center}
+\tikzstyle{table}=[draw,shape=rectangle,text width=28mm,align=center,minimum height=6mm]
+\tikzpicture
+\node[table] at (-1, 0.0) {\bf PATIENT};
+\node[table] at (-1,-0.6) (id-p) {id};
+\node[table] at (-1,-1.2) {Nom};
+\node[table] at (-1,-1.8) {Prenom};
+\node[table] at (-1,-2.4) {Adresse};
+\node[table] at (-1,-3.0) {email};
+\node[table] at (-1,-3.6) {naissance};
+\node[table] at (4, 0.0) {\bf MEDICAL};
+\node[table] at (4,-0.6) {id};
+\node[table] at (4,-1.2) {data1};
+\node[table] at (4,-1.8) {data2};
+\node[table] at (4,-2.4) {data3};
+\node[table] at (4,-3.0) (id-m) {id\_patient};
+\node[table] at (4,-3.6) {etat};
+\draw[thick, <->] (id-p) -- +(2.5, 0) |-  (id-m);
+\endtikzpicture
+\end{center}
+%--------------------------------------------------------------------------
+
+Il est recommandé d'utiliser cette relation en améliorant le produit par une jointure. Dans l'exemple cela donnerait 
+\begin{lstlisting}[language=SQL]
+FROM patient as p Join medical as m On p.id = m.id_patient
+\end{lstlisting}
+Le nom d'un patient sera alors connu par \type{m.nom}
+%--------------------------------------------------------------------------
+\newpage
+%--------------------------------------------------------------------------
+\subsection{Assemblages de requêtes}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+On peut combiner des requêtes de plusieurs manières.
+
+\begin{enumerate}
+    \item Quand deux requêtes produisent des tables avec le même schéma, on peut en faire l'union : \type{union}, l'intersection : \type{intersection} ou la différence : \type{except}. Le mot clé est simplement placé entre les deux requêtes.
+    \item Une requête peut produire une valeur unique (avec une fonction statistique), cette valeur peut être utilisée dans une condition (\type{where} ou \type{having}). On ne peut malheureusement pas sauvegarder la valeur dans une variable, il faut l'utiliser en écrivant la requête entre parenthèses.
+    \item En général une requête produit une nouvelle table. On peut alors effectuer une requête sur cette table. Ici encore on écrit la requête entre parenthèses dans l'instruction \type{From}.
+\end{enumerate}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\section{Présentation}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
+{\it Nous allons utiliser une base de données qui contient de nombreuses tables.
+
+Certaines sont des tables qui contiennent des descriptions, par exemple \textbf{Pays}.
+
+D'autres représentent des associations entre des données, par exemple \textbf{Frontiere}.
+
+\medskip
+
+Voici les tables tables utilisées et leurs attributs. La clé primaire est soulignée.
+
+\begin{itemize}
+\item {\bf Appartenance} : \underline{Pays, Continent}, Pourcentage
+\item {\bf Continent} : \underline{Nom}, Superficie
+\item {\bf Frontiere} : \underline{Pays1, Pays2}, Longueur
+\item {\bf Ile} : \underline{Nom}, Iles, Superficie, Altitude, Type, Longitude, Latitude 
+\item {\bf IleDans} : \underline{Ile, Mer, Lac, Riviere}
+\item {\bf IlePays} : \underline{Ile, Pays}, Province
+\item {\bf Langage} : \underline{Pays, Nom}, Percentage
+\item {\bf MembreOrganisation} : \underline{Organisation, Pays}, Type
+\item {\bf Montagne} : \underline{Nom}, Chaine, Altitude, Type, Longitude, Latitude 
+\item {\bf MontagnePays} : \underline{Montagne, Pays, Province}. 
+\item {\bf Organisation} : \underline{Abbreviation}, Nom, Ville, \dots
+\item {\bf Pays} : Nom, \underline{Code}, Capitale, Province, Superficie, Population
+\item {\bf Politique} : \underline{Pays}, DateIndependance, AncienneDependance, Dependance, \dots
+\item {\bf Riviere} : \underline{Nom}, Riviere, Lac, Mer, \dots
+\item {\bf RivierePays} : \underline{Riviere, Pays, Province}
+\end{itemize}
+
+\medskip
+
+Dans les tables d'associations de nom du pays est le code de la table {\bf Pays}.
+
+Dans chaque question on a donné le nom de la table ou des tables utilisées.
+
+La table n'est pas complète et comporte des erreurs.}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\section{Requêtes sur une seule table}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Déterminer la liste des continents et de leur superficie, par ordre croissant.
+\end{Exercise}
+
+{\bf Continent} 
+
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select *
+from continent
+order by Superficie
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quels sont les pays de plus de $10^8$ habitants ? Il y en a 10.
+\end{Exercise}
+
+{\bf Pays}
+
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select nom, population
+from Pays
+where population > 100000000
+order by 2 desc
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quels sont les volcans ({\tt type = "volcano"}) de plus de 6000 m ? Il y en a 7.
+\end{Exercise}
+
+{\bf Montagne}
+
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select nom, altitude
+from Montagne 
+where type = 'volcano'  AND altitude > 6000
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\newpage
+{\it Une rivière se jette dans une autre rivière (elle est un affluent), dans un lac ou dans une mer. C'est ce qu'indiquent les attributs {\it Rivière}, {\it Lac} ou {\it Mer}. En théorie un seul de ces attributs n'est pas vide mais une rivière peut aussi passer dans un lac avant d'atteindre une autre rivière ou une mer.}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quels sont les affluents du Rhin ({\bf Rhein}) ? Il y en a 4.
+\end{Exercise}
+{\bf Riviere} 
+
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select nom
+from Riviere
+where riviere = "Rhein"
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\section{Fonctions d’agrégation}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quelle est la longueur de la frontière (terrestre) de la France (code "F") ? (2892.4 km)
+\end{Exercise}
+{\bf Frontiere} 
+
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select sum(longueur)
+from Frontiere 
+where Pays1 = "F" or Pays2 = "F"
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quelles sont les îles faisant partie des Caraïbes ({\tt iles = "Caraibes"}) avec leur superficie ?
+\end{Exercise}
+
+{\bf Ile} 
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select nom,superficie
+from Ile
+where Iles = "Caraibes"
+order by 1
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Combien y a-t-il d'îles dans les Caraïbes ? \texttt{count} (22)
+
+Quelle est la superficie totale ? (12165 km${}^2$)
+
+Quelle est la moyenne des points culminants ? (825 m)
+\end{Exercise}
+
+{\bf Ile} 
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select count() as nombre, sum(Superficie) as surface, avg(Altitude) as altitude 
+from ile
+where iles = "Caraibes"
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quelles sont les mers dans lesquelles se jettent plus 5 rivières ou plus (\texttt{having}) ? Il y en a 5.
+
+On excluera les rivières qui ne sont pas des fleuves par la condition : \texttt{mer is not null}.
+\end{Exercise}
+{\bf Riviere}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select count() as nombre, mer
+from Riviere
+where mer is not null
+group by mer
+having nombre >4
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quelles sont les villes qui sont le siège de plus de 5 organisations ?
+Il y en a 6.
+\end{Exercise}
+{\bf Organisation}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select Ville, count() as nbSieges 
+from Organisation
+where Ville is not Null
+group by Ville
+having nbSieges >= 5
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quelles sont les langues parlées dans 5 pays au moins par plus de 25 \% de la population ?
+
+Il y en a 4.
+\end{Exercise}
+{\bf Langage}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select nom, count() as nb
+from langage
+where percentage >25
+group by nom
+having nb >4\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\section{Jointures}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quels sont les pays membres de l'UNESCO ? Il y en a 192 (188 vrais membres).
+\end{Exercise}
+{\bf MembreOrganisation}, {\bf Pays}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select p.nom
+from Pays as p join MembreOrganisation as mo on p.Code = mo.Pays
+where mo.Organisation = "UNESCO"
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quels sont les pays qui ont été des colonies de la France (\texttt{AncienneDependance = "F"}) ? (24)
+
+\end{Exercise}
+
+{\bf Politique}, {\bf Pays}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select p.nom
+from Pays as p join Politique as pol on p.code = pol.Pays
+where pol.AncienneDependance = "F"\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quels sont les pays qui dans lesquels l'anglais est la langue pour plus de 10 \% de la population ?
+
+\end{Exercise}
+{\bf Langage}, {\bf Pays}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select p.nom
+from langage as l join pays as p on p.code = l.pays
+where l.percentage > 10 and l.nom = "English"\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\newpage
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quels sont les pays qui sont traversés par le Danube ({\bf Donau}) ? Il y en a 10.
+\end{Exercise}
+{\bf RivierePays}, {\bf Pays}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select distinct p.nom
+from Pays as p join RivierePays as r on p.code = r.Pays
+where r.Riviere = "Donau"
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quelles sont les montagnes d'Amérique de plus de 6000 m avec le nom du pays dans lequel elles sont situées et leur altitude ? Il y en a 16.
+\end{Exercise}
+{\bf MontagnePays}, {\bf Appartenance}, {\bf Pays}, {\bf Montagne}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select distinct m.Nom, p.Nom, m.Altitude
+from Appartenance as a join MontagnePays as mp on a.Pays = mp.Pays
+                       join Montagne as m on m.Nom = mp.Montagne
+                       join Pays as p on p.Code = a.Pays
+where m.Altitude > 6000 and a.Continent = "America"
+\end{lstlisting}
+
+\newpage
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quels sont les affluents des affluents du Rhin ? Il y en a 3.
+\end{Exercise}
+
+{\bf Riviere} 2 fois
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select r.nom
+from Riviere as r join (select nom, riviere from Riviere) as aff 
+                  on r.riviere = aff.nom
+where aff.riviere = "Rhein"
+\end{lstlisting}
+
+On peut aussi composer les requêtes avec {\bf in}.
+
+\begin{lstlisting}[language=SQL]
+select nom
+from Riviere 
+where riviere in (select nom
+                  from Riviere
+                  where riviere = "Rhein")
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quels sont les pays dont la plus grande partie est en Europe ? Il y en a 51.
+\end{Exercise}
+
+{\bf Pays}, {\bf Appartenance}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select p.Nom 
+from Pays as p join Appartenance as a on a.Pays = p.code
+where a.Continent = "Europe" and a.Pourcentage > 50
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quels sont les organisations qui rassemblent des pays avec un total de plus de $5.10^9$ habitants ?
+
+Il y en a 27.
+\end{Exercise}
+{\bf Organisation}, {\bf Pays}, {\bf MembreOrganisation}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select o.Nom, sum(p.Population) as Pop 
+from Organisation as o join MembreOrganisation 
+                            as mo on o.Abbreviation=mo.Organisation
+                       join Pays as p on p.Code = mo.Pays
+group by mo.Organisation
+having pop > 5000000000
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Dans quels pays existe-t-il une île dans un Lac ? Il y en a 4 (2 îles au Canada).
+\end{Exercise}
+{\bf IleDans}, {\bf IlePays}, {\bf Pays}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select p.Nom, i.Ile as Ile, i.Lac 
+from Pays as p Join IlePays as ip on p.code=ip.Pays
+               Join IleDans as i on ip.Ile=i.Ile
+where i.Lac is not Null
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quels sont les pays qui ont une montagne dans la chaîne des Alpes ({\bf "Alps"}) ? Il y en a 5.
+\end{Exercise}
+
+{\bf Pays}, {\bf MontagnePays}, {\bf Montagne}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select distinct p.Nom
+from Pays as p join MontagnePays as mp on p.Code = mp.Pays
+               join Montagne as m on m.Nom = mp.Montagne
+where m.Chaine = "Alps"
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quels sont les fleuves qui passent en France ?
+\end{Exercise}
+
+{\bf Riviere}, {\bf RivierePays}, {\bf Pays}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select distinct r.nom
+from Riviere as r join RivierePays as rp on r.nom = rp.riviere
+                               join Pays as p on rp.pays = p.code
+where p.nom ="France" and r.mer is not null
+\end{lstlisting}
+\newpage
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\section{Sous-requêtes et combinaisons}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quels sont les pays qui font partie de l'ONU ({\bf UN}) mais pas de l'UNESCO ? Il y en a 6.
+\end{Exercise}
+{\bf Pays}, {\bf MembreOrganisation}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select p.Nom
+from Pays as p join MembreOrganisation as mo on p.Code = mo.Pays
+where mo.Organisation = "UN" AND type = "member"
+
+except
+
+select p.Nom
+from Pays as p join MembreOrganisation as mo on p.Code = mo.Pays
+where mo.Organisation = "UNESCO" AND type = "member"
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quels sont les pays qui ont une frontière avec la Russie ({\bf Russia}, code {\bf R}) ? Il y en a 14.
+\end{Exercise}
+{\bf Frontiere}, {\bf Pays}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select p.Nom
+from Pays as p join Frontiere as f on p.Code = f.Pays1
+where f.Pays2 = "R"
+
+union
+
+select p.Nom
+from Pays as p join Frontiere as f on p.Code = f.Pays2
+where f.Pays1 = "R"
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Combien ont d'affluents les fleuves qui passent en France ? (Seuls 3 ont des affluents dans la base)
+\end{Exercise}
+
+{\bf Riviere} deux fois, {\bf RivierePays}, {\bf Pays}
+
+La réponse n'est pas que la Seine a quatre affluents dans la base.
+%--------------------------------------------------------------------------
+\begin{Answer}
+La base \type{RivierePays} indique les rivière plusieurs fois, pour chaque région parcourue. Il faut donc ne prendre que les fleuves distincts.
+\begin{lstlisting}[language=SQL]
+select f.fleuve, count()
+from (select distinct r.nom as fleuve
+          from Riviere as r join RivierePays as rp 
+                                on r.nom = rp.riviere
+                            join Pays as p 
+                                on rp.pays = p.code
+          where p.nom ="France" and r.mer is not null) as f
+		  join Riviere as r1 on f.fleuve = r1. riviere
+group by f.fleuve
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quels sont les langues parlées par plus de 100.000.000 locuteurs ?
+(7)
+\end{Exercise}
+
+{\bf Pays}, {\bf Langage}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select langue, sum(locuteurs) as total
+from (
+  select p.nom, l.nom as langue, p.population*l.percentage/100 as locuteurs
+  from langage as l join pays as p on p.code = l.pays)
+  group by langue
+  having total > 100000000
+  order by total desc
+
+\end{lstlisting}
+\newpage
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quels sont les pays qui partagent une même montagne ? Il y en a 69.
+\end{Exercise}
+
+{\bf Pays}, {\bf MontagnePays}, {\bf Montagne}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select distinct mm.Nom as NomMontagne, p.Nom as NomPays
+from (select Montagne as Nom, count() as nb
+      from (select distinct Montagne,Pays 
+            from MontagnePays)
+            group by Nom) as mm
+           join MontagnePays as mp on  mp.Montagne = mm.Nom
+           join Pays as p on p.Code = mp.Pays
+where mm.nb > 1
+order by 1
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Quels sont les pays d'Europe qui ont une montagne dans la base ? On donnera aussi le nom et l'altitude de la plus haute montagne. Il y en a 20.
+\end{Exercise}
+
+{\bf Pays}, {\bf MontagnePays}, {\bf Montagne}, {\bf Appartenance}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select p.Nom, mp.Montagne, max(m.Altitude)
+from Pays as p join Appartenance as a on a.Pays = p.code
+               join MontagnePays as mp on p.Code = mp.Pays
+               join Montagne as m on m.Nom = mp.Montagne
+where a.Continent = "Europe" and a.Pourcentage > 50
+group by mp.Pays
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+% %--------------------------------------------------------------------------
+% \tikzstyle{mot}=[draw,
+%                  shape=rectangle,
+%                  rounded corners = 3mm,
+%                  align=center,
+%                  inner sep =2mm,
+%                  thick,
+%                  minimum height=6mm,
+%                  minimum width=6mm,
+%                 ]
+% %--------------------------------------------------------------------------
+% \tikzstyle{gvr}=[draw,
+%                  shape=rectangle,
+%                  inner sep = 1mm,
+%                  align=center,
+%                  minimum height=6mm,
+%                  minimum width=18mm,
+%                 ]
+% %--------------------------------------------------------------------------
+% \tikzstyle{var}=[draw,
+%                  shape=rectangle,
+%                  inner sep = 1mm,
+%                  minimum height=6mm,
+%                  align=center,
+%                 ]
+% %--------------------------------------------------------------------------
+% \tikzstyle{fle}=[->,
+%                  rounded corners = 1.5mm,
+%                  thick,
+%                 ]
+% %--------------------------------------------------------------------------
+% \tikzstyle{drt}=[rounded corners = 1.5mm,
+%                  thick,
+%                 ]
+% %--------------------------------------------------------------------------
+% \tikzstyle{gau}=[<-,
+%                  rounded corners = 1.5mm,
+%                  thick,
+%                 ]
+% %--------------------------------------------------------------------------
+% \def\dd{3mm}
+% \def\h{3mm}
+% \def\hv{4mm}
+% %--------------------------------------------------------------------------
+% \tikzpicture
+% %--------------------------------------------------------------------------
+% \coordinate(dl1) at (0,0)       {};
+% \node[mot] (sel) at ($(dl1)+(1.3,0)$)     {\bf SELECT};
+% \node[mot] (dct) at ($(sel)+(2.8,-2*\h)$) {\bf DISTINCT};
+% \node[gvr] (cl1) at ($(dct)+(3.4,2*\h)$)  {\tt colonne};
+% \node[gvr] (ccl) at ($(cl1)+(0,2*\hv)$)   {\tt calcul};
+% \node[gvr] (Fag) at ($(cl1)+(0,-2*\hv)$)  {\tt fn\_agreg};
+% \node[mot] (as1) at ($(cl1)+(3,-2*\h)$)   {\bf AS};
+% \node[var] (nm1) at ($(as1)+(1.2,0)$)       {\tt alias};
+% \node[mot] (vgl) at ($(cl1)+(2,4*\hv)$)   {\bf ,};
+% \coordinate(fl1) at ($(dl1)+(13.5,0)$)       {};
+% %--------------------------------------------------------------------------
+% \draw[fle]($(dl1)+(-4*\dd,0)$)-- (sel.west);
+% \draw[fle](sel.east) -- (cl1.west);
+% \draw[drt](cl1.east) -- (fl1);
+% \draw[gau](dct.west) -| +(-\dd,\h)  |- +(-2*\dd,2*\h);
+% \draw[drt](dct.east) -| +(\dd,\h)   |- +(2*\dd,2*\h);
+% \draw[gau](ccl.west) -| +(-\dd,-\hv)|- +(-2*\dd,-2*\hv);
+% \draw[fle](ccl.east) -| +(\dd,-\hv) |- +(2*\dd,-2*\hv);
+% \draw[gau](Fag.west) -| +(-\dd,\hv) |- +(-2*\dd,2*\hv);
+% \draw[drt](Fag.east) -| +(\dd,\hv)  |- +(2*\dd,2*\hv);
+% \draw[gau](as1.west) -| +(-\dd,\h)  |- +(-2*\dd,2*\h);
+% \draw[fle](as1.east) -- (nm1.west);
+% \draw[fle](nm1.east) -| +(\dd,\h)   |- +(2*\dd,2*\h);
+% \draw[fle] ($(nm1.east)+(2*\dd,2*\h)$) -| +(\dd,2*\hv) |- (vgl.east);
+% \draw[fle] (vgl.west) -| ($(dct.east)+(\dd,2*\hv+2*\h)$) |- +(\dd,-2*\hv);
+% %--------------------------------------------------------------------------
+% %--------------------------------------------------------------------------
+% \coordinate(dl2) at ($(dl1)+(0,-12*\hv)$) {};
+% \coordinate(fl2) at ($(dl2)+(15.5,0)$)    {};
+% \node[mot] (frm) at ($(dl2)+(0.8,0)$)     {\bf FROM};
+% \node[var] (tb1) at ($(frm)+(1.8,0)$)     {\tt table};
+% \node[mot] (as2) at ($(tb1)+(1.6,-2*\h)$) {\bf AS};
+% \node[var] (nm2) at ($(as2)+(1.2,0)$)     {\tt alias};
+% \coordinate(ml2) at ($(nm2.east)+(4mm,2*\h)$)  {};
+% \node[mot] (joi) at ($(ml2)+(4.5*\dd,2*\hv)$){\bf JOIN};
+% \node[var] (tb2) at ($(joi)+(1.6,0)$)    {\tt table};
+% \node[mot] (as3) at ($(tb2)+(1.6,-2*\h)$){\bf AS};
+% \node[var] (nm3) at ($(as3)+(1.2,0)$)    {\tt alias};
+% \node[mot] (on_) at ($(nm3)+(1.6,2*\h)$) {\bf ON};
+% \node[var] (equ) at ($(on_)+(1,0)$)    {=};
+% \node[mot] (vgl2) at ($(fl2)+(-8cm,6*\hv)$)   {\bf ,};
+% %--------------------------------------------------------------------------
+% \draw[fle] (fl1) -| +(\dd,-\dd) |- ($(dl2)+(8cm,8*\hv)$);
+% \draw[fle] ($(dl2)+(8cm,8*\hv)$) -- ($(dl2)+(0,8*\hv)$) -| +(-\dd,-2*\hv) |- (dl2);
+% \draw[drt] (dl2) -- (frm.west);
+% \draw[fle] (frm.east) -- (tb1.west);
+% \draw[fle] (tb1.east) -- (ml2);
+% \draw[gau] (as2.west) -| +(-\dd,\h)  |- +(-2*\dd,2*\h);
+% \draw[fle] (as2.east) -- (nm2.west);
+% \draw[drt] (nm2.east) -| +(\dd,\h)   |- (ml2);
+% \draw[fle] (ml2) -| +(\dd,\dd) |- (joi.west);
+% \draw[fle] (joi.east) -- (tb2.west);
+% \draw[fle] (tb2.east) -- (on_.west);
+% \draw[fle] (on_.east) -- (equ.west);
+% \draw[drt] (equ.east) -| ($(fl2)+(-\dd,\hv)$) |- (fl2);
+% \draw[gau] (as3.west) -| +(-\dd,\h)  |- +(-2*\dd,2*\h);
+% \draw[fle] (as3.east) -- (nm3.west);
+% \draw[drt] (nm3.east) -| +(\dd,\h)   |- +(2*\dd,2*\h);
+% \draw[fle] (equ.east) -| ($(fl2)+(-\dd,2*\hv+\dd)$) |- ($(fl2)+(-2*\dd,4*\hv)$) -- ($(as3.east)+(0,2*\h+2*\hv)$);
+% \draw[drt] ($(as3.east)+(0,2*\h+2*\hv)$) -- ($(ml2)+(2*\dd,4*\hv)$) -| ($(ml2)+(\dd,2*\hv)$) |- (joi.west);
+% \draw[fle] (ml2) -| +(\dd,-\dd) |- +(2*\dd,-2*\hv) -- ($(fl2)+(-5cm,-2*\hv)$);
+% \draw[drt] ($(fl2)+(-5cm,-2*\hv)$)-- ($(fl2)+(-2*\dd,-2*\hv)$) -| ($(fl2)+(-\dd,-\hv)$) |- (fl2);
+% \draw[fle] (fl2) -| +(\dd,\dd) |- (vgl2.east);
+% \draw[drt] (vgl2.west) -| ($(dl2)+(1.7cm,4*\hv)$) |- (tb1.west);
+% %--------------------------------------------------------------------------
+% %--------------------------------------------------------------------------
+% \coordinate(dl3) at ($(dl2)+(0,-10*\hv)$) {};
+% \coordinate(fl3) at ($(dl3)+(7.5,0)$)    {};
+% \node[mot] (whr) at ($(dl3)+(3,0)$)     {\bf WHERE};
+% \node[var] (cn1) at ($(whr)+(3,0)$)     {\tt condition};
+% \node[mot] (and) at ($(cn1)+(0,4*\hv)$) {\bf AND};
+% \node[mot] (or_) at ($(cn1)+(0,2*\hv)$) {\bf OR};
+% %--------------------------------------------------------------------------
+% \draw[fle] (fl2) -| +(\dd,-\dd) |- ($(dl3)+(8cm,6*\hv)$);
+% \draw[drt] ($(dl3)+(8cm,6*\hv)$) -- ($(dl3)+(0,6*\hv)$) -| +(-\dd,-2*\hv) |- (dl3);
+% \draw[fle] (dl3) -- (whr.west);
+% \draw[fle] (whr.east) -- (cn1.west);
+% \draw[drt] (cn1.east) -- (fl3);
+% \draw[fle] (cn1.east) -| +(2*\dd,\hv) |- (or_.east);
+% \draw[fle] (cn1.east) -| +(2*\dd,\hv) |- (and.east);
+% \draw[drt] (cn1.west) -| +(-2*\dd,\hv) |- (or_.west);
+% \draw[gau] (cn1.west) -| +(-2*\dd,\hv) |- (and.west);
+% %--------------------------------------------------------------------------
+% %--------------------------------------------------------------------------
+% \coordinate(dl4) at ($(dl3)+(0,-9*\hv)$) {};
+% \coordinate(fl4) at ($(dl4)+(15.5,0)$)    {};
+% \node[mot] (grp) at ($(dl4)+(3,0)$)     {\bf GROUP BY};
+% \node[var] (cl2) at ($(grp)+(2.5,0)$)  {\tt colonne};
+% \node[mot] (hvg) at ($(cl2)+(3.5,2*\hv)$)     {\bf HAVING};
+% \node[var] (cn2) at ($(hvg)+(3,0)$)     {\tt condition};
+% \node[mot] (and) at ($(cn2)+(0,4*\hv)$) {\bf AND};
+% \node[mot] (or_) at ($(cn2)+(0,2*\hv)$) {\bf OR};
+% %--------------------------------------------------------------------------
+% \draw[fle] (fl3) -| +(\dd,-\dd) |- ($(dl4)+(4cm,6*\hv)$);
+% \draw[drt] ($(dl4)+(4cm,6*\hv)$) -- ($(dl4)+(0,6*\hv)$) -| +(-\dd,-2*\hv) |- (dl4);
+% \draw[fle] ($(dl3)+(-\dd,\hv)$) -- +(0,-3*\hv);
+% \draw[drt] ($(dl3)+(-\dd,\hv)$) -- +(0,-7*\hv);
+% \draw[fle] (dl4) -- (grp.west);
+% \draw[fle] (grp.east) -- (cl2.west);
+% \draw[fle] (cl2.east) -| +(2*\dd,-\hv) |- +(5cm,-2*\hv);
+% \draw[drt] (fl4) -| +(-\dd,-\hv) |- +(-4.5cm,-2*\hv);
+% \draw[fle] (cl2.east) -| +(2*\dd,\hv) |- (hvg.west);
+% \draw[fle] (hvg.east) -- (cn2.west);
+% %\draw[drt] (cn2.east) -- (fl3);
+% \draw[fle] (cn2.east) -| +(2*\dd,\hv) |- (or_.east);
+% \draw[fle] (cn2.east) -| +(2*\dd,\hv) |- (and.east);
+% \draw[drt] (cn2.west) -| +(-2*\dd,\hv) |- (or_.west);
+% \draw[gau] (cn2.west) -| +(-2*\dd,\hv) |- (and.west);
+% \draw[gau] (fl4) -| +(-\dd,\hv) |- (cn2.east);
+% %--------------------------------------------------------------------------
+% %--------------------------------------------------------------------------
+% \coordinate(dl5) at ($(dl4)+(0,-13*\hv)$) {};
+% \coordinate(fl5) at ($(dl5)+(15.5,0)$)    {};
+% \node[mot] (ord) at ($(dl5)+(1.6,3*\hv)$)   {\bf ORDER BY};
+% \node[var] (cl3) at ($(ord)+(2.2,0)$)       {\tt colonne};
+% \node[mot] (des) at ($(cl3)+(2,-2*\h)$)   {\bf DESC};
+% \node[mot] (lim) at ($(cl3)+(4.4,2*\hv)$)   {\bf LIMIT};
+% \node[var] (nb1) at ($(lim)+(1.7,0)$)       {\tt nombre};
+% \node[mot] (off) at ($(nb1)+(2.2,2*\hv)$)   {\bf OFFSET};
+% \node[var] (nb2) at ($(off)+(1.8,0)$)       {\tt nombre};
+% %--------------------------------------------------------------------------
+% \draw[fle] (fl4) -| +(\dd,-\dd) |- ($(dl5)+(8cm,9*\hv)$);
+% \draw[drt] ($(dl5)+(8cm,9*\hv)$) -- ($(dl5)+(0,9*\hv)$) -| +(-\dd,-2*\hv) |- (dl5);
+% \draw[fle] ($(dl4)+(-\dd,\hv)$) -- +(0,-3*\hv);
+% \draw[drt] ($(dl4)+(-\dd,\hv)$) -- +(0,-7*\hv);
+% \draw[fle] (dl5) -- +(8cm,0);
+% \draw[fle] (dl5) -- (fl5);
+% \draw[gau] (ord.west) -| +(-\dd,-\hv) |- +(-2*\dd,-3*\hv);
+% \draw[fle] (ord.east) -- (cl3.west);
+% \draw[fle] (cl3.east) -- +(7cm,0);
+% \draw[fle] (cl3.east)-| ($(fl5)+(-2*\dd,\hv)$) |- (fl5);
+% \draw[gau] (des.west) -| +(-\dd,\h) |- (cl3.east);
+% \draw[drt] (des.east) -| +(\dd,\h) |- +(2*\dd,2*\h);
+% \draw[gau] (lim.west) -| +(-\dd,-\hv) |- (cl3.east);
+% \draw[fle] (lim.east) -- (nb1.west);
+% \draw[drt] (nb1.east) -| ($(fl5)+(-2*\dd,3*\hv)$) |- (fl5);;
+% \draw[gau] (off.west) -| +(-\dd,-\hv) |- (nb1.east);
+% \draw[fle] (off.east) -- (nb2.west);
+% \draw[drt] (nb2.east) -| ($(fl5)+(-2*\dd,5*\hv)$) |- (fl5);;
+% %--------------------------------------------------------------------------
+% %--------------------------------------------------------------------------
+% \coordinate(dl6) at ($(dl5)+(0,-4*\hv)$) {};
+% \node[mot] (uni) at ($(dl6)+(3,0)$)   {\bf UNION};
+% \node[mot] (int) at ($(uni)+(0,2*\hv)$)   {\bf INTERSECTION};
+% \node[mot] (dif) at ($(uni)+(0,-2*\hv)$)   {\bf EXCEPT};
+% %--------------------------------------------------------------------------
+% \draw[fle] ($(dl5)+(-\dd,\hv)$) |- (uni.west);
+% \draw[fle] ($(uni.west)+(-15mm,0)$) -| +(\dd,\dd) |- (int.west);
+% \draw[fle] ($(uni.west)+(-15mm,0)$) -| +(\dd,-\dd) |- (dif.west);
+% \draw[gau] ($(uni.east)+(15mm,0)$) -| +(-\dd,\dd) |- (int.east);
+% \draw[drt] ($(uni.east)+(15mm,0)$) -| +(-\dd,-\dd) |- (dif.east);
+% \draw[fle] (uni.east) -| +(15mm+\dd,-\dd) |- ($(dl5)+(0,-8*\hv)$) -| ($(dl4)+(-3*\dd,0)$);
+% \draw[drt] ($(dl4)+(-3*\dd,0)$) |- (dl1);
+% \endtikzpicture
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\section{Complément : championnat de France}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+{\it Nous allons travailler avec une base de données qui recense les renseignements sur les matchs de division 1 d'une année.
+La base ne contient qu'une table, nommée \type{statFoot}.
+
+\medskip
+
+En voici quelques lignes, la saison est 2018-2019
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+\hline
+jour       &equDom        &equExt    &butsDom &butsExt \\%&buts1D &buts1E\\
+\hline
+10/08/2018 & Marseille    & Toulouse & 4 & 0\\
+11/08/2018 & Angers       & Nimes    & 3 & 4\\
+11/08/2018 & Lille        & Rennes   & 3 & 1\\
+11/08/2018 & Montpellier  & Dijon    & 1 & 2\\
+11/08/2018 & Nantes       & Monaco   & 1 & 3\\
+\end{tabular}
+\end{center}
+Il y a 20 équipes ; chaque équipe reçoit toutes les autres une fois et une seule.
+
+\begin{itemize}
+\item \type{jour} est la date du match, sous forme d'une chaîne de caractères.
+\item Les autres attributs vont par paire : le suffixe \type{Dom} indique que l'attribut concerne l'équipe qui joue à domicile, le suffixe \type{Ext} indique que l'attribut concerne l'équipe qui joue à l'extérieur.
+\item \type{equDom} ou \type{equExt} indique le nom de l'équipe, sous forme d'une chaîne de caractères.
+\item \type{butsDom} ou \type{butsExt} indique le nombre de buts marqués pendant le match.
+\end{itemize}
+
+Un match nul vaut 1 point, un match gagné vaut 3 points.
+}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+Écrire une requête qui permet de connaître le nombre de matchs gagnés par chaque équipe, le nombre de matchs nuls et le total des points de l'année. 
+
+N.B. Bien que la base ne contienne qu'une table, la requête peut faire intervenir des jointures.
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select d.club, (d.victoiresDom + e.victoiresExt) as victoires,
+       n.nuls, 
+       (38 - n. nuls - d.victoiresDom - e.victoiresExt) as Défaites, 
+       (3*(d.victoiresDom + e.victoiresExt) + n.nuls) as points
+from (select equDom as club, count() as victoiresDom
+      from stat 
+      where butsDom > butsExt group by equDom) as d
+	 join
+	 (select equExt as club, count() as victoiresExt
+      from stat 
+      where butsDom < butsExt group by equExt) as e
+	 join
+	 (select equDom as club, count() as nuls
+      from stat 
+      where butsDom = butsExt group by equDom) as n
+	 on e.club = d.club and e.club = n.club
+order by points desc
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\newpage
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+

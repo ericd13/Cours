@@ -1,0 +1,44 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+% Chargement des macros et des packages
+\input{definitions}
+\usepackage[french]{algorithm2e}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------- 
+% Personnalisations générales
+%-------------------------------------------------------------------------------
+% Indication du type de document
+\def\titre{Devoirs d'informatique}
+% Pour changer le nom des composantes :
+% La syntaxe est compliquée car on a chargé babel
+\addto\captionsfrench{\renewcommand{\chaptername}{DS}}
+% pagination par chapitre
+\usepackage{chappg}
+%-------------------------------------------------------------------------------
+% Classe(s) concernée(s)
+\def\classe{MP2\&MP3}
+%-------------------------------------------------------------------------------
+% Année
+\def\annee{2020-21}  
+%-------------------------------------------------------------------------------
+% Où trouver les images
+\graphicspath{{./Images/}}
+%-------------------------------------------------------------------------------
+% Commande pour les solutions des exercices
+% Si une composante n'a pas de solution, on l'inclut avec \chapitre
+% Sinon on l'inclut avec \chapitreSol
+% Si on veut les solution on l'indique par \reponsestrue
+% Sinon on l'indique par \reponsefalse
+\reponsestrue
+%-------------------------------------------------------------------------- 
+\begin{document}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\premierePage
+\tableofcontents
+\chapitreSol{MP_01_Binomiaux}
+\chapitreSol{MP_02_Mines_2020}
+\chapitreSol{MP_03_Cen_2018}
+\chapitre{MP_04_Cen_2017_cor}
+
+\end{document}

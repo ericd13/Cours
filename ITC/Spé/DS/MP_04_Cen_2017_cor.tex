@@ -1,0 +1,425 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Centrale 2017}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Création d'une exploration et gestion des points d'intérêt}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Génération d'une exploration d'essai}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsubsection{Choix de points au hasard}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {{\bf I.A.1)} a)}]
+On choisit des points au hasard mais ils ne doivent pas avoir déjà été choisis.
+Le formulaire permet d'utiliser \type{c in liste} pour tester l'appartenance d'un élément à une liste ; si les points ne sont pas dans la liste des points déjà choisis, on les ajoute et on incrémente le compteur de points. Il ne faut pas oublier de convertir en tableau \type{numpy} à la fin.
+
+Un tableau \type{numpy} ne peut pas être défini à l'aide d'ajouts (\type{append}) or on ne sait pas combien il y aura d'éléments. On définit donc une liste python que l'on convertit lors du retour de la fonction.
+
+\begin{lstlisting}
+def generer_PI(n, cmax):
+    points = []
+    nb_points = 0
+    while nb_points < n:
+        x = random.randrange(0, cmax)
+        y = random.randrange(0, cmax)
+        if [x, y] not in points:
+            points.append([x, y])
+            nb_points += 1 
+    return np.array(points, dtype = int)
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {{\bf I.A.1)} b)}]
+On choisit $n$ points parmi $\type{cmax}^2$ points possibles donc on doit avoir $n \le cmax^2$.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\subsubsection{Calcul des distances}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf I.A.2)}]
+Il est utile de définir la distance entre deux points.
+\begin{lstlisting}
+def distance(P1, P2):
+    x1, y1 = P1
+    x2, y2 = P2
+    return ((x1-x2)**2 + (y1-y2)**2)**0.5
+\end{lstlisting}
+On ne doit pas oublier d'ajouter la distance à l'origine du robot.
+\begin{lstlisting}
+def calculer_distances(PI):
+    n = len(PI)    
+    points = np.zeros((n+1, 2), dtype = int)
+    for i in range(n):
+        points[i] = PI[i]
+    x, y = position_robot()
+    points[n, 0] = x
+    points[n, 1] = y
+    d = np.zeros((n+1, n+1)) 
+    for i in range(n+1):    
+        for j in range(n+1):
+            d[i, j] = distance(points[i], points[j])   
+    return d
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Traitement d'image}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsubsection{Analyse d'une image}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf I.B.1)}]
+Cette fonction parcourt tous les pixels de l'image et incrémente un tableau de compteurs à chaque intensité rencontrée.
+
+Elle renvoie donc un tableau contenant le nombre de pixel de chaque intensité rencontrée  : 
+
+\type{h[k]} contient le nombre de pixels d'intensité $k + n$ où $n$ est l'intensité minimale.
+
+{\it Je ne comprends pas comment on peut utiliser ce tableau : on ne sait pas à quelles intensités correspondent les valeurs.}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsubsection{Sélection de points d'intérêts}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf I.B.2)}]
+\begin{lstlisting}
+def selectionner_PI(photo, imin, imax):
+    longueur, hauteur = photo.shape
+    L = []
+    for x in range(longueur):
+        for y in range(hauteur):
+            if imin <= photo[x, y] <= imax:
+                L.append([x, y])
+    return np.array(L)
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Base de données}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf I.C.1)}]
+\begin{lstlisting}[language=sql]
+select EX_NUM 
+from EXPLO 
+where EX_DEB is not null and EX_FIN is null
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf I.C.2)}]
+Par exemple pour le numéro 42
+\begin{lstlisting}[language=sql]
+select PI_NUM, PI_X, PI_Y
+from PI 
+where EX_NUM = 42;
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf I.C.3)}]
+\begin{lstlisting}[language=sql]
+select p.EX_NUM, (max(p.PI_X) - min(p.PI_X)) * (max(p.PI_Y) - min(p.PI_Y))/1000000.0
+from PI as p join EXPLO as e on p.EX_NUM = e.EX_NUM
+where e.EX_DEB is not null and e.EX_FIN is not null
+group by p.EX_NUM
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf I.C.4)}]
+On ne peut pas répondre à cette question car on ne sait pas comment sont codés les entiers dans le SGBD \dots On suppose que les entiers sont codés sur 64 bits, il valent donc au plus $2^{63} - 1$ donc la surface maximale sera $\bigl(2^{63}-1\bigr)^2\cdot10^{-6}$ m$^2$ soit environ $6.10^{25}$ km$^2$, ce n'est pas vraiment une limite.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf I.C.5)}]
+\begin{lstlisting}[language=sql]
+select i.IN_NUM, COUNT(*), SUM(it_dur)
+from INTYP as i join ANALY as a on i.TY_NUM = a.TY_NUM
+                join EXPLO as e on a.EX_NUM = e.EX_NUM 
+where e.EX_DEB is not null and e.EX_FIN is null
+group by i.IN_NUM
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Planification d'une exploration : première approche}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Quelques fonctions utilitaires}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsubsection{Longueur d'un chemin}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf I.C.5)}]
+Pour calculer la longueur d'un chemin, on commence par la distance entre le point courant et le premier point puis on ajoute les distances entre les points consécutifs.
+\begin{lstlisting}
+def longueur_chemin(chemin, d):
+    n = len(chemin) # d est de taille (n+1)x(n+1)
+    longueur = d(n, chemin[0])
+    for k in range(n-1):
+        longueur += d[chemin[k], chemin[k+1]]
+    return longueur
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\subsubsection{Normalisation d'un chemin}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf I.C.5)}]
+On utilise une liste qui repère les sommets déjà vus. On lis les points du chemin et on ajoute ceux qui n'ont pas encore été vus et on les marque comme vus. On ajoute ensuite tous les points non vus.
+\begin{lstlisting}
+def normaliser_chemin(chemin, n):
+    vus = [False]*n 
+    normal = []
+    for i in chemin:
+        if 0 < i < n and not vus[i]:
+            normal.append(i)
+            vus[i] = True
+    for j in range(n):
+        if not vus[j]:
+            normal.append(j)
+    return normal
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Force brute} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf II.B.1)}]
+Le nombre de chemins est le nombre de permutations des $n$ points d'intérêts, il y en a donc $n!$.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf II.B.2)}]
+On a $20!\approx 2\cdot10^{18}$ si on imagine pouvoir traiter un chemin en  $10^{-6}$ seconde, il faudrait plus de 100 000 ans pour tester tous les chemins.
+Ce n'est pas praticable.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Algorithme du plus proche voisin} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf II.C.1)}]
+Comme dans la normalisation, on utilise une liste pour repérer les sommets déjà utilisés.
+
+On rappelle que le point de départ correspond au dernier indice dans la matrice des distances et qu'il n'est pas un point d'intérêt.
+\begin{lstlisting}
+def plus_proche_voisin(d):
+    n = len(d)
+    vus = [False]*n
+    maxi = d.max() + 1 # Supérieure à toutes les distances
+    vus[n-1] = True # Le point de départ est vu 
+    chemin = [0]*(n-1) # (n-1) n'est pas dans le chemin
+    i0 = n-1 # on cherche le plus proche à partir de i0
+    for i in range(n-1):        
+        d_min = maxi # On initialise la distance
+        # On cherche  la plus petite distance
+        for k = 0 to (n-1): # parmi les points non vus
+            if not vus[k] and d[i0, k] < d_min:
+                d_min = d[i0, k]
+                j0 = k
+        # j0 est le bon candidat
+        vus[j0] = True
+        chemin[i] = j0
+        i0 = j0 # il devient le point de départ
+    return chemin
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf II.C.2)}]
+Le calcul de maxi est linéaire en la taille de la matrice  : $n^2$.
+
+On effectue ensuite une double boucle avec des instructions élémentaires donc la complexité de ces boucles est un ${\cal O}\bigl(n^2\bigr)$.
+
+La complexité totale est aussi un ${\cal O}\bigl(n^2\bigr)$.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf II.C.3)}]
+Avec les points de coordonnées $A=(0, 0)$, $B=(0, 3000)$ et $C=(0, 7000)$, si le robot se trouve initialement en $P=(0, 2000)$, il va aller en d'abord en $B$ puis en $A$ puis en $C$ et parcourir $1+3+7=11$ mètres alors que le chemin $PABC$ de longueur $2+3+4=9$ mètres est plus court.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section[génétique]{Deuxième approche : algorithme génétique}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+On aura plusieurs fois besoin de la liste des $p$ premiers entiers de 0 à $p-1$.
+
+On peut la créer par des raccourcis syntactiques :
+\begin{lstlisting}
+[k for k in range(p)] ou list(range(p))
+\end{lstlisting}
+Voici une fonction plus universelle, qui sera utilisée
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def init(p):
+    l = [0]*p
+    for i in range(p):
+        l[i] = i
+    return l
+\end{lstlisting}
+\subsection{Initialisation et évaluation}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf III.A}]
+\begin{lstlisting}
+def creer_population(m, d):
+    n = len(d) - 1
+    population = [0]*m
+    points0 = init(n-1)
+    for i in range(m):
+        chem = random.sample(points0, n-1)
+        long = longueur_chemin(chem, d)
+        population[i] = (long, chem))
+    return population
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Sélection}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf III.B}]
+\begin{lstlisting}
+def reduire(p):
+    m = len(p)
+    p.sort()
+    for i in range(m//2):
+        p.pop()
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\subsection{Mutation}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf III.C.1)}]
+\begin{lstlisting}
+def muter_chemin(c):
+    n = len(c)
+    i, j = random.sample(init(n), 2)
+    temp = c[i]
+    c[i] = c[j]
+    c[j] = temp
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf III.C.2)}]
+\begin{lstlisting}
+def muter_population(p, proba, d):
+    m = len(p)
+    for i in range(m):
+        if random.random() <= proba:
+            long, chem = p[i]
+            muter_chemin(chem)
+            long = longueur_chemin(chem, d)
+            p[i] = (long, chem)
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Croisement}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf III.D.1)}]
+On doit normaliser car les deux parties peuvent avoir des sommets en commun.
+\begin{lstlisting}
+def croiser(c1, c2):
+    n = len(c1)
+    gauche = c1[ : n//2]
+    droit = c2[n//2 : n]
+    return normaliser_chemin(gauche+droit, n)
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf III.D.2)}]
+\begin{lstlisting}
+def nouvelle_generation(p, d):
+    m = len(p)
+    for i in range(m):
+        l1, c1 = p[i]
+        if i == (m-1):
+            l2, c2 = p[0]
+        else:
+            l2, c2 = p[i + 1]
+        chem = croiser(c1, c2)
+        long = longueur_chemin(chem, d)
+        p.append((long, chem))
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\subsection{Algorithme complet}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf III.E.1)}]
+\begin{lstlisting}
+def algo_genetique(PI, m, proba, g):
+    d = calculer_distances(PI)
+    p = creer_population(m, d)
+    for k in range(g): 
+	    reduire(p)
+	    nouvelle_generation(p, d)
+	    muter_population(p, proba, d)
+	indice_min = 0
+    for i in range(1, len(p)):
+        if p[i][0] < p[indice_min][0]:
+            indice_min = i
+    return p[indice_min]
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf III.E.2)}]
+Le résultat peut se dégrader car on peut muter un individu réalisant le minimum à un instant donné. Pour éviter ce problème, on peut décider de ne pas muter un individu réalisant le minimum (ce qui oblige à le calculer à chaque itération), ou bien de ne muter un individu que si le mutant est meilleur que l'individu lui-même.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {\bf III.E.3)}]
+On peut décider de s'arrêter lorsque :
+\begin{itemize}
+\item On a calculé un certain nombre de générations, c'est ce qui est proposé ici. 
+
+Avantage : simplicité de la condition d'arrêt. 
+
+Inconvénient : on a aucune idée sur la précision du résultat.
+
+\item On a calculé un certain nombre de générations, mais on a gardé le minimum de toutes les générations. On a juste une légère amélioration du critère précédent. 
+
+\item Le meilleur chemin évolue peu sur plusieurs générations. 
+
+Avantage : facilité de l'écriture. 
+
+Inconvénients : on peut attendre longtemps, possibilité de minimum local. 
+\end{itemize}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------

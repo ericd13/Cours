@@ -1,0 +1,921 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Analyse des algorithmes}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+
+{\it Tester un programme peut montrer que des bogues sont
+présents, mais jamais montrer leur absence.} 
+
+\hfill E.W. Dijkstra
+
+\medskip
+%-------------------------------------------------------------------------------
+\begin{abstract}
+    Dans ce chapitre nous allons rappeler la notion de complexité et compléter l'analyse des algorithmes en introduisant l'étude de leur {\bf terminaison} et de leur {\bf preuve}. 
+\end{abstract}
+
+\medskip
+
+L'analyse d'un programme se fait en trois étapes.
+%-------------------------------------------------------------------------------
+\begin{description}
+\item[Le programme fournit-il un résultat ?]
+
+On emploie aussi le verbe {\bf terminer} sous une forme intransitive et on parle de terminaison.
+Ce qui est en jeu est que l'on doit sortir des boucles.
+
+\item[Le programme fournit-il le bon résultat ?]
+
+Il existe des outils théoriques (la logique de Hoare) qui permettent une formalisation de l'analyse de ce problème. Nous allons indiquer quelques pistes.
+
+\item[Le programme fournit-il le bon résultat dans un temps raisonnable ?]
+
+On va choisir des indicateurs de la mesure du temps qui permettent d'évaluer le temps pris pour le traitement des données en fonction de leur taille.
+\end{description}
+%-------------------------------------------------------------------------------
+Nous avons rencontré jusqu'à présent des programmes suffisamment simples pour que ces questions puissent sembler avoir une réponse évidente mais ce n'est pas toujours le cas. 
+
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Une étude de cas}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+On suppose donnée une liste de nombres qui peuvent être positifs ou négatifs.
+
+Le but est trouver la somme de termes consécutifs maximale, on nommera {\bf tranche} une suite de termes consécutifs, cela correspond à une extraction \type{liste[i:j]} de la liste originale.
+
+Par exemple si la liste est \type{var = [-2, 2, -1, 3, -4, 1]} la somme maximale est $4 = 2 -1 +3$ obtenue en sommant les termes d'indices 1 à 3. En notation Python c'est la somme de la liste extraite \type{var[1:4]}.
+
+On prendra la convention que la somme des termes d'une liste vide est nulle : ainsi une des somme possibles est 0, correspondant à la tranche vide, le maximum sera positif (ou nul). Lors de la recherche du maximum, on pourra donc initialiser le maximum à 0 et chercher à améliorer ce maximum en considérant toutes les tranches non vides.
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\subsection{Première fonction}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+La première idée est de suivre les indications ci-dessus.
+
+On écrit une fonction de somme des termes d'une liste puis on calcule toutes les sommes partielles de la liste pour en déterminer le maximum.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}[numbers = left]
+def somme_tranche(liste,debut,fin):
+    """Entrée : une liste de nombres et 2 indices
+       Sortie : la somme des termes entre les deux indices,
+                les bornes sont comprises."""
+    somme = 0
+    for i in range(debut,fin+1): 
+        somme = somme + liste[i]
+    return somme
+    
+def trancje_max1(liste):
+    """Entrée : une liste de nombres
+       Sortie : la somme maximale de termes consécutifs."""
+    n = len(liste)
+    maxi = 0
+    for i in range(n):
+        for j in range(i,n):
+            calcul = somme_tranche(liste,i,j)
+            if calcul > maxi: 
+                maxi = calcul
+    return maxi
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+\begin{itemize}
+\item À la ligne 5 on doit délimiter par \type{fin + 1} pour s'arrêter à \type{fin}.
+\item Comme le cas d'une liste vide a été pris en compte avec \type{maxi = 0} on ne fera les calculs que pour $0 \le i \le j \le n-1$ ce qui explique les lignes 14 et 15.
+\end{itemize}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Mesurer le temps}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Pour mesurer la complexité de l'algorithme, une idée naturelle est de mesurer le temps pris par l'exécution de l'algorithme. 
+\begin{itemize}
+    \item La mesure du temps peut être faite par la fonction \type{time()} du module \type{time}.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+from time import time
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+\type{time()} renvoie un nombre flottant qui donne, en secondes, le temps écoulé depuis une origine arbitraire {\it epoch} : pour les machines sous {\tt Linux} c'est le 1er janvier 1970 à 00:00:00.
+
+On pourra afficher le temps d'exécution en secondes.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+init = time()
+# calculs
+fin = time()
+print(fin - début)
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+
+\item On a besoin de listes de taille fixée sur lesquelles faire tourner la fonction.
+
+On peut créer des listes simples, \type{[1]*n}, pour lesquelles on connait la somme maximale de tranche ($n$) ou on peut créer des listes aléatoires à l'aide de fonctions du module \type{random}.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+import random as rd
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Par exemple la fonction \type{randint(a, b)} renvoie un entier choisi au hasard avec une probabilité uniforme dans $\{a, a+1, \ldots, b-1, b\}$.
+On définit alors une fonction qui crée une liste de taille donnée formée d'entiers aléatoires entre deux bornes.
+
+\newpage
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def liste_alea(taille, mini, maxi):
+    l = [0]*taille
+    for i in range(taille):
+        l[i] = rd.randint(mini, maxi)
+    return l
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+\item On obtient les valeurs suivantes (arrondies) pour des tailles qui doublent à chaque étape.
+
+\begin{center}
+\begin{tabular}{c|cccccccc}
+$n$              & 10          &  20       & 40          & 80          & 160         & 320    & 640 & 1280 \\
+temps (secondes) & $3.10^{-5}$ & $10^{-4}$ & $8.10^{-4}$ & $5.10^{-3}$ & $4.10^{-2}$ & $0,25$ & $2$ & $18$ \\
+\end{tabular}
+\end{center}
+
+\end{itemize}
+On remarque que le temps n'est pas proportionnel à la taille.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Comment prédire l'augmentation du temps ?}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Prévoir le temps exact n'est pas possible, cela va dépendre de beaucoup de critères indépendant de l'algorithme écrit : la vitesse du processeur, les autres activités de l'ordinateur, le langage utilisé, \dots
+
+On va se contenter d'estimer l'accroissement du temps quand la taille des données d'entrée augmente.
+
+\begin{center}
+{\bf Que se passe-t-il si on double la taille des données ?}
+\end{center}
+
+Dans l'exemple ci-dessus, les rapports entre les temps calculs pour $2n$ et pour $n$ donnent, 
+\[\begin{tabular}{ccccccc}
+4,1 & 5,7 & 6,2 & 7,5 & 7,5 & 8,3 & 7,9
+\end{tabular}\]
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Que mesure-t-on ?}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+On peut compter le temps utilisé en nombre de cycles du processeur.
+
+Cependant il est souvent difficile de comprendre ce qui se passe  à un niveau aussi bas d'instructions. Voici, par exemple le code correspondant à la fonction \type{somme\_tranche}
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+      0 LOAD_CONST               1 (0)
+      2 STORE_FAST               3 (s)
+
+      4 LOAD_GLOBAL              0 (range)
+      6 LOAD_FAST                1 (i_min)
+      8 LOAD_FAST                2 (i_max)
+     10 LOAD_CONST               2 (1)
+     12 BINARY_ADD
+     14 CALL_FUNCTION            2
+     16 GET_ITER
+>>   18 FOR_ITER                16 (to 36)
+     20 STORE_FAST               4 (i)
+
+     22 LOAD_FAST                3 (s)
+     24 LOAD_FAST                0 (liste)
+     26 LOAD_FAST                4 (i)
+     28 BINARY_SUBSCR
+     30 BINARY_ADD
+     32 STORE_FAST               3 (s)
+     34 JUMP_ABSOLUTE           18
+
+>>   36 LOAD_FAST                3 (s)
+     38 RETURN_VALUE
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+On pourrait compter le nombre d'instruction sans chercher à les comprendre mais il y a des sauts (marqués par \type{>>}) dont il est nécessaire de savoir combien de fois ils adviennent.
+
+\medskip
+
+
+On compte plutôt le nombre d'opérations "élémentaires" dans le langage choisi. Ce sont
+\begin{enumerate}
+\item les affectations,
+\item les opérations arithmétiques, sommes, produits, quotients, \dots
+\item les comparaisons,
+\item etc
+\end{enumerate}
+
+\medskip
+
+Le plus souvent  cela sera souvent inutilement compliqué ; on choisit une instruction élémentaire signifiante et on compte le nombre d'exécution de cette instruction. Dans notre exemple nous allons compter le nombre d'additions. On choisit avec soin le type d'instruction afin que le temps de calcul soit, grossièrement, proportionnel au nombre de ces instructions.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Quel résultat est souhaité ?}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Ce nombre d'instructions sera évalué en fonction d'une mesure de la taille des données d'entrée. Ce peut être
+
+\begin{enumerate}
+\item la valeur d'une variable entière,
+\item le nombre d'éléments des listes, tableaux, fichiers,
+\item la longueur d'un mot,
+\item le degré d'un polynôme,
+\item le nombre de lignes (ou de colonnes ou leur produit) dans le cas d'une matrice,
+\item le nombre de bit dans sa représentation en base 2 d'une variable entière,
+\item etc
+\end{enumerate}
+
+On aboutit à une fonction de complexité dont la variable est cette mesure\footnote{Parfois l'entrée sera caractérisée par plusieurs mesures (lorsqu'il y a plusieurs listes en paramètres, dans le cas d'une matrice, \dots).}.
+
+\medskip
+
+Cependant la complexité peut varier selon les différentes entrées possible d'une même taille. Nous choisirons souvent de calculer la complexité maximale\footnote{Mais on peut aussi déterminer la complexité en moyenne.}.
+
+On cherche donc une fonction $C(n)$ telle que, pour toutes les données d'entrée de taille $n$, le nombre d'instruction effectuées est majoré par $C(n)$.
+
+\medskip
+
+Même cette fonction $C(n)$ est en général inutilement précise : on rappelle que ce qui nous intéresse est l'évolution avec la taille $n$. L'indication que nous allons garder est la recherche d'un ${\cal O}\bigl(g(n)\bigr)$ où $g$ est une fonction "simple"
+
+$C(n) = {\mathcal O}\bigl(g(n)\bigr)$ signifie qu'il existe une constante $K$ telle que $C(n) \le K g(n)$ pour tout $n$ (ou pour tout $n \ge n_0$).
+\begin{enumerate}
+\item On parle de complexité linéaire quand la complexité est un  ${\mathcal O}(n)$,
+
+\item On parle de complexité quadratique quand elle est un  ${\mathcal O}(n^2)$,
+
+\item On parle de complexité polynomiale quand elle est un  ${\mathcal O}(n^p)$,
+
+\item On parle de complexité quasi-constante quand elle est un  ${\mathcal O}\bigl(\log_2(n)\bigr)$,
+
+\item On parle de complexité quasi-linéaire quand elle est un  ${\mathcal O}\bigl(n\log_2(n)\bigr)$.
+
+\item On parle de complexité exponentielle quand elle est un  ${\mathcal O}(a^n)$,
+\end{enumerate}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Complexité de \type{tranche\_max1}}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+La fonction \type{somme\_tranche} effectue \type{fin + 1 - debut} additions.
+
+Le nombre d'additions effectuées pour une liste de taille $n$ dans \type{tranche\_max1} est donc, en posant $k = j + 1 - i$ puis $p = n-i$,
+
+\begin{align*}
+ C_1(n) 
+ &
+= \sum_{i=0}^{n-1} \sum_{j=i}^{n-1} (j+1-i)
+= \sum_{i=0}^{n-1} \sum_{k=1}^{n-i} k
+= \sum_{i=0}^{n-1} \frac{(n-i)(n-i+1)}2
+\\ &
+= \sum_{p=1}^{n} \frac{p(p+1)}2
+= \frac 12\sum_{p=1}^{n} p^2+\frac 12\sum_{p=1}^{n} p
+%=\frac{n(n+1)(2n+1)}{12}+\frac{n(n+1)}{4}
+%\\ &
+=\frac{n^3+3n^2+2n}{12}={\mathcal O}(n^3)
+\end{align*}
+
+L'accroissement du temps de calcul lorsque l'on multiplie la taille de la liste par 2 est donc un facteur 8, ce que l'on a constaté pour les grandes valeurs de $n$, pour les plus petites valeurs de $n$ les termes de degré moindre ne sont pas négligeables.
+
+%-------------------------------------------------------------------------------
+\section{Aller plus vite}
+%-------------------------------------------------------------------------------
+L'algorithme précédent est peu efficace. Il ne faut pas pour autant le rejeter comme inutile.
+
+Lors de la résolution d'un problème, on applique le principe :
+
+\begin{center}\bf
+D'abord écrire un programme qui fonctionne,
+
+Ensuite écrire un programme qui fonctionne rapidement.
+\end{center}
+
+Pour améliorer le temps de calcul, on peut remarquer que lorsque l'on calcule la somme des termes d'indices 0 à 3 on recommence à calculer la somme des termes d'indices 0 à 2.
+
+Une des règles de bases de l'informatique est de ne jamais répéter deux fois les mêmes instructions : il y a sans doute moyen d'améliorer la complexité.
+
+Il suffit de calculer les sommes dont le premier indice est $i$ en ajoutant simplement le dernier terme à chaque étape et en comparant avec le maximum provisoire.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def tranche_max2(liste):
+    """Entrée : une liste de nombres
+       Sortie : la somme maximale de termes consécutifs."""
+    n = len(liste)
+    maxi = 0
+    for i in range(n):
+        calcul = 0
+        for j in range(i,n):
+            calcul = calcul + liste[j]
+            if calcul > maxi: 
+                maxi = calcul
+    return maxi
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+
+Il faut penser à initialiser la somme partielle pour chaque $i$.
+
+\medskip
+
+{\bf Temps de calcul } : voici les temps mesurés
+
+\begin{center}
+\begin{tabular}{c|cccccccc}
+$n$              & 10           &  20          & 40           & 80           & 160          & 320          & 640          & 1280 \\
+temps (secondes) & $8.10^{-06}$ & $2.10^{-05}$ & $7.10^{-05}$ & $2.10^{-04}$ & $9.10^{-04}$ & $4.10^{-03}$ & $2.10^{-02}$ & $6.10^{-02}$\\
+rapport          &              & $2,2$        & $3,5$        & $3,2$    ;   & $4,0$        & $4,6$        & $4,3$        & $3,8$       \\
+\end{tabular}
+\end{center}
+
+\medskip
+
+{\bf Complexité} : le programme principal a la même structure mais on ne fait pas appel à une fonction externe : dans la boucle d'indice $j$ on ne fait qu'une addition.
+
+\begin{align*}
+ C_2(n) 
+ &
+= \sum_{i=0}^{n-1} \sum_{j=i}^{n-1} 1
+= \sum_{i=0}^{n-1} (n-1-i+1) %\hbox{, on pose }p=n-i
+%\cr &
+= \sum_{p=1}^{n} p
+=\frac{n^2+n}{2}={\mathcal O}(n^2)
+\end{align*}
+On aboutit donc à une complexité quadratique qui explique la multiplication par 4 des temps de calcul.
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\section{Encore mieux}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Il semble difficile de faire mieux que la complexité quadratique ci-dessus. En effet il y a $\frac{n(n+1)}2$ sommes partielles dont il faut déterminer le maximum. Pour pouvoir diminuer la complexité il faudra ne pas calculer un grand nombre de sommes. Mais cela est en fait possible.
+
+\medskip
+
+On s'intéresse à la tranche maximale de la liste des $i$ premier termes pour chaque $i\in\{0,1,\ldots, n\}$, $n$ étant la longueur de la liste ; on la note MaxiProv(i) (pour maximum provisoire). Nous allons calculer cette tranche maximale de proche en proche.
+
+\[\type{MaxiProv(i)}= \max\left\{ \sum_{k=p}^{q-1} \type{liste[k]}\ ;\ 0 \le p \le q \le i\right\}\]
+
+On doit pouvoir choisir $p = q$ pour obtenir une somme sans indice donc nulle
+
+\begin{itemize}
+\item \type{MaxiProv(0)} vaut 0 : c'est la seule somme possible avec 0 termes.
+
+\item Comme toute tranche des $i-1$ premiers termes est aussi une tranche des $i$ premiers termes on a la croissance des maximums provisoires : \type{MaxiProv(i) <= MaxiProv(i+1)}.
+
+\item Quand on a \type{MaxiProv(i) < MaxiProv(i+1)} c'est qu'on a trouvé une tranche plus grande en ajoutant le terme d'indice \type{i} : cette tranche doit donc contenir \type{i}. C'est une tranche terminale, somme des $j$ derniers termes ($j \le i+1$).
+
+\item On est conduit à calculer, pour chaque $i$, la tranche terminale maximale 
+
+\[\type{ MaxiTerm(i)}= \max\left\{ \sum_{k=p}^{i-1} \type{liste[k]}\ ;\ 0 \le p \le i\right\}\]
+
+\item On a donc \type{MaxiProv(i+1) = max(MaxiProv(i), MaxiTerm(i+1))}
+
+\item Il reste à calculer \type{MaxiTerm(i+1)}, on va l'exprmier en fonction de \type{MaxiTerm(i)}.
+
+On a envie de calculer \type{MaxiTerm(i+1) = MaxiTerm(i) + liste[i]}. Cependant il y a un cas particulier. En effet \type{MaxiTerm(i)} est supérieur à toute somme finissante en $i-1$ donc \type{MaxiTerm(i) + liste[i]} est supérieur à toute somme finissante en $i$ {\bf qui contient \type{liste[i]}}. Il reste à considérer la somme des 0 derniers termes qui est aussi une somme finissante. On aboutit à la formule \type{MaxiTerm(i+1) = max(MaxiTerm(i) + liste[i], 0)}.
+\end{itemize}
+On peut donc écrire l'algorithme 
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def sommeMax(liste):
+    """Entrée : une liste de nombres
+       Sortie : la somme maximale de termes consécutifs."""
+    n = len(liste)
+    maxiProv = 0 # Initialisation pour i = 0
+    maxiTerm = 0     # Initialisation pour i = 0
+    for i in range(n): # On passe de i à i+1
+        maxiTerm = max(maxiTerm + liste[i], 0)
+        maxiProv = max(maxiProv, maxiTerm)
+    return maxiProv
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+La complexité est alors immédiate : on effectue un nombre fini d'instructions dans la boucle (1 additions, 2 comparaisons, 2 affectations) donc la complexité est un ${\mathcal O}(n)$.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\section{Autres analyses}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Nous allons illustrer les autres composantes de l'analyse par la décomposition en base 2.
+
+C'est l'exercice 10 du TP de révisions.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def base10To2(n):
+    nb = n
+    liste = []
+    while nb > 0:
+        liste.append(nb%2)
+        nb = nb//2
+    return liste
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Terminaison}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+{\bf Le programme fournit-il un résultat ?}
+
+Une réponse simple serait "{\it on le lance et on voit bien s'il s'arrête}"
+
+Cependant il se peut que le programme boucle indéfiniment pour certaines valeurs, pas toutes. Il arrive aussi que le temps de calcul soit plus long que le temps d'attente supportable. 
+
+La question revient à se demander si le nombre d'instruction est borné : parfois l'étude de la terminaison se fait en parallèle de l'étude de la complexité.
+
+Cependant on pourra aussi prouver la terminaison directement et ainsi utiliser l'existence d'un résultat dans la suite.
+
+Il faut donc essayer de prouver la terminaison par une étude a-priori.
+
+Un programme python est composé d'instructions élémentaires qui sont des appels à d'autres fonctions et d'instructions conditionnelles simples (\type{if}) ou de répétitions (\type{for} et \type{while}). 
+
+Les boucles \type{for} en Python ne font qu'un nombre fini et fixé à l'avance d'opérations.
+
+Ainsi la répétition sans fin peut se produire dans les cas suivants.
+%-------------------------------------------------------------------------------
+\begin{itemize}
+\item Lors d'un appel à une fonction il se peut que celle-ci ne termine pas. C'est un problème rencontré lorsqu'une fonction s'appelle elle-même : c'est la récursivité que nous étudierons plus tard.
+\item Dans une boucle \type{while} il se peut que la condition qui déclenche l'exécution de la boucle soit toujours vérifiée : un exemple caricatural est le cas d'une instruction \type{while True}.
+\end{itemize}
+%-------------------------------------------------------------------------------
+Pour prouver qu'un programme comportant une boucle \type{while} termine il faut donc prouver que la condition testée dans la ligne \type{while }{\it condition} finit par être contredite après un nombre fini d'itérations. Il est donc indispensable que quelque chose soit modifié dans cette boucle.
+
+\medskip
+
+{\bf Exemple}  : \type{base10To2}.
+
+La condition de la boucle \type{while} est \type{nb > 0} : il faut donc prouver que \type{nb} finit par prendre la valeur 0.
+
+On suppose qu'on a $2^p \le n < 2^{p+1}$.
+
+Une possibilité de démonstration consiste à remarquer que si on a $2^k\le nb < 2^{k+1}$ avec $k\ge 1$ alors $2^{k-1}\le nb//2 < 2^k$. Ainsi l'encadrement de $nb$ par des puissance de 2 est strictement décroissant et, au bout de $p$ itérations de la boucles on a $2^0 \le nb < 2^1$ donc $nb=1$. Une itération supplémentaire donne $nb = 1//2 = 0$ et on sort de la boucle. 
+
+On a prouvé que l'algorithme termine.
+
+On a même prouvé qu'on itérait $p+1$ fois les calculs avec $p$ tel que $2^p \le n < 2^{p+1}$ donc $p\le \log_2(n)$ la complexité est donc majorée par $K.(p+1) \le K.\bigl(\log_2(n)+1\bigr)={\cal O}\bigl(\log(n)\bigr)$.
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\subsection{Correction}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+{\bf Le programme fournit-il le bon résultat ?}
+
+
+Une réponse courante est de tester le programme sur des entrées et espérer que, s'il a donné le bon résultat 1000 fois de suite, ce sera encore le cas la 1001-ième fois. On sait cependant que ce n'est pas le cas, même si on remplace 1000 par $1\,000\,000$.
+
+\medskip
+
+Voici un programme simple
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def maxi(liste):
+    """Entrée : une liste non vide de nombres
+       Sortie : l'élément maximal de la liste"""
+    grand = 0
+    for x in liste:
+        if x > grand:
+            grand = x
+    return grand
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Il est probable que nous allons le tester avec des listes du genre \type{[25, 54, 37, 22]} et considérer qu'il est correct. Cependant, lors de son utilisation, il risque de poser un problème avec \type{maxi([-2, -3])} car il renverra 0 au lieu de $-2$.
+
+On voit qu'il est assez simple de montrer qu'un algorithme n'est pas correct, il "suffit" de trouver un contre-exemple.
+
+Un simple changement d'initialisation par \type{grand = liste[0]} suffit à résoudre ce problème mais était-ce le seul problème ? Ici, c'est le cas mais on peut souhaiter une preuve définitive.
+
+
+Le cas des instructions sans boucle est élémentaire : la preuve est celle des instructions utilisées.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Boucles for}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Dans la cas de boucles \type{for} la preuve est souvent donnée par la construction de l'algorithme qui est en fait une récurrence.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def somme(liste):
+    """Entrée : une liste de nombres 
+       Sortie : la somme des termes de la liste"""
+    s = 0
+    n = len(liste)
+    for i in range(n):
+        s = s + liste[i]
+    return s
+\end{lstlisting} 
+%-------------------------------------------------------------------------------
+On veut prouver que la variable \type{s} contienne à la fin la somme des termes. On remarque que la calcul \type{s = s + liste[i]} correspond à la récurrence  $\displaystyle \sum_{k=0}^{i} x_k = x_i +\sum_{k=0}^{i-1} x_k$.
+
+On note $P(i)$ la propriété : \type{s} a pour valeur $\displaystyle \sum_{k=0}^{i-1} x_k$ on a les propriétés
+%-------------------------------------------------------------------------------
+\begin{itemize}
+\item $P(0)$ est vraie avant le premier passage de la boucle car une somme vide vaut 0,
+\item si  $P(i)$ est vraie avec $i < n-1$ alors $P(i+1)$ est vérifiée après l'exécution des instructions de la boucle pour l'indice $i$,
+\item $P(n)$ prouve le résultat attendu.
+\end{itemize}
+%-------------------------------------------------------------------------------
+$P$ est un invariant de boucle.
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\subsection{Boucles while}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Dans le cas des boucles plus générales, les boucles \type{while }{\it condition}, il n'y a pas d'indice qui permet de suivre les itérations des boucles. On généralise la notion d'invariant en cherchant une propriété qui dépend de variables et qui vérifie.
+\begin{itemize}
+\item elle est vraie avant le premier passage de la boucle,
+\item si  elle est vraie et si la condition du \type{while} est vérifiée alors elle reste vraie après l'exécution des instructions de la boucle,
+\item la négation de la condition combinée avec la propriété prouve le résultat attendu.
+\end{itemize}
+
+\medskip
+
+{\bf Exemple}  : \type{base10To2}.
+Pour déterminer une propriété invariante on peut commencer par un exemple. On calcule \type{base10To2(43)} et regarde les valeurs des variables ; comme une liste est associée à un entier, on détermine aussi l'entier associé à la liste.
+
+\begin{center}
+\begin{tabular}{c|c|l|c|c}
+nombre de passages & \type{nb} & \type{liste}             & entier & longueur \\
+\hline
+0                  & 43        &\type{[]}                 & 0      & 0        \\ 
+1                  & 21        &\type{[1]}                & 1      & 1        \\ 
+2                  & 10        &\type{[1, 1]}             & 3      & 2        \\ 
+3                  & 5         &\type{[1, 1, 0]}          & 3      & 3        \\ 
+4                  & 2         &\type{[1, 1, 0, 1]}       & 11     & 4        \\ 
+5                  & 1         &\type{[1, 1, 0, 1, 0]}    & 11     & 5        \\ 
+6                  & 0         &\type{[1, 1, 0, 1, 0, 1]} & 43     & 6        \\ 
+\end{tabular}
+\end{center}
+
+Après quelques\footnote{Beaucoup !} tâtonnements on peut s'apercevoir qu'on a $nb.2^p + r = n$ où $p$ est la longueur de la liste et $r$ est l'entier associé à cette liste.
+
+On considère donc la propriété générale P(\type{nb}, \type{liste}) : $nb.2^p + r = n$ avec les notations ci-dessus.
+
+\begin{itemize}
+    \item Lors de l'initialisation, on a $nb = n$ et la liste est vide donc $p=0$ et $r=0$ : 
+
+    on a bien $nb.2^p + r = n.2^0 + 0 = n$.
+    
+    \item On suppose que la propriété est vérifiée avec $nb \ne 0$ et on effectue un passage.
+    
+    On a $nb = 2.nb' + b$ avec $nb' = nb//2$ et $b = nb\%2 \in\{0, 1\}$.
+    
+    On adjoint $b$ à la liste donc la longueur est maintenant $p' = p + 1$ et la valeur associée est $r' = r + b.2^p$.
+    
+    On a alors $n = nb.2^p + r = (2.nb' + b).2^p + r = nb'.2.2^{p} + (r + 2^p.b)= nb'.2^{p+1} + r'$ :
+    
+    la propriété est toujours vérifiée.
+    
+    \item Si la condition du \type{while} n'est plus vérifiée alors $nb=0$ et la propriété implique qu'on a $n = 0.2^p + r$, c'est-à-dire $n$ est bien représenté par la liste.
+\end{itemize}
+
+% %-------------------------------------------------------------------------------
+% \newpage
+% %-------------------------------------------------------------------------------
+% \subsection{Exemples}
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \subsubsection{Recherche dans une liste}
+% %-------------------------------------------------------------------------------
+% \begin{lstlisting}
+% def appartient(a,liste):
+%     """Entrée : un élément a et une liste
+%       Sortie : vrai ou faux selon que a est 
+%                 ou n'est pas dans la liste"""
+%     present = false # On n'a pas encore trouvé
+%     n = len(liste)
+%     i  = 0 # On doit gérer les indices
+%     while not present and i < n:
+%         if liste[i] == a:
+%             present = True
+%         i = i + 1
+%     return present 
+% \end{lstlisting}
+% %-------------------------------------------------------------------------------
+% Un invariant de boucle possible est 
+% $P(i)$ : \type{present} est vrai si et seulement si un des termes de la liste d'indice compris entre 0 et $i-1$ vaut \type{a}.
+% %-------------------------------------------------------------------------------
+% \subsubsection{Logarithme entier}
+% %-------------------------------------------------------------------------------
+% \begin{lstlisting}
+% def logEntier(n):
+%     """Entrée : un entier strictement positif
+%       Sortie : le plus grand entier p tel que 2^p <= n"""
+%     p = 0
+%     puiss2 = 1
+%     while n >= puiss2:
+%         p = p + 1
+%         puiss2 = 2*puiss2
+%     return (p - 1) 
+% \end{lstlisting}
+% %-------------------------------------------------------------------------------
+% Un premier invariant, facilement démontrable, est \type{puiss2 = 2**p}.
+
+% Cependant in ne suffit pas à prouver le résultat souhaité car la négation de la condition donne seulement $n < 2^p$ et on voudrait avoir $2^{p-1} \le n$.
+
+% On peut simplement ajouter cette condition dans l'invariant : 
+
+% ${\cal P}$ : \type{puiss2 = 2**p} et \type{2**(p-1) <= n}
+% %-------------------------------------------------------------------------------
+% \begin{itemize}
+% \item Lors de l'initialisation on a \type{p = 0}, \type{puiss2 = 1 = 2**p} et \type{2**(p-1) = 1/2 <= 1 <= n}.
+
+% \item Si ${\cal P}$  est vraie avec \type{n >= puiss2}, on note \type{p '} et \type{puiss2'} les valeurs des variables après les instructions de la boucle. On a \type{puiss2' = 2*puiss2 = 2*2**p = 2**(p+1) = 2**p'} et \type{2**(p'-1) = 2**p <= n} car la condition de boucle est vérifiée.
+
+% Si ${\cal P}$  est vraie après le passage dans la boucle.
+
+% \item La négation de la condition implique \type{n < puiss2} donc, d'après ${\cal P}$, 
+
+% \type{2**(p-1) <= n v 2**p} : $p-1$ est bien la valeur attendue.
+% \end{itemize}
+% %-------------------------------------------------------------------------------
+% \newpage
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \section{Exercices}
+% %-------------------------------------------------------------------------------
+% %------------------------------------------------------------
+% %------------------------------------------------------------
+% \begin{Exercise}[title={ pif paf pouf}]
+
+% Évaluer le nombre d'exécution des opérations \type{pif, paf, pouf} lors du déroulement des trois fonctions suivantes
+% \begin{lstlisting}
+% def un(n):                        def deux(n):
+%     for i in range(n):                for i in range(n):
+%         pif                               pif
+%     for j in range(n):                    for j in range(n):
+%         paf                                   paf
+%     for k in range(n):                for k in range(n):
+%         pouf                              pouf
+% \end{lstlisting}
+
+% \begin{lstlisting}
+% def trois(n):
+%     for i in range(n): 
+%         pif
+%         for j in range(n):
+%             paf
+%             for k in range(n):
+%                 pouf
+% \end{lstlisting}
+% \end{Exercise}
+% %------------------------------------------------------------
+% \begin{Answer}
+
+% Dans \type{un} : $n$ \type{pif}, $n$ \type{paf} et $n$ \type{pouf}.
+
+% Dans \type{deux} : $n$ \type{pif}, $n^2$ \type{paf} et $n$ \type{pouf}.
+
+% Dans \type{trois} : $n$ \type{pif}, $n^2$ \type{paf} et $n^3$ \type{pouf}.
+
+% \end{Answer}
+% %------------------------------------------------------------
+% %------------------------------------------------------------
+% \begin{Exercise}[title={ Valeurs d'une suite}]
+
+% On définit une suite $(u_n)$ par $u_0=1$ et $\displaystyle u_{n+1} = \frac 12\left(u_n+\frac 2{u_n}\right)$.
+
+% Étant donné un paramètre $n$ on souhaite renvoyer une liste contenant les valeurs de $u_k$ pour $k$ variant de 0 à $n$. Voici les solutions proposées par trois étudiants.
+
+% \begin{lstlisting}
+% def u(n):
+%     """Entrée : un entier n
+%       Sortie : la valeur du n-ième terme de la suite"""
+%     res = 1.0
+%     for i in range(n):
+%         res = (res + 2/res)/2
+%     return res  
+
+% def suiteA(n):
+%     """Entrée : un entier n
+%       Sortie : la suite des termes d'indice 0 à n  de la suite"""
+%     res = []
+%     for i in range(n+1):
+%         res.append(u(i))
+%     return res 
+% \end{lstlisting}
+
+% \begin{lstlisting}
+% def suiteB(n):
+%     res = [1.0]
+%     for i in range(n):
+%         u = res[i-1]
+%         v = (u + 2/u)/2
+%         res.append(v)
+%     return res
+% \end{lstlisting}
+% \newpage
+% \begin{lstlisting}
+% def suiteC(n):
+%     res = [1.0]*(n+1)
+%     for i in range(n):
+%         u = res[i]
+%         res[i+1] = (u + 2/u)/2 
+%     return res 
+% \end{lstlisting}
+
+% L'un des algorithme est faux, corrigez-le et calculer la complexité. 
+
+% Calculer la complexité des 2 autres.
+% \end{Exercise}
+% %------------------------------------------------------------
+% \begin{Answer}
+
+% \type{suiteA} calcule $u_k$ pour chaque $k$ avec \type{u}, ce qui demande $3k$ opérations.  Au total on effectue $\displaystyle \sum_{k=0}^n 3k = \frac32 n(n+1)$ opérations : la complexité est un ${\mathcal O}(n^2)$.
+
+% \medskip
+
+% \type{suiteB} pourrait donner un erreur dès le premier appel car il cherche \type{res[0-1]} mais, en Python, cela fournit le dernier terme de la liste, ici \type{res[0]}.
+
+% Au premier passage de la boucle on obtient bien $[u_0,u_1]$.
+
+% Mais ensuite, pour $i=1$, on appelle \type{res[1-1]} donc on calcule de nouveau $u_1$.
+
+% Le résultat sera donc $[u_0,u_1,u_1,u_2,\ldots,u_{n-1}]$.
+
+% Pour corriger l'algorithme il suffit d'écrire \type{u = res[i]} à la ligne 6.
+
+% L'algorithme effectue alors $3n$ opérations: la complexité est un ${\mathcal O}(n)$.
+
+% \medskip
+
+% \type{suiteC} ne calcule qu'une fois chaque $u_k$   : la complexité est un ${\mathcal O}(n)$.
+% \end{Answer}
+% %------------------------------------------------------------
+% %------------------------------------------------------------
+% \begin{Exercise}[title={ Exponentiation rapide}]
+
+% \begin{enumerate}
+% \item Écrire un algorithme simple calculant $a^n$.
+% Étudier sa complexité.
+
+% \item Si on écrit $n$ en base 2, $\displaystyle n = \sum_{k=0}^p \varepsilon_k 2^k$ avec $\varepsilon_k \in \{0,1\}$, on voit qu'on peut écrire
+
+% \[
+% x^n = x^{\sum_{k=0}^p \varepsilon_k 2^k} = \prod_{k=0}^p \bigl(x^{2^k}\bigr)^{\varepsilon_k}
+% \]
+
+% En calculant $x^{2^k}$ sous la forme $x^{2^{k+1}}=x^{2^k}.x^{2^k}$ on voit qu'on pourra calculer la puissance avec $2p+1$ produits.
+
+% Voici un algorithme qu'on peut déduire de ces remarques.
+
+% \begin{lstlisting}
+% def expRapide(x,n):
+%     """Entrée : un réel x et un entier positif n
+%       Sortie : x à la puissance n""" 
+%     reste = n
+%     produit = 1
+%     puissance = x
+%     while reste > 0:
+%         if reste%2 == 1:
+%             produit = produit*puissance
+%         reste = reste//2
+%         puissance = puissance*puissance
+%     return produit
+% \end{lstlisting}
+
+% \begin{itemize}
+% \item Prouver que l'algorithme termine.
+% \item Prouver que \type{produit*(puissance**reste)} est un invariant de boucle. En déduire une preuve de l'algorithme.
+% \item Quelle est sa complexité ?
+% \end{itemize}
+% \end{enumerate}
+% \end{Exercise}
+% %------------------------------------------------------------
+% \begin{Answer}
+
+%  Ici aussi un travail d'écriture rendra l'algorithme plus efficace.
+
+% \begin{enumerate}
+% \item  C'est une boucle classique
+
+% \begin{lstlisting}
+% def exp(x,n):
+%     """Entrée : un réel x et un entier positif n
+%       Sortie : x à la puissance n""" 
+%     produit = 1
+%     for i in range(n):
+%         produit = produit*x
+%     return produit
+% \end{lstlisting}
+
+% On effectue un produit à chaque passage dans la boucle :  
+% la complexité est un ${\mathcal O}(n)$.
+% \item On notera $r_k$, $p_k$ et $x_k$ les valeurs des variables \type{reste}, \type{produit} et \type{puissance} lors des passages dans la boucle \type{while}.
+
+% Initialement on a $r_0 = n$, $p_0=1$ et $x_0=x$.
+
+
+% \begin{itemize}
+% \item Pour $r_k >0$ on a $r_k//2 \le \frac{r_k}2 < r_k$ donc la suite entière $(r_k)$ est strictement décroissante : elle atteint la valeur 0 donc l'algorithme termine. On note $m$ le nombre de passage dans la boucle.
+
+% \item Si $r_k$ est pair on a $p_{k+1}=p_k$, $r_{k+1} = \frac{r_k}2$ et $x_{k+1}=x_k^2$ donc
+% $p_{k+1}x_{k+1}^{r_{k+1}}=p_kx_k^{2r_k/2}=p_kx_k^{r_k}$.
+
+% Si $r_k$ est impair on a $p_{k+1}=p_kx_k$, $r_{k+1} = \frac{r_k-1}2$ et $x_{k+1}=x_k^2$ donc $p_{k+1}x_{k+1}^{r_{k+1}}=p_kx_kx_k^{2(r_k-1)/2}=p_kx_k^{r_k}$.
+
+% Dans les deux $p_kx_k^{r_k}$ est conservé, c'est un invariant de boucle.
+
+% On a $p_0x_0^{r_0}=x^n$ et, en sortie de boucle, $r_m=0$ donc $p_mx_m^{r_m}=p_m$. la valeur retournée est $p_m$ qui vaut bien $x^n$ en raison de l'invariance de boucle.
+
+% \item Il y a 3 affectations initiales.
+
+% Dans chaque passage de la boucle on fait 1 calcul de reste, 1 comparaison 1 ou 2 produits, une division et 1 ou 2 affectations. Le nombre d'opérations élémentaires est majoré par 6.
+
+% La complexité est majorée par $6m+3$.
+
+% \medskip
+
+% On suppose qu'on a $n > 0$ (sinon il n'y a pas de boucle).
+
+% Il existe un entier $p$ tel que $2^p \le n = r_0 < 2^{p+1}$.
+
+% On a alors $2^{p-1} \le r_1 = r_0//2 < 2^p$ puis, par récurrence, $2^{p-k} \le r_k < 2^{p+1-k}$ tant que $r_{k-1}>0$.
+
+% Pour $k=p$ on obtient $1\le r_p < 2$ donc $r_p=1$ puis $r_{p+1}=0$.
+
+% On effectue donc $p+1$ passages dans la boucle donc la complexité est majorée par $6p+9$.
+
+% On a, en prenant les logarithmes, $p\le \frac{\ln(n)}{\ln(2)}$ donc la complexité est majorée par $A\ln(n)+B={\mathcal O}\bigl(\ln(n)\bigr)$.
+% \end{itemize}
+% \end{enumerate}
+% \end{Answer}
+% %------------------------------------------------------------
+% %------------------------------------------------------------
+% \begin{Exercise}[title={ Méthode de Hörner}]
+
+% Un polynôme $P(X)=\sum_{k=0}^d a_k X^k$ est représenté par la liste de longueur $d+1$ de ses coefficients $[a_0,a_1,\ldots,a_d]$.
+
+% \begin{enumerate}
+% \item Écrire un algorithme \type{eval(P,a)} qui calcule $P(a)$ où $P$ est représenté par une liste. On donnera un algorithme qui effectuera au plus $2n$ multiplications et aucun calcul de puissance (\type{a**k}) où $n$ est la longueur de la liste. 
+
+% \item La méthode de Hörner consiste à écrire $P(x)$ sous la forme
+
+% \[
+% P(x)=a_0+x\left(a_1+x\left(a_2+\cdots+x\bigl(a_{d-1}+x(a_d)\bigr)\right)\right)
+% \]
+
+% Écrire un algorithme \type{eval(P,a)} qui calcule $P(a)$ en utilisant cette méthode.
+
+% Combien d'addition et de multiplication effectue-t-il ?
+% \end{enumerate}
+% \end{Exercise}
+% %------------------------------------------------------------
+% \begin{Answer}
+
+% Comme on calcule toutes les puissances de $a$ il vaut mieux éviter de faire appel à une fonction d'exponentiation même rapide.
+
+% \begin{enumerate}
+% \item On va calculer $x^k$ et ajouter $a_kx^k$ dans la même boucle.
+
+% \begin{lstlisting}
+% def eval(P,a):
+%     """Entrée : un polynôme P sous la forme 
+%                 de la liste de ses coefficients
+%                 en commençant par le coefficient constant.
+%       Sortie : P(a)"""
+%     n=len(P)
+%     somme = 0
+%     puissance = 1
+%     for i in range(n): # n = deg(P)+1
+%         somme = somme + P[i]*puissance
+%         puissance = puissance*a
+%     return somme    
+% \end{lstlisting}
+
+% On fait 2 multiplications dans chaque passage de la boucle donc $2n$ multiplications.
+
+% Un invariant de boucle peut être $\displaystyle \hbox{somme} = \sum_{k=0}^{i-1} a_k a^k$ au début du passage dans la boucle pour $i$.
+
+% \item Il faut faire attention ici car on ajoute les termes à partir du dernier.
+
+% \begin{lstlisting}
+% def eval(P,a):
+%     """Entrée : un polynôme P sous la forme 
+%                 de la liste de ses coefficients
+%                 en commençant par le coefficient constant.
+%       Sortie : P(a)"""
+%     n=len(P)
+%     somme = 0
+%     for i in range(n): # n = deg(P)+1
+%         somme = somme*x + P[n-1-i]
+%         puissance = puissance*a
+%     return somme    
+% \end{lstlisting}
+
+% On fait 1 multiplication dans chaque passage de la boucle donc $n$ multiplications.
+
+% La complexité asymptotique n'a pas été améliorée, on a toujours un ${\mathcal O}(n)$, mais on fait 2 fois moins de multiplications et autant d'additions.
+
+% Un invariant de boucle peut être $\displaystyle P(a)= \sum_{k=0}^{n-i-2} a_k a^k + \hbox{\tt somme}a^{n-1-i}$ au début  du passage dans la boucle pour $i$.
+
+% \end{enumerate}
+
+% \newpage
+% \end{Answer}
+% %------------------------------------------------------------
+% %------------------------------------------------------------

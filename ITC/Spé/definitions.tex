@@ -1,0 +1,240 @@
+%-------------------------------------------------------------------------- 
+%-------------------------------------------------------------------------- 
+%-------------------------------------------------------------------------- 
+% On utilise la classe book, pour avoir les chapitres
+\documentclass[french]{book}
+%-------------------------------------------------------------------------- 
+%-------------------------------------------------------------------------- 
+% Francisation des règles typographiques
+\usepackage[french]{babel}
+% frenchb change les points en tirets, retour à l'original :
+\frenchbsetup{ItemLabeli=$\bullet$}
+
+%-------------------------------------------------------------------------- 
+%-------------------------------------------------------------------------- 
+% Fontes
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+% Utilitaires
+%-------------------------------------------------------------------------- 
+% Packages mathématiques
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+%--------------------------------------------------------------------------
+%Graphismes
+\usepackage{graphicx}%Pour l'inclusion d'images
+\graphicspath{{./Images/}}
+\usepackage{wrapfig}%Figures sur les côtés
+%--------------------------------------------------------------------------
+\usepackage{tikz}%Pour les dessins divers (arbres, graphes...)
+\usetikzlibrary{calc, positioning, patterns ,babel, shapes, automata}
+\usepackage[european, cuteinductors]{circuitikz}
+%-------------------------------------------------------------------------- 
+%--------------------------------------------------------------------------
+% Présentations des pages 
+%--------------------------------------------------------------------------
+%Taille des marges
+\usepackage[a4paper,left=3cm,right=3cm,top=3cm,bottom=3cm]{geometry}
+%--------------------------------------------------------------------------
+% En-tête de chapitre
+\usepackage[explicit]{titlesec}
+\titleformat{\chapter}[display]{\Large\bfseries}
+            {\filright {\chaptername}\ \huge\thechapter }{0pt}
+            {\titlerule \vspace{2ex}
+             \filleft\sffamily\bfseries
+               {\fontsize{50}{55}\usefont{T1}{qcs}{m}{sc}\selectfont #1}
+            }
+            [\vspace{2ex}\titlerule]
+\titlespacing*{\chapter}{0pt}{0pt}{3cm}
+%--------------------------------------------------------------------------
+%Liens
+\usepackage[colorlinks=true,urlcolor=blue,linkcolor=blue]{hyperref}
+%--------------------------------------------------------------------------
+% Choix de la numérotation
+\renewcommand{\thechapter}{\Roman{chapter}}
+\renewcommand{\thesection}{\arabic{section}}
+%--------------------------------------------------------------------------
+% Une table des matières mieux présentée
+% \usepackage{tocstyle}
+% \usetocstyle{standard}
+%--------------------------------------------------------------------------
+% Je n'aime pas les indentations de paragraphe :
+\parindent=0pt
+%--------------------------------------------------------------------------
+%Configuration des en-têtes et bas-de-pages
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+% Voici les commandes pour les intitulés leftmark, rightmark)
+\renewcommand{\chaptermark}[1]{\markboth{\thechapter. {\sc #1}}{} }
+\renewcommand{\sectionmark}[1]{\markright{\thechapter.\thesection-#1}{} }
+% Hauts de page, O/E pour impair/pair (odd/even)
+%                L/R pour gauche droite
+\fancyhead[RO]{\rightmark}% Pages impaires haut gauche : section
+\fancyhead[LE]{\leftmark}% Pages paires haut droit : chapitre
+\fancyhead[LO,RE]{}
+% bas de page, mêmes positions
+% \fancyfoot[LO,RE]{}
+% \fancyfoot[LE,RO]{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.2pt}% Ligne en haut
+\renewcommand{\footrulewidth}{0pt}% pas en bas
+%-------------------------------------------------------------------------- 
+% Pour les premières pages, on peut imposer un style vide
+% en écrivant *\thispagestyle{empty}* après le chapitre
+%-------------------------------------------------------------------------- 
+% Pour du texte sur plusieurs colonnes
+\usepackage{multicol}%
+%-------------------------------------------------------------------------- 
+% Pour diminuer la séparation entre items des listes
+\usepackage{enumitem}
+\setlist{nosep} % or \setlist{noitemsep} 
+%--------------------------------------------------------------------------
+% Profondeur de la table des matières : 1 = section
+\setcounter{tocdepth}{1}   
+%--------------------------------------------------------------------------
+% Définition de la page de titre
+\def\premierePage{\begin{titlepage}
+              {\scshape\LARGE Lycée Faidherbe, \annee \par}
+              \vspace{3cm}
+              \begin{center}
+                  \rule{\linewidth}{0.5mm}
+                  \vskip -2cm
+                  \rule{\linewidth}{1.5mm}
+                  {\fontsize{60}{65}\usefont{T1}{qcs}{m}{sc}\selectfont \titre\par}
+                  \rule{\linewidth}{1.5mm}
+                  \vskip -2mm
+                  \rule{\linewidth}{0.5mm}
+                  
+                  \vspace{3cm}
+                  {\Large\bf \classe}
+              \end{center}
+              \vfill
+              {\large Version du \today\par}
+           \end{titlepage}
+          }
+%-------------------------------------------------------------------------- 
+%--------------------------------------------------------------------------
+% Composants
+%-------------------------------------------------------------------------- 
+%--------------------------------------------------------------------------
+%Pour mettre en page des exercices facilement 
+\usepackage[answerdelayed,lastexercise]{exercise}
+%\usepackage[noanswer,lastexercise]{exercise}
+
+\renewcommand{\ExerciseName}{Exercice}
+\renewcommand{\ExerciseHeaderTitle}{\ ---\quad\textbf{\textsc{\ExerciseTitle}}}
+\renewcommand{\ExerciseHeader}{\vspace{0cm}\noindent
+                               \textbf{\ExerciseName\ \ExerciseHeaderNB}\ 
+                               \ExerciseHeaderDifficulty
+                               \ExerciseHeaderTitle\par
+                              }
+\renewcommand{\AnswerHeader}{\noindent\textbf{Solution de l'exercice \ExerciseHeaderNB{} - }} 
+\counterwithin*{Answer}{chapter}
+\counterwithin*{Exercise}{chapter}
+\setlength{\ExerciseSkipBefore}{0.6\baselineskip}
+\setlength{\ExerciseSkipAfter}{0.6\baselineskip}
+%--------------------------------------------------------------------------
+% Configuration des listings
+\usepackage{listings}
+\lstset{escapechar = £,%
+        frameround=tttt, frame = lines, linewidth=0.95\textwidth,%
+        xleftmargin=0.025\textwidth,%
+        breaklines=true,% 
+        showstringspaces=false,%
+       }
+\lstset{
+literate = {à}{{\`a}}1
+           {À}{{\`A}}1
+           {â}{{\^a}}1
+           {ç}{{\c c}}1
+           {Ç}{{\c C}}1
+           {é}{{\'e}}1
+           {É}{{\'E}}1
+           {è}{{\`e}}1
+           {È}{{\`E}}1
+           {ê}{{\^e}}1
+           {Ê}{{\^E}}1
+           {ï}{{\"i}}1
+           {î}{{\^i}}1
+           {ô}{{\^o}}1
+           {ù}{{\`u}}1
+           {ÿ}{{\"y}}1
+       }
+\renewcommand{\lstlistingname}{Programme}
+\lstset{tabsize = 4,%
+        language=python,%
+        morekeywords={as, assert, False, None, nonlocal, True, with, 
+        yield,float, int, abs, type}
+       }
+\lstset{keywordstyle=\upshape\bfseries,%
+        commentstyle=\slshape,% 
+        stringstyle=,% 
+        basicstyle=\upshape\ttfamily
+       }
+
+%--- from T. Cousin--------------------------------------
+\usepackage{caption}
+\usepackage{subcaption}
+\captionsetup{font=small,labelfont=bf}
+\captionsetup[sub]{labelsep=period,subrefformat=brace}
+\usepackage{url}
+\usepackage{siunitx}
+\usepackage{mathtools}
+%--------------------------------------------------------------------------
+% Environnements 
+\newtheoremstyle{definition}%
+              {}%
+              {}%
+              {\itshape}%
+              {-4mm}%
+              {\bfseries}%
+              {}%
+              {\newline}%
+              {\thmname{#1 : }\thmnote{#3}}
+\theoremstyle{definition}
+\newtheorem*{defin}{Définition}
+\theoremstyle{definition}
+\newtheorem*{thm}{Théorème}
+%--------------------------------------------------------------------------
+% Un résumé en début de chapitre
+\newenvironment{abstract}{\begin{minipage}{0.2\linewidth} {\Large \bf Résumé} \end{minipage}
+                          \begin{minipage}{0.75\linewidth}\itshape} {\end{minipage}}
+%--------------------------------------------------------------------------
+% Diverses fonctions
+%--------------------------------------------------------------------------
+\def\C{{\mathbb C}}
+\def\K{{\mathbb K}}
+\def\M{{\cal M}}
+\def\N{{\mathbb N}}
+\def\Q{{\mathbb Q}}
+\def\R{{\mathbb R}}
+\def\Z{{\mathbb Z}}
+%--------------------------------------------------------------------------
+% Python dans le texte
+\def\type#1{\text{\normalfont \ttfamily #1}}
+\def\Type#1{\text{\normalfont\bfseries\ttfamily #1}}
+%--------------------------------------------------------------------------
+% remplace les comparateurs avec égalité, une barre oblique
+\let\le=\leqslant 
+\let\ge=\geqslant 
+%--------------------------------------------------------------------------
+% un d droit pour les intégrales et les dérivées.
+\def \d{\text{d}}
+%--------------------------------------------------------------------------
+% Écritures des composantes
+%% S'il n'y a pas de solutions
+\def\chapitre#1{\input{#1}}
+%% S'il y a des solutions
+\newif\ifreponses % on crée un indicateur
+\reponsesfalse    % par défaut, pas de solutions
+\def\chapitreSol#1{\input{#1}
+\ifreponses
+     \newpage 
+     \section{Solutions} 
+     \shipoutAnswer
+\fi}
