@@ -1,0 +1,235 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Les structures conditionnelles}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{abstract}
+Pour l'instant nous n'avons vu les programmes que sous la forme de suites d'instructions exécutées l'une après l'autre, en répétant plusieurs fois une partie d'entre elles.
+
+On est parfois amené à n'appliquer une partie de programme que si une condition est vérifiée ou à exécuter des traitements différents selon l'appartenance de valeurs à certains ensembles.
+\end{abstract}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Les structures conditionnelles}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Instruction if}
+%-------------------------------------------------------------------------------
+L'instruction \Type{if} permet de vérifier des conditions avant d'exécuter un bloc d'instructions. C'est la forme la plus simple des instructions conditionnelles.
+%-------------------------------------------------------------------------------
+\begin{defin}[condition simple]
+La structure conditionnelle est composée par 
+\begin{itemize}
+ \item l'instruction \type{if} suivi d'une expression booléenne puis de \type{:},
+ \item un bloc d'instructions indenté, ces instructions ne seront exécutées que si l'expression booléenne est évaluée avec la valeur \type{True} (vrai).
+\end{itemize}
+\end{defin}
+%-------------------------------------------------------------------------------
+Nous préciserons dans la suite la notion d'expression booléenne.
+
+L'indentation s'ajoute à l'indentation déjà existante au moment de l'écriture de l'instruction \type{if}.
+
+Exemple : valeur absolue (elle existe déjà sous le nom \type{abs}).
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def valeur_absolue(x):
+    if x < 0:
+        x = -x
+    return x
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\subsection{Instruction else}
+%-------------------------------------------------------------------------------
+Parfois le test (expression booléenne) sert à discriminer : on effectue des instructions si la condition est vérifiée et d'autres instructions si elle ne l'est pas.
+%-------------------------------------------------------------------------------
+\begin{defin}[condition complète]
+La structure conditionnelle complète est composée par 
+\begin{itemize}
+ \item l'instruction \type{if} suivi d'une expression booléenne puis de \type{:},
+ \item un bloc d'instructions indenté qui sera effectué si la l'expression booléenne vaut \type{True},
+ \item \type{else:} au même niveau d'indentation que \type{if},
+  \item un bloc d'instructions indenté qui sera effectué si la l'expression booléenne vaut \type{False}.
+\end{itemize}
+\end{defin}
+%-------------------------------------------------------------------------------
+Un des deux blocs (et un seul) sera toujours exécuté. On pourra donc définir une nouvelle variable en donnant sa valeur selon les cas.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def valeur_absolue(x):
+    if x < 0:
+        val_abs = -x
+    else:
+        val_abs = x
+    return val_abs
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Les deux branches de l'alternative peuvent contenir une instruction \type{return}.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def valeur_absolue(x):
+    if x < 0:
+        return -x
+    else:
+        return x
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+En fait, comme une instruction \type{return} interrompt la fonction on peut écrire le programme précédent sous la forme suivante, sans doute moins lisible que les autres.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def valeur_absolue(x):
+    if x < 0:
+        return -x
+    return x
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Instruction elif}
+%-------------------------------------------------------------------------------
+Il arrivera régulièrement que l'on ait à distinguer plusieurs cas : il faut alors imbriquer plusieurs instructions conditionnelles
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def signe(x):
+    """Entrée : un nombre x
+       Sortie : 1, 0 ou -1 selon que x est 
+                positif, nul ou négatif"""
+    if x == 0:
+        return 0
+    else:
+        if x > 0:
+            return 1
+        else:
+            return -1
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+mais les choses peuvent devenir compliquées quand le nombre de cas augmente.
+
+Le programme suivant détermine la mention du bac.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def afficheMention(note):
+    """Entrée : la note du bac
+       Sortie : la mention obtenue"""
+    if note < 10:
+        return 'Non admis'
+    else:
+        if note < 12:
+            return 'Admis sans mention'
+        else:
+            if note < 14:
+                return 'Mention assez bien'
+            else:
+                if note < 16:
+                    return 'Mention bien'
+                else:
+                    return 'Mention tres bien'
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Python propose une structure raccourcie\footnote{On parle de {\bf sucre syntaxique}.} qui évite d'imbriquer les conditions. 
+%-------------------------------------------------------------------------------
+\begin{defin}[séparations de cas]
+On peut traiter des cas qui s'excluent par 
+\begin{itemize}
+ \item l'instruction \type{if} suivi d'une expression booléenne puis de \type{:},
+ \item un bloc d'instructions indenté qui sera effectué si la l'expression booléenne vaut \type{True}
+ \item un certain nombre d'instructions \type{elif} suivies d'une expression booléenne puis du symbole \type{:}, toutes au même niveau d'indentation que \type{if}
+  \item pour chacune un bloc d'instructions indenté qui sera effectué si la l'expression booléenne vaut \type{True} et les précédentes valent \type{False}
+    \item \type{else:} au même niveau d'indentation que \type{if}
+  \item un bloc d'instructions indenté qui sera effectué si toutes les expressions booléennes valent \type{False}
+\end{itemize}
+\end{defin}
+%-------------------------------------------------------------------------------
+On peut donc écrire l'algorithme des mentions de manière plus lisible
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def mention(note):
+    """Entrée : la note du bac
+       Sortie : la mention obtenue"""
+    if note < 10:
+        return 'Non admis'
+    elif note < 12:
+        return 'Admis sans mention'
+    elif note < 14:
+        return 'Mention assez bien'
+    elif note < 16:
+        return 'Mention bien'
+    else:
+        return 'Mention très bien'
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+\subsection{Complexité : 2}
+%-------------------------------------------------------------------------------
+Les instructions conditionnelles introduisent une incertitude lors du calcul du nombre d'instructions ; en effet ce nombre peut être différent selon le résultat du test. On est donc amené à calculer un {\bf majorant} de la complexité, plutôt qu'une expression de celle-ci. On essaiera, dans la mesure du possible, de donner un majorant qui peut être atteint pour certaines valeurs des paramètres.
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\section{Les expressions booléennes}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Une structure conditionnelle nécessite la définition d'une \textbf{condition} dont le résultat est booléen (True ou False) : une expression booléenne. Celles-ci s'obtiennent en deux temps : on crée des résultats booléens à l'aide de comparaisons et on les combine avec des opérateurs booléens.
+%-------------------------------------------------------------------------------
+\subsection{Les opérateurs de comparaison}
+%-------------------------------------------------------------------------------
+Un premier test possible est l'identité : une variable (ou un résultat) est-il égal à une autre ?
+
+Le test d'égalité ne s'écrit pas \type{=} qui est l'opérateur d'affectation mais \Type{==}.
+
+On l'a utilisé pour comparer à 0 dans la fonction \type{signe}.
+
+La différence est signifiée\footnote{On peut penser le symbole comme la déconstruction du signe mathématique $\ne$ : une barre et le signe égal.} par \Type{!=}.
+
+\medskip
+
+Les variables qui sont comparables, principalement les nombres, peuvent être testées selon leur ordre.
+\begin{center}
+\begin{tabular}{c|cc}
+ &inférieur& supérieur \\
+ \hline
+ Strictement  & \Type{<}&\Type{>} \\
+ou égal & \Type{<=}&\Type{<=} \\
+\end{tabular}
+\end{center}
+%-------------------------------------------------------------------------------
+\subsection{Les opérateurs booléens}
+%-------------------------------------------------------------------------------
+Les résultats des comparaisons peuvent combinés de la même manière que les nombres peuvent être combinés par les opérations usuelles d'addition, soustraction, division, \dots
+
+Les opération de base utilisées dans python sont
+%-------------------------------------------------------------------------------
+\begin{itemize}
+\item \Type{and} (et) : \type{test1 and test2} vaut \type{True} si et seulement si \type{test1} {\bf et} \type{test2} sont évalués à \type{True},
+\item \Type{or} (ou) : \type{test1 or test2} vaut \type{True} si et seulement si au moins un des deux test est évalué à \type{True}, le ou n'est pas exclusif, si \type{test1} et \type{test2} valent \type{True} alors \type{test1 or test2} vaut \type{True}
+\item \Type{not} (négation) : inverse le résultat.
+\end{itemize}
+%-------------------------------------------------------------------------------
+\[\begin{tabular}{cc|ccc}
+\type{a} & \type{b} & \type{a and b} & \type{a or b} & \type{not b}\\
+\hline
+\type{True} & \type{True} & \type{True} & \type{True}  & \type{False} \\
+\type{True} & \type{False} & \type{False} &\type{True}  & \type{True}\\
+\type{False} & \type{True} & \type{False} &\type{True} \\
+\type{False} & \type{False} & \type{False} & \type{False} \\
+\end{tabular}\]
+%-------------------------------------------------------------------------------
+\subsection{Évaluation paresseuse}
+
+Les définitions données ci-dessus sont correctes mathématiquement mais ce n'est pas ce qu'utilisent les langages de programmation.
+Lors de l'évaluation de \type{a or b} on sait que le résultat est vrai dès que la proposition \type{a} est vérifiée. Python ne calculera pas le résultat de \type{b} dans ce cas. La même remarque s'applique lors de l'évaluation de \type{a and b} : si \type{a} est faux, python renvoie \type{False} sans chercher à calculer \type{b}.
+
+Cela rend le calcul non commutatif :
+\begin{lstlisting}
+>>> True or (1/0 == 1)
+True
+
+>>> (1/0 == 1) or True
+ZeroDivisionError: division by zero
+\end{lstlisting}
+Ce comportement est en fait très utile, nous l'utiliserons avec les boucles \type{while}.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------

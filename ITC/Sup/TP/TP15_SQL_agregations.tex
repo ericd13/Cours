@@ -1,0 +1,571 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Exploitation statistique de données}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+{\sf Le but de ce T.P. est de d'utiliser les instructions d'agrégation du langage SQL lors de l'exploitation d'une base de données.}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\section{Présentation des regroupements}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{minipage}[t]{0.45\linewidth}
+On prend l'exemple d'une base de notes de colles, courte pour les besoins de la présentation.
+
+\begin{center}
+\begin{tabular}[t]{|l|l|l|}
+\hline
+\bf Colleur  & \bf Etudiant & \bf Note \\ 
+\hline
+Lesec&Riri&8\\
+Legaga&Riri&18\\
+Lemoyen&Loulou&15\\
+Legaga&Fifi&17\\
+Legaga&Loulou&20\\
+Lesec&Fifi&13\\
+Lemoyen&Riri&15\\
+Lemoyen&Fifi&15\\
+Lesec&Loulou&15\\
+\hline
+\end{tabular}
+\end{center}
+\end{minipage}
+%--------------------------------------------------------------------------
+\hfill
+%--------------------------------------------------------------------------
+\begin{minipage}[t]{0.45\linewidth}
+Si on veut connaître par exemple les moyennes de chaque étudiant on doit regrouper les lignes par nom d'étudiant.
+
+L'instruction {\bf GROUP BY Etudiant} effectue ce travail virtuellement.
+
+\begin{center}
+\begin{tabular}[t]{|l|l|l|}
+\hline
+\bf Colleur  & \bf Étudiant & \bf Note \\ 
+\hline
+Legaga&Fifi&17\\
+Lesec&Fifi&13\\
+Lemoyen&Fifi&15\\
+\hline
+Lesec&Loulou&15\\
+Lemoyen&Loulou&15\\
+Legaga&Loulou&20\\
+\hline
+Lesec&Riri&8\\
+Legaga&Riri&18\\
+Lemoyen&Riri&15\\
+\hline
+\end{tabular}
+\end{center}
+\end{minipage}
+%--------------------------------------------------------------------------
+
+\vfill
+
+\begin{itemize}
+\item
+%--------------------------------------------------------------------------
+On peut alors demander les moyennes ; elles seront calculées pour chaque partie obtenue par le regroupement.
+
+\begin{minipage}[t]{0.60\linewidth}
+\begin{lstlisting}[language=SQL]
+select AVG(Note)
+from colles
+group by Etudiant
+\end{lstlisting}
+\end{minipage}
+%--------------------------------------------------------------------------
+\begin{minipage}[t]{0.30\linewidth}
+\begin{center}
+\begin{tabular}[t]{|l|}
+\hline
+\bf AVG(Note) \\ 
+\hline
+15\\
+16.666666667\\
+13.666666667\\
+\hline
+\end{tabular}
+\end{center}
+\end{minipage}
+%--------------------------------------------------------------------------
+
+\newpage
+\item
+%--------------------------------------------------------------------------
+On voit qu'il manque l'information de l'étudiant : {\bf quand on fait un regroupement, on doit toujours faire afficher la colonne qui a servi de critère de regroupement.}
+
+Il est recommandé de donner un nom au calcul
+
+\begin{minipage}[t]{0.6\linewidth}
+\begin{lstlisting}[language=SQL]
+select Etudiant, AVG(Note) as moy
+from colles
+group by Etudiant
+\end{lstlisting}
+\end{minipage}
+%--------------------------------------------------------------------------
+\begin{minipage}[t]{0.35\linewidth}
+\begin{center}
+\begin{tabular}[t]{|l|l|}
+\hline
+\bf Etudiant &\bf moy \\ 
+\hline
+Fifi&15\\
+Loulou&16.666666667\\
+Riri&13.666666667\\
+\hline
+\end{tabular}
+\end{center}
+\end{minipage}
+%--------------------------------------------------------------------------
+
+\vskip 1cm
+\item
+Il est par contre totalment inutile d'afficher d'autres colonnes que la colonne de critère et les valeur calculées, le logiciel donnera une réponse mais celle-ci n'a aucun sens.
+
+\begin{lstlisting}[language=SQL]
+select Etudiant, AVG(Note) as moy, Colleur
+from colles
+group by Etudiant
+\end{lstlisting}
+
+\begin{center}
+\begin{tabular}[t]{|l|l|l|}
+\hline
+\bf Etudiant &\bf  my &\bf  Colleur \\ 
+\hline
+Fifi&15&Legaga\\
+Loulou&16.666666667&Lesec\\
+Riri&13.666666667&Lesec\\
+\hline
+\end{tabular}
+\end{center}
+%--------------------------------------------------------------------------
+
+\vskip 1cm
+\item 
+%--------------------------------------------------------------------------
+Si on veut sélectionner selon des valeurs calculées, on ne peut pas le faire avec \type{where} car le critère de cet instruction a été utilisé {\bf avant} le regroupement. L'instruction {\bf HAVING}, placée après \type{group by} permet d'appliquer le critère. On voit ici l'utilité de nommer le calcul.
+
+\begin{minipage}[t]{0.60\linewidth}
+\begin{lstlisting}[language=SQL]
+select Etudiant, AVG(Note) as moy
+from colles
+group by Etudiant
+having moy > 14
+\end{lstlisting}
+\end{minipage}
+%--------------------------------------------------------------------------
+\begin{minipage}[t]{0.35\linewidth}
+\begin{center}
+\begin{tabular}[t]{|l|l|}
+\hline
+\bf Etudiant &\bf moy \\ 
+\hline
+Fifi&15\\
+Loulou&16.666666667\\
+\hline
+\end{tabular}
+\end{center}
+\end{minipage}
+%--------------------------------------------------------------------------
+\end{itemize}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\newpage
+%--------------------------------------------------------------------------
+\section{Requêtes}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\subsection{Regroupements}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+\it Calculer le nombre de communes par département.\\
+Quels sont les 3 départements qui comportent le plus grand nombre de communes ? (62, 2, 80)
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select dept, count() as nombreCommunes
+from communes
+group by dept
+order by 2 desc
+limit 3
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+\it Quels sont les 3 départements les plus peuplés ?
+(59, 75, 13)
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select dept, sum(POP2010) as pop
+from communes
+group by dept
+order by 2 desc
+limit 3
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+\it Déterminer la densité de population par département.
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select dept, sum(POP2010)/sum(surf) as densité
+from communes
+group by dept
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+\it Quels est le nombre de communes par arrondissement ?
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select arr, count()
+from communes
+group by arr
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}[label = ques:nomPlus]
+\it Quels est le nom de commune le plus courant ?
+
+14 communes s'appellent Sainte Colombe.
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select nom, count() as nombre
+from communes
+group by nom
+order by 2 desc
+limit 1
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}[label = ques:nomPlus]
+\it Quels est le nombre de départements par région ?
+
+En 2010, il y avait 21 régions dont la table ne donne que le numéro.
+
+Pour compter les départements sans doublon \type{COUNT(dept)} ne suffit pas, il faut écrire \type{COUNT(DISTINCT dept)}.
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select region, count(distinct dept) as nb
+from communes
+group by region
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\subsection{Utilisation de \type{HAVING}}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+\it Quels sont les département de population supérieure à 1.500.000 ? (59, 75, 13, 69, 92, 93).
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select dept, sum(POP2010) as population
+from communes
+group by dept
+having population > 1 500 000
+order by 2 desc
+\end{lstlisting}
+\newpage
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+\it Quels sont les départements dont la population de la ville la plus peuplée est au moins un tiers de la population totale ? (13, 31, 75, 87, 90).
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select dept, max(pop2010) as popMax, sum(pop2010) as pop
+from communes
+group by dept
+having pop < 3*popMax
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+\it Quels sont les arrondissements qui ne contiennent qu'une commune ? On donnera aussi le département.
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select dept, arr, count() as nb
+from communes
+group by arr
+having nb = 1
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+\it Quels sont les départements dont la population de plus de 60 ans représente plus de 15\% de la population totale ? (10 départements).
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select dept, 100*(sum(age60_74)+sum(age75+0.0))/sum(pop2010) as taux_vieux
+from communes
+group by dept
+having taux_vieux>30
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+\it Quels sont les départements dont la population a crû de plus de 15\% entre 1999 et 2010 (il y en a 8) ?
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select dept, (sum(pop2010) - sum(pop1999) + 0.0)/sum(pop1999) as taux
+from communes
+group by dept
+having taux > 0.15
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+\newpage
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\section{Requêtes imbriquées}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+Si le résultat d'une requête est un tableau on peut l'utiliser pour une autre requête.
+
+Par exemple après avoir calculé la population par arrondissement,
+\begin{lstlisting}[language=SQL]
+select dept, arr, sum(POP2010 )as s
+from communes
+group by arr
+\end{lstlisting}
+
+on peut calculer la moyenne des habitants par arrondissement pour chaque département.
+
+\begin{lstlisting}[language=SQL]
+select dept, avg(s) as moyenne
+from (select dept, arr, sum(POP2010 )as s
+      from communes group by arr)
+group by dept
+order by moyenne desc
+\end{lstlisting}
+
+
+Si une requête produit un nombre (\type{count}, \type{avg}, \type{max}, \dots) on peut l'utiliser dans un test ou un calcul.
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+\it Après avoir calculé la population par département, déterminer la moyenne de la population par département (664\,420,7).
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select  dept, sum(POP2010 )as population
+from communes
+group by dept
+\end{lstlisting}
+\begin{lstlisting}[language=SQL]
+select round(avg(population),1)
+from (select  dept, sum(POP2010 ) as population
+      from communes
+      group by dept)
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+\it Déterminer les départements qui ont une population inférieure au quart de la moyenne de la population par département (48, 23, 5, 90, 15, 9, 4).
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select dept, population
+from (select  dept, sum(POP2010 ) as population 
+      from communes 
+      group by dept)
+where population <  (select  avg(pop) 
+                     from (select  dept, sum(POP2010 ) as pop
+                           from communes
+                           group by dept))/4.0
+order by 2 desc
+\end{lstlisting}
+\newpage
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+\it Déterminer le nombre d'arrondissements par département.
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select dept, count() as nbArr
+from (select dept, arr,sum(pop2010) as popArr
+      from communes
+      group by arr)
+group by dept
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+\it Déterminer le nombre de département qui ont 1, 2, 3, \dots, 9 arrondissements.
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select nbArr, count() as nb
+from (select dept, count() as nbArr
+      from (select dept, arr,sum(pop2010) as popArr
+            from communes
+            group by arr)
+      group by dept)
+group by nbArr
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+\it Quels sont les département dans lesquels sont situés les communes ayant le nom le plus courant (question \ref{ques:nomPlus}) ?.
+
+On ne devra pas écrire "Sainte Colombe".
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select dept,  nom
+from communes
+where nom =(select nom  
+            from (select nom, count() as nombre
+                  from communes
+                  group by nom
+                  order by 2 desc
+                  limit 1
+                 )
+           )
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+\it Déterminer le département dont la surface est la plus proche de la surface moyenne.
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select dept, surface
+from (select dept, sum(surf) as surface 
+      from communes group by dept)
+order by abs(surface - (select avg(surface) 
+                        from (select dept, sum(surf) as surface 
+                              from communes group by dept
+                             )
+                       )
+            )
+limit 1		     
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+On pourra trier selon la valeur absolue de la différence de la surface avec la moyenne et ne garder qu'un résultat ({limit 1}).
+Le département est 15.
+%--------------------------------------------------------------------------
+
+\medskip
+%--------------------------------------------------------------------------
+On veut classer les villes par leur taille en les regroupant sous la forme 1 à 9 habitants, 10 à 99 habitants, etc
+Pour cela la fonction \type{length(n)}, qui renvoie le nombre de chiffres de $n$, est utile.
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+\it Déterminer le nombre de personnes habitant dans une ville comportant 1 à 9 habitants, 10 à 99 habitants, \dots
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select sum(POP2010) as population, count() as nombre,  rang
+from (select nom, dept, POP2010, length(POP2010) as rang
+      from communes)
+group by rang
+\end{lstlisting}
+\newpage
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\subsection{Hors-programme : utilisation de \type{IN}}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+On peut aussi utiliser une table calculée dans une condition \type{where} : si on produit un ensemble de valeurs on peut tester l'appartenance d'une valeur (ou d'un tuple de valeurs) à cette table avec le test \type{x IN table}.
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}
+\it Donner le nom de la ville la plus peuplée par département.
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}[language=SQL]
+select dept, nom, pop2010
+from communes
+where (dept, pop2010) in (select dept, max(pop2010)
+                      from communes
+					  group by dept)
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

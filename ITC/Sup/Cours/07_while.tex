@@ -1,0 +1,450 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Boucles conditionnelles}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%TODO break
+\thispagestyle{empty}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{abstract}
+Dans ce chapitre, on introduit la possibilité de calculs répétés sans connaissance préalable du nombre d'itérations qui seront nécessaires.
+\end{abstract}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Interrompre une boucle}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Dans le cas d'une recherche d'un élément dans une liste, l'algorithme de base donne
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def appartient(x, liste):
+    reponse = False # On n'a pas encore trouvé x
+    for y in liste:
+        if x == y:
+            reponse = True
+    return reponse
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+On peut regretter que l'on continue à chercher même quand on a trouvé une réponse certaine (on a trouvé l'élément). Une modification possible est d'interrompre la boucle dès qu'on a trouvé l'élément. Pour cela on utilise l'instruction \Type{break} qui impose au programme de sortir de la boucle.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def appartient(x, liste):
+    reponse = False 
+    for y in liste:
+        if x == y:
+            reponse = True
+            break
+    return reponse
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+On peut aussi, lorsqu'aucune instruction n'est exécutée après la boucle, interrompre celle-ci avec un \Type{return}. La variable n'est alors plus nécessaire car on renvoie \type{True} quand on a trouvé et on renvoie \type{False} après la boucle si l'élément recherché n'a pas été trouvé.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def appartient(x, liste):
+    for y in liste:
+        if x == y:
+            return True
+    return False
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Il arrivera dans certains cas que le nombre d'itérations d'une boucle ne soit pas connu d'avance, comme ici, mais qu'en plus, on ne sache pas majorer simplement ce nombre d'itérations. Nous allons exposer une autre instruction de répétition qui permet de gérer ce cas.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Définition}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Un exemple}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+On veut chercher le nombre de chiffres dans l'écriture en base $10$ d'un entier naturel non nul.
+
+On peut écrire le programme suivant
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def nbChiffres(nombre):
+    if nombre == 0: 
+        return 0
+    elif nombre < 10:
+        return 1
+    elif nombre < 100:
+        return 2
+    elif nombre < 1000:
+        return 3
+    elif nombre < 10000:
+        return 4
+    else:
+        print("Nombre trop grand")
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+\type{nbChiffres(438)} renverra 3.
+
+On a comparé le nombre $n$ avec des puissances de 10, la première fois que $n$ est majoré par $10^p$, on a $10^{p-1} \le n
+< 10^p$ donc $n$ a $p$ chiffres.
+
+Le problème est que la fonction ne donne pas de résultat pour les grands entier : même si on ajoute d'autres cas, il existera des entiers dont le résultat n'est pas calculable.
+
+On peut améliorer le programme précédent en utilisant utilisant une variable dont la valeur sera la puissance de 10 (et une autre correspondant à l'exposant). On demande alors de faire la comparaison entre le nombre et la puissance de 10 de manière répétée :
+%-------------------------------------------------------------------------------
+\begin{itemize}
+  \item si le nombre est encore trop grand, on multiplie la puissance par 10 et on ajoute 1 au nombre de chiffres puis on recommence,
+  \item si on a dépassé alors le nombre de chiffres était le bon.
+\end{itemize}
+%-------------------------------------------------------------------------------
+On fait donc un calcul {\bf tant que} le nombre est inférieur à la puissance de 10.
+
+La traduction python est directe, on utilise \Type{while} : 
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def nbChiffres(nombre):
+    puissance10 = 1 # On initialise, pour 0
+    chiffres = 0    # 0, seul nombre < 1, a 0 chiffre
+    while nombre >= puisance10:
+        puissance10 = 10*puissance10
+        chiffres = chiffres + 1
+    return chiffres
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Syntaxe}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{defin}[Boucle conditionnelle]
+La suite d'instructions 
+
+%-------------------------------------------------------------------------------
+{\normalfont
+\begin{lstlisting}
+    while exp_bool:
+        instruction 1 à répéter
+        instruction 2 à répéter
+        ...
+        instruction p à répéter
+    suite des instructions après répétition
+\end{lstlisting}
+}
+%-------------------------------------------------------------------------------
+\begin{enumerate}
+  \item teste l'expression booléenne \type{exp\_bool}
+  \item si celle-ci est évaluée à \type{True}, les instructions 1 à $p$ sont exécutées et le programme revient au test
+  \item si elle est évaluée à \type{False}, le programme passe directement à la suite des instructions.
+\end{enumerate}
+\end{defin}
+%-------------------------------------------------------------------------------
+
+Une des difficultés lors de l'écriture des programmes qui utilisent les boucles \type{while} est la gestion de l'expression booléenne : on ne souhaite pas, en général, laisser l'ordinateur répéter une suite d'instructions sans fin\footnote{Un contre-exemple : l'interface graphique d'un ordinateur est en fait une boucle infinie qui attend les commandes et les exécute, on ne souhaite pas que le système cesse.}.  
+
+Il faudra s'assurer qu'au moins une des variables est modifiée à chaque passage pour que, après un nombre fini d'itérations, la condition puisse devenir fausse.
+
+Dans l'exemple ci-dessus la variable \type{puissance10} prend les valeurs 1, 10, 100, \dots, $10^p$, \dots  successivement. Comme la limite de la suite $(10^p)$ est l'infini, on est assuré qu'après un nombre fini d'étapes cette variable prendra une valeur supérieure au nombre donné en entrée donc le test donnera le résultat \type{False} et la boucle cessera..
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Usages}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{\type{for} et \type{while}}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Il y a donc deux techniques pour faire répéter une suite d'instructions.
+
+En fait une seule suffirait. En effet on peut remplacer les boucles \type{for} par des boucles \type{while}.
+
+Le code suivant remplace une boucle \type{for i in range(a, b, c)}.
+
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+i = a
+while i < b: # pour c négatif, écrire while i > b:
+    instructions(i)
+    i = i + c
+instructions suivantes
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+
+On voit qu'on doit initialiser la variable \type{i} et la modifier dans le corps de la boucle.
+
+\medskip
+
+Ainsi la boucle \type{while} est plus générale que la boucle \type{for}. 
+
+Cependant quand on connaît à l'avance le nombre d'itérations que doit effectuer une boucle il est recommandé d'utiliser une boucle \type{for} : le principal avantage est qu'une boucle \type{for} permet d'éviter les possibles erreurs de programmation qui font qu'une boucle \type{while} peut tourner indéfiniment.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Limite de suites adjacentes}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Si deux suites $u$ et $v$ sont adjacentes (avec $u_n\le v_n$) on sait que la limite $\ell$ vérifie $u_n\le \ell \le v_n$. Pour calculer la limite avec une précision $\varepsilon > 0$ il suffit de calculer $u_n$ et $v_n$ jusqu'à obtenir $v_n - u_n\le \varepsilon$. 
+
+Par exemple la constante d'Euler, $\gamma$ est la limite des suites adjacentes définies Par
+\[ u_n = \left( \sum_{k=1}^n \frac 1k\right)-\ln(n+1)
+\hbox{ et }v_n = \left( \sum_{k=1}^n \frac 1k\right)-\ln(n)\].
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+from math import log
+def gamma(epsilon):
+    n = 1              # on commence par u1 et v1
+    sigma = 1          # somme des 1/k
+    u = sigma - log(2) # valeur de u1
+    v = sigma          # valeur de v1
+    while v - u  > epsilon:
+        n = n +1
+        sigma = sigma + 1/n
+        u = sigma - log(n+1)
+        v = sigma - log(n)
+    return (u + v)/2
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Recherche dans une liste}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+On revient sur le problème de la recherche d'un élément dans une liste : on peut utiliser la boucle \type{while} de manière astucieuse en évitant l'usage de la variable \type{dedans}. En effet la valeur de \type{i} lorsque la boucle s'arrête est un indicateur : si $i$ est strictement inférieur à $n$, c'est qu'on a trouvé \type{x} dans \type{liste[i]}, si $i$ vaut $n$ c'est qu'on n'a pas trouvé.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def appartient3(x, liste):
+    n = len(liste)
+    i = 0
+    while (i < n) and liste[i] != x:
+        i = i + 1
+    return i < n
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+On notera que l'on doit placer la condition \type{i < n} {\bf avant} l'autre condition car, pour $i=n$, la deuxième condition n'a pas de sens. L'évaluation paresseuse du \type{and} fait qu'alors \type{liste[i]} n'est pas évalué si on a $i=n$.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Recherche dans une liste triée}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Idée}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Si un élément $x$ n'appartient pas à une liste et qu'on le recherche dans cette liste, les algorithmes précédents vont comparer $x$ avec tous les éléments de la liste. Il semble difficile de faire autrement : pour être sur qu'un élément n'est pas dans une liste il faut être certain qu'il soit différent de tous les éléments.
+
+Cependant si la liste est triée on peut utiliser cette information supplémentaire : si $x$ est strictement supérieur à \type{liste[i]} alors il ne peut pas être égal à \type{liste[j]} pour tout $j\le i$ (quand la liste est triée par ordre croissant).
+
+Le principe est alors similaire au jeu classique :
+
+Agnès ({\bf A}) demande à Bernard ({\bf B}) de penser à un nombre entre 1 et 100 et lui annonce qu'elle va le deviner en posant au plus 7 questions auxquelles Bernard répondra en disant {\it trouvé}, {\it trop petit} ou {\it trop grand}. Par exemple ({\bf B} a pensé à 88)
+\begin{itemize}
+  \item {\bf A} : "{\it 50}" --- {\bf B} : "{\it trop petit}"
+  \item {\bf A} : "{\it 75}" --- {\bf B} : "{\it trop petit}"
+  \item {\bf A} : "{\it 87}" --- {\bf B} : "{\it trop petit}"
+  \item {\bf A} : "{\it 94}" --- {\bf B} : "{\it trop grand}"
+  \item {\bf A} : "{\it 91}" --- {\bf B} : "{\it trop grand}"
+  \item {\bf A} : "{\it 89}" --- {\bf B} : "{\it trop grand}"
+  \item {\bf A} : "{\it 88}" --- {\bf B} : "{\it trouvé}"
+\end{itemize}
+
+Au départ {\bf A} sait que le nombre est entre 1 et 100. La première réponse diminue cet intervalle à $[51;100]$, la seconde à $[76;100]$ et ainsi de suite jusqu'à la dernière question qui n'en est pas vraiment une car {\bf A} sait que le nombre est entre 88 et 88.
+
+On remarque que {\bf A} teste un nombre qui est la moyenne approchée\footnote{Car on veut que le nombre testé reste un entier.} des bornes connues, cela permet de diminuer l'intervalle au mieux dans tous les cas.
+
+\medskip
+
+L'algorithme de recherche va suivre ces idées.
+\begin{enumerate}
+  \item On initialise deux bornes \type{a} et \type{b} avec les bornes de la liste.
+  \item On définit le milieu de \type{a} et \type{b}, \type{c}, et on compare le terme d'indice \type{c} de la liste à l'élément recherché.
+  \item S'il y a égalité on renvoie \type{True}, on a trouvé.
+  \item Si l'élément recherché est strictement plus grand, on remplace \type{a} par \type{c+1} ; en effet $x$ ne peut pas être égale à \type{liste[i]} pour $i\le m$.
+  \item Si l'élément recherché est plus strictement petit, on remplace \type{b} par \type{c}.
+  \item On recommence en 2 si on peut encore chercher, sinon on renvoie \type{False}.
+\end{enumerate}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Écriture}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+
+L'algorithme ci-dessus s'exécute tant qu'il reste des éléments parmi lesquels chercher, comme on cherche entre 
+\type{a} et \type{b}, la condition est \type{a <= b}.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def recherche(x, liste): 
+    a = 0
+    b = len(liste) - 1
+    while a <= b:
+        c = (a + b)//2 # on doit avoir un indice entier
+        if liste[c] == x:
+            return True
+        elif liste[c] < x:
+            a = c + 1
+        else:
+            b = c -1
+    return False 
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Étude théorique}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+L'algorithme ci-dessus, la {\bf recherche par dichotomie}, n'est pas simple. C'est un cas particulier d'une méthode appelée "{\it diviser pour régner}".
+
+L'étude qui suit est destinée à étudier cet algorithme.
+
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsubsection{Notations}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{itemize}
+    \item $n$ est la longueur de la boucle.
+    \item $a_i$ et $b_i$ les valeurs des variables \type{a} et \type{b} au départ du $i$-ième passage.
+    \item Initialement on a $a_0=0$ et $b_0 = n-1$.
+    \item On note $c_i = \left\lfloor\frac{a_i + b_i}2\right\rfloor$, la valeur de \type{c} lors de la $i$-ième itération.
+\end{itemize}
+
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsubsection{On sort de la boucle \type{while}}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+La première étape est de prouver que l'algorithme ne reste pas indéfiniment dans la répétition.
+
+\begin{itemize}
+    \item Si on a $a_i > b_i$, on sort de la boucle.
+    \item Si on a $a_i \le b_i$, on calcule $c_i$
+
+{\bf (1)} {\it Prouver qu'on a  $a_i \le c_i \le b_i$.}
+\item Si \type{liste[c]} vaut $x$, le programme s'arrête.
+\item Sinon on remplace $a_i$ par $a_{i+1} = c_i+1$  ou $b_i$ par $b_{i+1} = c_i-1$.
+Dans le premier cas on a $b_{i+1} = b_i$ et dans le second, $a_{i+1}=a_i$.
+
+{\bf (2)} {\it Montrer que, dans les deux cas, $b_{i+1} - a_{i+1} < b_i - a_i - 1$.}
+\item Ainsi l'écart entre $a_i$ et $b_i$ diminue d'au moins 1 lors de chaque passage dans la boucle \type{while}. Comme l'écart initial est $n-1$ où $n$ est la longueur de la liste, on arrive à la condition \type{a > b} après $n$ passages au plus si on n'est jamais arrivé à trouver $x$.
+\end{itemize}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsubsection{On obtient le bon résultat}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{itemize}
+    \item Si \type{x} n'est pas un élément de la liste alors la boucle \type{while} n'est pas interrompue par une instruction \type{return}. la démonstration ci-dessus montre qu'on finit par sortir de la boucle \type{while} donc la fonction va alors renvoyer \type{False}.
+    \item On suppose maintenant que $x$ est une des valeurs de la liste, il faut prouver que la fonction va alors renvoyer \type{True} ;  $k$ est un indice tel que \type{liste[k]} vaut $x$.
+{\bf (3)} {\it Prouver qu'on a  $a_i <= k <= a_i$ à chaque début de passage de la boucle.}    
+    \item {\bf (4)} {\it Conclure.}  
+\end{itemize}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsubsection{L'algorithme est plus efficace}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+
+On a remplacé un algorithme simple qui ne fait qu'une comparaison par élément de la liste donc au plus $n$ opérations au total si $n$ est la longueur de la liste par un algorithme moins intuitif qui effectue 1 addition, 1 division et 2 comparaisons à chaque passage. Il est légitime de se demander si cela vaut la peine.
+
+On va donc essayer de majorer le nombre de passages dans la boucle \type{while}. 
+
+On note $p$ ce nombre de passages on a vu qu'on avait $p\le n$.
+
+Une difficulté provient du fait qu'on ne coupe pas toujours en 2, si $b_i-a_i$ est pair, $b_{i+1} - a_{i+1}$ n'est pas le même selon que l'on cherche à droite de $c_i$ ou à gauche.
+
+\begin{itemize}
+    \item On commence par un cas particulier où la division est toujours régulière.
+    
+    On suppose que $n$ est de la forme $n = 2^m-1$,  $m\ge 1$.
+
+{\bf (5)} {\it Prouver qu'on a  $b_i - a_i = 2^{m-i} -2$ pour tout $i$ tel que $a_i$ et $b_i$ sont définis.}
+
+    \item On  suppose maintenant qu'on majore  $n< 2^m$,  $m\ge 1$.
+
+{\bf (6)} {\it Prouver qu'on a  $b_i - a_i \le  2^{m-i} -2$ pour tout $i$ tel que $a_i$ et $b_i$ sont définis.}
+
+    \item {\bf (7)} {\it En déduire qu'on a $p \le m+1$.}
+
+    \item {\bf (8)} {\it En choisissant $m$ tel que $2^{m-1} \le n < 2^{m}$ prouver qu'on a $p \le \log_2(n) + 2$.}
+\end{itemize}
+
+La majoration du nombre d'opérations par $4\bigl(\log_2(n) + 2)$ est très intéressante. 
+
+Pour $n = 10^6$ on obtient un nombre d'opérations de l'ordre de $88$ à comparer aux $10^6$ opérations dans l'algorithme simple. Chaque fois qu'on multiplie $n$ par 1000 le nombre d'opérations augmente seulement de 40.
+
+\newpage
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Réponses}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{description}
+\item[(1)] On a  $2a_i \le a_i + b_i \le 2b_i$ d'où $a_i \le \frac{a_i + b_i}2 \le b_i$ puis $a_i \le \left\lfloor\frac{a_i + b_i}2\right\rfloor = c_i \le b_i$ car $a_i$ et $b_i$ sont des entiers.
+
+\item[(2)] On a soit $b_{i+1} - a_{i+1} = b_i - (c_i+1) = b_i - c_i - 1\le b_i-a_i-1$ car $c_i \ge a_i$,
+
+soit $b_{i+1} - a_{i+1} = (c_i-1) - a_i= c_i - 1 -a_i\le b_i-a_i-1$ car $c_i \le b_i$.
+
+\item[(3)] On prouve la résultat par récurrence sur $i$.
+
+\begin{enumerate}
+    \item On a $0 \le k < n$ donc $a_0 \le k \le b_0$.
+ \item On suppose qu'on a $a_i \le k \le b_i$.
+ 
+ Si \type{liste[c] < x = liste[k]} on sort de la boucle et il n'y a rien à prouver.
+ 
+ Si \type{liste[c] > x = liste[k]} alors, comme la liste est croissante,   $c_i > k$ puis $b_{i+1} = c_i - 1 \ge k$. On a aussi $k\ge a_i = a_{i+1}$ on trouve bien $a_{i+1} \le k \le b_{i+1}$.
+ 
+Si \type{liste[c] < x = liste[k]} alors $c_i < k$ puis $a_{i+1} = c_i + 1 \le k$. 
+
+On a aussi $k\le b_i = b_{i+1}$.
+
+\item On a bien $a_i \le k \le b_i$ pour tous les cas où $a_i$ et $b_i$ existent.
+ 
+\end{enumerate}
+
+\item[(4)] Comme on a toujours $a_i\le k\le k$ on n'aboutit jamais à une condition \type{a > b} qui permet de sortir de la boucle. Cependant on sait que le programme donne un résultat, ce ne peut donc être que par une sortie \type{return True} dans la boucle.
+
+\item[(5)] On fait encore une récurrence (finie).
+
+\begin{enumerate}
+    \item On a $b_0 - a_0 = n-1 = 2^m -1 -1 = 2^{m-0}-2$.
+ \item On suppose qu'on a $b_i - a_i = 2^{m-i}-2$ et qu'on revient dans la boucle \type{while}.
+ 
+ On a $c_i = \left\lfloor\frac{a_i + b_i}2\right\rfloor = \left\lfloor\frac{2a_i + 2^{m-i}-2}2\right\rfloor = a_i + 2^{m-1-i} -1$.
+ 
+ On en déduit qu'on a selon les cas, $b_{i+1}- a_{i+1} = c_i - 1 - a_i =2^{m-1-i} -2$ ou
+ 
+$b_{i+1}- a_{i+1} = b_i - (c_i+1) = a_i + 2^{m-i}-(a_i + 2^{m-i-1}) = 2^{m-1-i} -2$.
+
+\item La propriété est démontrée pour tout $i$.
+ 
+\end{enumerate}
+
+
+\item[(6)] La démonstration est semblable, avec une subtilité.
+
+\begin{enumerate}
+    \item On a $b_0 - a_0 = n-1 \le 2^m -1 -1 = 2^{m-0}-2$.
+ \item On suppose qu'on a $b_i - a_i \le 2^{m-i}-2$ et qu'on revient dans la boucle \type{while}.
+ 
+On commence par le cas $b_i-a_i$ pair : $b_i = a_i + 2q$ avec $q\le 2^{m-i-1}-1$.
+
+On a $c_i=a_i+q$ donc $b_{i+1}-a_{i+1} = q-1\le 2^{m-i-1}-2$
+ 
+\item Si on a $b_i-a_i$ impair, $b_i-a_i = 2p +1$, l'inégalité $b_i-a_i \le 2^{m-i} -2$ pour $b_i-a_i$ impair impose $b_i-a_i \le 2^{m-i} -3$ donc $q\le 2^{m-i-1}-2$. On a encore  $c_i=a_i+q$ donc $c_i -1 - a_i = q - 1$ et $b_i - (c_i+1)=q$.
+
+Dans les deux cas on a $b_{i+1}-a_{i+1} \le q \le 2^{m-i-1}-2$.
+
+\item La propriété est démontrée pour tout $i$.
+ 
+\end{enumerate}
+
+
+\item[(7)] Tous les passages sauf peut-être le dernier valident la condition du \type{while}. On a donc $b_i - a_i \ge 0$ pour $0\le i \le p-2$ (le dernier passage correspond à $i = p-1$). En particulier
+
+$0\le b_{p-2} - a_{p-2} = 2^{m-(p-2)} -2$ donc $2^{m-p+2} \ge 2 = 2^1$ puis $m-p+2 \ge 1$ : $p\le m+1$.
+
+\item[(8)] Si on a $2^{m-1}\le n < 2^m$ alors $m-1\le \log_2(n)$ donc $p\le m+1\le \log_2(n) +2$.
+Comme on effectue au plus 4 opérations dans chaque passage de la boucle, on obtient la majoration demandée.
+
+\end{description}
+
+
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+

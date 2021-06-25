@@ -1,0 +1,54 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+% Chargement des macros et des packages
+\input{definitions}
+%-------------------------------------------------------------------------------
+%------------------------------------------------------------------------------- 
+% Personnalisations générales
+%-------------------------------------------------------------------------------
+% Indication du type de document
+\def\titre{Cours d'informatique}
+% Pour changer le nom des composantes :
+%\addto\captionsfrench{\renewcommand{\chaptername}{le nom}}
+% La syntaxe est compliquée car on a chargé babel
+%-------------------------------------------------------------------------------
+% Classe(s) concernée(s)
+\def\classe{MPSI \& PCSI}
+%-------------------------------------------------------------------------------
+% Année
+\def\annee{2020-2021}
+%-------------------------------------------------------------------------------
+% Où trouver les images
+\graphicspath{{./Images/}}
+%-------------------------------------------------------------------------------
+% Commande pour les solutions des exercices
+% Si une composante n'a pas de solution, ou l'inclut avec \chapitre
+% Sinon on l'inclut avec \chapitreSol
+% Si on veut que les solution apparaissent on l'indique par \reponsestrue
+% Sinon on l'indique par \reponsefalse
+\reponsestrue
+%------------------------------------------------------------------------------- 
+\begin{document}
+%-------------------------------------------------------------------------------
+\premierePage
+\tableofcontents
+\chapitre{01_Presentation}
+\chapitre{02_Variables}
+\chapitre{03_Fonctions} 
+\chapitre{04_Boucles}
+\chapitre{05_Conditionnelles}
+\chapitreSol{06_Listes1}
+\chapitre{07_while}
+\chapitre{08_Listes2}
+\chapitreSol{09_Fichiers}
+\chapitre{10_Entiers}
+\chapitre{11_Reels}
+\chapitre{12_Zeros}
+\chapitreSol{13_Integrales}
+\chapitre{14_EquationsDiff}
+\chapitre{15_Numpy}
+\chapitre{16_ED_plus}
+\chapitre{17_Bases}
+\chapitreSol{18_Jointures}
+\chapitreSol{19_Algebre_Lineaire}
+\end{document}

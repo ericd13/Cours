@@ -1,0 +1,407 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Variables}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{abstract} Dans ce T.P. nous allons utiliser l'affectation et les bénéfices de l'usage des variables.
+\end{abstract}
+
+\bigskip
+
+
+{\bf Quelques rappels et conseils.}
+\begin{itemize}
+    \item Donnez à vos variables des noms parlants qui permettent de comprendre leur rôle. Ces noms ne doivent contenir que des lettres et des chiffres (pas de ponctuation, pas d'espace). Le caractère \type{\_} (underscore) est aussi autorisé.
+    \item Il pourra parfois être utile de stocker aussi des résultats de calcul intermédiaires en créant d'autres variables.
+    \item La multiplication implicite (par exemple $ab$ pour dire $a\times b$) n'est pas comprise par Python, donc utilisez forcément le symbole \type{*} pour les multiplications.
+    \item La racine  carrée peut s'écrire \type{**0.5}
+    \item Les fonctions et constantes mathématiquesne sont pas disponibles par défaut. Ajouter la ligne \type{import math} au début de votre code. Vous disposerez alors de \type{math.pi} pour la valeur numérique de $\pi$, \type{math.sin} pour la fonction sinus \dots.
+    \item Dans tous les exercices comportant des valeurs numériques, ne les utilisez jamais directement dans les calculs. Cela rend la relecture du code pénible (et donc les erreurs moins faciles à détecter) et si une valeur apparaît plusieurs fois vous allez la retaper inutilement. Stockez les valeurs numériques dans des variables avec la syntaxe \type{nom\_variable = valeur}.
+    \item L'ordinateur ne gère pas les unités, donc rentrez les valeurs numériques directement dans les bonnes unités,  celles fournies conviennent le plus souvent.
+    \item les puissances de 10 ont une écriture spécifique : \SI{4.21e-11} s'écrit \type{4.21e-11} (il faut que l'exposant soit entier et que les valeurs soient explicitement numériques.
+\end{itemize}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Opérations simples}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+{\it 
+Voici un petit programme :
+\begin{lstlisting}
+x = 10
+y = 15
+z = x + y
+x = y
+y = z
+print(x + y + z)
+\end{lstlisting}
+
+Que va-t-il donner comme résultat ? Vérifier en l'exécutant depuis l'éditeur.
+}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+{\it Que voudrait-on faire avec les lignes suivantes ?
+\begin{lstlisting}
+x = 10
+y = 15
+y = x
+x = y
+\end{lstlisting}
+
+Obtient-on le résultat souhaité ? Proposer une manière d'échanger les valeurs de deux variables.}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Calculs physiques}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Deuxième équivalence}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+On dose l'acide oxalique (un diacide) dont la concentration $C$ est inconnue avec un volume initial $V_0=\SI{20e-3}{L}$) par de la soude de concentration $C_b=\SI{5e-2}{mol.L^{-1}}$. La première équivalence est peu visible, donc on ne peut exploiter que la seconde, pour laquelle :
+	\begin{align*}
+	2CV_0=C_bV_\text{éq2}
+	\quad\text{avec}\quad
+	V_\text{éq2}=\SI{12e-3}{L}
+	\end{align*}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+{\it Calculez numériquement $C$.}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+V0 = 20e-3
+Veq2 = 12e-3
+Cb = 5e-2
+C = Cb*Veq2/(2*V0)
+print(C)
+\end{lstlisting}
+On trouve $C=\SI{1,5e-2}{mol.L^{-1}}$.
+\end{Answer} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Pulsation plasma}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+À quelques dizaines de kilomètres d'altitude se trouve une couche d'atmosphère appelée \emph{ionosphère}. Celle-ci est dans un état de la matière appelée \emph{plasma} et ne laisse passer les ondes télécom que si leur fréquence est assez élevée. On donne :
+\begin{align*}
+    \begin{dcases}
+        \nu=\frac{\omega}{2\pi} & \text{fréquence}\\
+        k^2=\frac{\omega^2-\omega_p^2}{c^2} & \text{nombre d'onde}\\
+        \omega_p=\sqrt{\frac{ne^2}{\varepsilon_0m_e}} & \text{pulsation plasma}
+    \end{dcases}
+\quad\text{avec}\quad
+    \begin{dcases}
+        e=\SI{1,60e-19}{C}\\
+        \varepsilon_0=\SI{8,85e-12}{F.m^{-1}}\\
+        m_e=\SI{9,11e-31}{kg}\\
+        n=\SI{1,00e11}{m^{-3}}\\
+        c=\SI{3,00e8}{m.s^{-1}}
+    \end{dcases}
+\end{align*}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+{\it Calculez la fréquence minimale avec laquelle communiquer depuis la surface avec un satellite. Pour cela, il faut que le nombre d'onde soit réel.
+}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+On veut $k^2\geqslant 0$ et donc $\omega_\text{min}=\omega_p$. D'où 
+\begin{lstlisting}
+e = 1.6e-19
+eps0 = 8.85e-12
+me = 9.11e-31
+n = 1e11
+c = 3e8
+
+wp2 = n*e**2/(eps0*me)
+fmin = wp2**0.5/(2*math.pi)
+print(fmin)
+\end{lstlisting}
+
+On trouve $\nu=\SI{2,83e6}{Hz}$.
+\end{Answer} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Méthode de Bessel}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Dans un home-cinéma, on veut projeter l'image d'un objet (le film) sur un écran (au mur) par une lentille. La distance objet-écran est imposée par la disposition de la salle et vaut $D=\SI{5}{m}$. La lentille de projection a pour distance focale $f'=\SI{0.4}{m}$.
+
+Il existe deux positions de la lentille entre l'objet et l'écran telles que l'image est nette. Le grandissement (rapport entre la taille de l'objet et celle de l'image) vaut :
+	\begin{align*}
+	\gamma_1=\frac{D+\sqrt{D^2-4Df'}}{-D+\sqrt{D^2-4Df'}}
+	\quad\text{et}\quad
+	\gamma_2=\frac{D-\sqrt{D^2-4Df'}}{-D-\sqrt{D^2-4Df'}}
+	\end{align*}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+{\it Calculez les deux grandissements. Vérification : leur produit doit valoir 1.}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+Pour minimiser les répétitions du même calcul (la racine du discriminant) on crée une variable intermédiaire.
+\begin{lstlisting}
+D = 5
+fp = 0.4
+sq_delta = (D**2-4*D*fp)**0.5
+
+gamma1 = (D+sq_delta)/(-D+sq_delta)
+gamma2 = (D-sq_delta)/(-D-sq_delta)
+print(gamma1)
+print(gamma2)
+print(gamma1*gamma2)
+\end{lstlisting}
+
+On trouve $\gamma_1=\num{-10,4}$ et $\gamma_2=\num{-0,09}$.
+\end{Answer} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Résonance en transmission}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Un électron d'énergie $E$ arrive sur une zone de largeur $l$ où son énergie potentielle vaut $V_0<E$. D'après les lois de la physique quantique, la probabilité qu'il reparte en arrière (réflexion) est :\footnote{Ce n'est pas demandé, mais le tracé de cette fonction $R(l)$ montre qu'il s'agit d'une fonction présentant des minima très piqués. Cela signifie que la probabilité complémentaire (de traverser la zone) $T=1-R$ présente un phénomène de \emph{résonance} (passage par un maximum) pour certaines valeurs de $l$.}
+\begin{align*}
+    R=\frac{(k_2^2-k_1^2)^2\sin(k_2l)^2}{4k_1^2k_2^2+(k_1^2-k_2^2)^2\sin(k_2l)^2}
+    \quad\text{où}\quad
+    \begin{dcases}
+        k_1=\sqrt{\frac{2mE}{\hslash^2}}\\
+        k_2=\sqrt{\frac{2m(E-V_0)}{\hslash^2}}
+    \end{dcases}
+    \quad\text{avec}\quad
+    \begin{dcases}
+        m=\SI{9,11e-31}{kg}\\
+        E=\SI{5,00}{eV}\\
+        V_0=\SI{3,00}{eV}\\
+        l=\SI{5,00e-9}{m}\\
+        \hslash=\SI{1,05e-34}{J.s}
+    \end{dcases}
+\end{align*}
+
+Dans $k_1$ et $k_2$, il faut exprimer les énergies $E$ et $V_0$ en joules. Le facteur de conversion des électron-volt aux joules est $\SI{1}{eV}=\SI{1,60e-19}{J}$.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+{\it Calculez numériquement la probabilité $R$.}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+m = 9.11e-31
+hbar = 1.05e-34
+l = 5e-9
+conv_eV = 1.6e-19
+E = 5*conv_eV
+V0 = 3*conv_eV
+
+k12 = 2*m*E/hbar**2
+k22 = 2*m*(E-V0)/hbar**2
+a = (k22-k12)**2*math.sin(k22**0.5*l)**2
+R = a/(4*k12*k22+a)
+print(R)
+\end{lstlisting}
+On trouve $R= 0,176$.
+\newpage
+\end{Answer} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Angle de perte d'une bobine}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Une bobine est un composant électronique caractérisé par deux coefficients réels positifs, son inductance $L$ et sa résistance $R$. On peut alors définir son impédance, paramètre complexe défini par $Z=R+iL\omega$, avec $\omega$ la pulsation du signal électrique utilisé dans le montage.
+
+On définit alors son \emph{angle de perte} $\delta$ par :
+\begin{align*}
+    \tan(\delta)=\frac{\text{Re}(Z)}{\text{Im}(Z)}
+    \quad\text{avec}\quad
+    \begin{dcases}
+        L=\SI{0,1}{H}\\
+        R=\SI{10}{\ohm}\\
+        \nu=\SI{50}{Hz}\\
+        \omega=2\pi\nu\\
+        \delta\in\left\lbrack 0,\frac{\pi}{2}\right\lbrack
+    \end{dcases}
+\end{align*}
+
+La partie réelle et la partie imaginaire d'un complexe $u$ s'obtiennent respectivement par \type{u.real} et \type{u.imag}.
+
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+{\it Calculez l'angle de pertes en degrés.}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+L = 0.1
+R = 10
+nu = 50
+
+omega = 2*math.pi*nu
+Z = R+1j*L*omega
+tand = Z.real/Z.imag
+delta_rad = math.atan(tand)
+delta_deg = delta_rad*180/math.pi
+print(delta_deg)
+\end{lstlisting}
+
+On trouve $\delta=\ang{17,7;;}$. On peut aussi remarquer que c'est le complémentaire de $\arg(Z)$.
+\end{Answer} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Calculs mathématiques}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+{\it Écrire un programme qui écrit une durée exprimée en secondes dans une variable \type{t} sous la forme jours, heures, minutes, secondes.
+
+Par exemple, pour \type{t = 325415} le programme devra afficher 
+
+\type{325415 secondes correspondent à 3 jours 18h 23mn 35s}
+
+\textit{Rappels :} \type{//} pour la division entière, \type{\%} pour le reste.}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+{\it Le polynôme $aX^2 + b X +c$ est défini par trois variables réelles (de type \type{float}) \type{a}, \type{b} et \type{c}. 
+
+Écrire un programme qui affiche les deux racines du polynôme.
+
+Que se passe-t-il lorsque le discriminant est négatif ?}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Polynômes de degré 3}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Le but de ces exercices est de déterminer les 3 racines (complexes) d'un polynôme de degré 3 : $P(X)=X^3+aX^2++bX+c$. Même dans le cas d'un polynôme à coefficients réels et dont les 3 racines sont réelles ont doit calculer des valeurs intermédiaires complexes. 
+
+On peut définir un nombre complexe à partir de son module $r$ et de son argument $\varphi$ à l'aide de la fonction \type{cmath.rect(r, phi)} du module \type{cmath}.
+\begin{lstlisting}
+import cmath 
+
+>>> cmath.rect(2, cmath.pi/3)
+(1.0000000000000002+1.7320508075688772j)
+\end{lstlisting}
+
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+{\it Étant donné un nombre (éventuellement complexe) dans une variable $u$, écrire les instructions qui permettent de calculer ses 3 racines troisièmes dans ${\mathbb C}$ dans des variables \type{a1}, \type{a2} et \type{a3}.}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+a1 = u**(1/3)
+w = cmath.rect(1,2*cmath.pi/3)
+a2 = a1*w
+a3 = a2*w # ou a1/w
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\medskip
+
+Dans le cas du polynôme $P(X)=X^3+pX+q$ on démontre (exercice de mathématique) que si on pose $X = a+b$ en imposant $ab = -\frac p3$ alors $a^3+b^3 = -q$. Comme on a aussi $a^3b^3 = -\frac {p^3}{27}$ on voit que $a^3$ et $b^3$ sont les racines de $\displaystyle Q(X) = X^2 +qX-\frac {p^3}{27}$.
+
+On obtient alors 2 racines $r_1$ et $r_2$. On démontre aussi que si
+
+\begin{itemize}
+    \item on choisit une des racines, $r_1$
+    \item on attribue successivement à $a$ les 3 racines de $r_1$ 
+    \item on détermine $b$ par $ab = -\frac p3$,
+\end{itemize} 
+
+on obtient alors les trois racines de $P$ en calculant $a+b$.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+{\it Écrire les instructions qui permettent de calculer les 3 racines, \type{t1}, \type{t2} et \type{t3} du polynôme $X^3+pX+q$ à partir des valeurs des coefficients donnés dans deux variables \type{p} et \type{q}.
+
+On supposera $p$ non nul}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+delta  = q**2 + 4*p**3/27
+u = (-q + delta**(1/2))/2
+a1 = u**(1/3)
+w = cmath.rect(1,2*cmath.pi/3)
+a2 = a1*w
+a3 = a2*w 
+b1 = -p/3/a1
+b2 = -p/3/a2
+b3 = -p/3/a3
+t1 = a1 + b1
+t2 = a2 + b2
+t3 = a3 + b3
+\end{lstlisting}
+\newpage
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}
+{\it Dans le cas général, $P(X)=X^3+\alpha X^2+\beta X+\gamma$, montrer que $u$ est racine de $P$ si et seulement si $u+\frac \alpha 3$ est racine d'un polynôme de la forme $P_1(X)=X^3+pX+q$ dont on déterminera les coefficients $p$ et $q$ en fonction de $\alpha$, $\beta$  et $\gamma$.
+
+En déduire le calcul des 3 racines du  polynôme $P$ à partir des variables \type{alpha}, \type{beta} et \type{gamma} dans trois variables \type{t1}, \type{t2} et \type{t3}
+
+On pourra supposer qu'on a $p\ne 0$ ou traiter ce cas en utilisant une instruction conditionnelle.}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+
+
+$\bigl(u+\frac \alpha 3\bigr)^3 = u^3+\alpha.u^2+\frac {\alpha^2}3u+\frac {\alpha^3}{27}$ or $u^3+\alpha.u^2 = -\beta.u-\gamma$ car $u$ est racine.
+
+Ainsi $\bigl(u+\frac \alpha 3\bigr)^3 = \bigl(\frac {\alpha^2}3 - \beta)u+\frac {\alpha^3}{27}-\gamma
+=\bigl(\frac {\alpha^2}3 - \beta)\bigl(u+\frac \alpha3\bigr)+\frac {\alpha^3}{27}-c-\frac {\alpha^3}9+\frac{\alpha \beta}3$.
+
+$p = \beta - \frac {\alpha^2}3$ et $q = \gamma - \frac{\alpha\beta}3+\frac {2\alpha^3}{27}$.
+\begin{lstlisting}
+import cmath
+
+alpha = -6
+beta = 11
+gamma = -6
+
+p = beta - alpha**2/3
+q = gamma - alpha*beta/3 + 2*alpha**3/27
+d = -alpha/3
+if p == 0:
+    u = -q
+    t1 = u**(1/3) + d
+    w = cmath.rect(1,2*cmath.pi/3)
+    t2 = t1*w + d
+    t3 = t2*w  + d
+else:
+    delta  = q**2 + 4*p**3/27
+    u = (-q + delta**(1/2))/2
+    a1 = u**(1/3)
+    w = cmath.rect(1, 2*cmath.pi/3)
+    a2 = a1*w
+    a3 = a2*w 
+    b1 = -p/3/a1
+    b2 = -p/3/a2
+    b3 = -p/3/a3
+    t1 = a1 + b1 + d 
+    t2 = a2 + b2 + d 
+    t3 = a3 + b3 + d 
+print(t1, t2, t3)
+\end{lstlisting}
+\newpage
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+

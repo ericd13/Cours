@@ -1,0 +1,352 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{A.D.N.}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\vskip -1cm
+
+{\sf On sait depuis le début des années 1950 que l'information génétique d'un organisme
+vivant est mémorisée dans la molécule d'ADN de ses chromosomes. Cette molécule,
+constituée de deux brins complémentaires, est un long (plusieurs milliards) enchaînement de nucléotides de
+quatre types différents (distingués par leur base azotée : adénine, thymine, cytosine et
+guanine) désignés par les lettres A, T, C et G.
+
+
+Séquencer le génome d'un organisme, c'est établir l'enchaînement de ces nucléotides.
+Le premier génome entièrement séquencé, celui de la bactérie {\sc Haemophilus infuenzae} en 1995, comportait moins de deux millions de nucléotides. 
+Des génomes d'organismes évolués peuvent comporter plusieurs milliards de nucléotides.
+La molécule d'ADN apparaît ainsi comme un très long texte écrit avec les quatre lettres
+A, T, C, G.
+
+À titre de comparaison un livre de poche de 1 000 pages comporte environ deux millions de caractères...
+
+Enfin, seules certaines parties de cet enchaînement, appelées régions codantes ont
+un {\bf sens}, c'est à dire, qu'elles sont susceptibles de coder une protéine.
+
+L'objet de ce problème est de déterminer la position des régions codantes.
+}
+
+\medskip
+
+La bibliothèque \type{random} possède différentes fonctions.
+
+On l'importera par \type{import random as rd}.
+
+\begin{itemize}
+    \item \type{randint} telle que \type{random.randint(a, b)} renvoie un entier choisi aléatoirement parmi les entiers $a$, $a+1$, \ldots, $b$.
+    Pour choisir un élément au hasard dans une liste on peut donc écrire
+\begin{lstlisting}
+def choisir(ens):
+    n = len(ens)
+    k = rd.randint(0, n-1)
+    return ens[k]
+\end{lstlisting}
+    \item Cette dernière fonction existe dans la bibliothèque : \type{rd.choice(ens)} renvoie une valeur choisie aléatoirement parmi les éléments de la liste ou chaîne de caractère (\type{ens}) passée en argument. Ainsi on choisit un des caractères A, C, G ou T de manière équiprobable par \type{rd.choice('ACGT')}
+\end{itemize}
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = Génération]\it 
+Écrivez une fonction \type{ADN} qui reçoit un entier $n$ pour paramètre et qui renvoie une chaîne de caractères \type{chaine} de longueur $n$ et constituée uniquement des caractères A, C, T, G répartis aléatoirement.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def ADN(n):
+    ch = ""
+    for i in range(n):
+        ch = ch + rd.choice('ACGT')
+    return ch
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Dans toute la suite les chaînes de caractères seront supposées ne contenir que les caractères A, C, T et G. Dans les fonctions on utilisera pour les exemples la chaîne 
+\begin{lstlisting}
+ch0 = 'GATGCATTAGTAAGGGGTAGA'
+\end{lstlisting}
+
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = Compter]\it 
+Écrire une fonction \type{nb\_lettres(chaine, lettre)} qui reçoit une chaîne ADN et un caractère, A, C, T ou G, et renvoie le nombre d'occurrences du caractère dans la chaîne.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def nb_lettres(chaine, lettre):
+    n = 0
+    for car in chaine:
+        if car = lettre:
+            n = n + 1
+    return n
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\type{nb\_lettres(ch0, 'A')} doit renvoyer 7.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = Statistiques]\it 
+Écrire une fonction \type{composition(chaine)} qui renvoie les statistiques de \type{chaine} : nombre d’occurrences et pourcentage de chaque caractère.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+On peut fixer le format des nombres utilisés dans la méthode \type{format} :
+
+\type{:3d} écrit un entier avec 3 emplacements
+
+\type{:5.2f} écrit un flottant avec 5 emplacements (y compris le point de séparation) avec 2 chiffres après la vigule.
+
+\begin{lstlisting}
+def composition(chaine):
+   n = len(chaine)
+   print('La chaîne', chaine, 'contient')
+   for lettre in 'ACGT':
+       k = nb_lettres(chaine, lettre)
+       print('{:2d} fois {}, soit {:5.2f} %'.format(k, lettre, k/n*100))
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+La chaîne GATGCATTAGTAAGGGGTAGA contient
+ 7 fois A, soit 33.33 %
+ 1 fois C, soit  4.76 %
+ 8 fois G, soit 38.10 %
+ 5 fois T, soit 23.81 %
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it 
+Écrire une fonction \type{renverse(chaine)} qui prend comme argument une chaîne de caractères et la renvoie dans l'ordre inverse.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+On prend les caractères dans l'ordre et on les ajoute à gauche depuis une chaîne vide.
+
+\begin{lstlisting}
+def renverse(chaine):
+    eniahc = ""
+    for car in chaine:
+       eniahc = car + eniahc
+    return eniahc
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\type{renverse(ch0)} renverra \type{'AGATGGGGAATGATTACGTAG'}.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsubsection{Mutations}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+{\sf Une mutation est une modification de l'information génétique dans le génome d'une cellule ou d'un virus et par conséquent une modification de la séquence de l'ADN. 
+
+Les mutations sont une des causes principales de l'évolution des espèces.} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it 
+Écrire une fonction \type{changement(chaine, k, car)} qui calcule et renvoie une nouvelle chaîne semblable à la chaîne initiale à l'exception du  caractère à la position \type{k} (\type{0 <= k < len(chaine)}) qui est remplacé par \type{car}.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def changement(chaine, k, car):
+    return chaine[ :k] + car + chaine[k+1 : ]
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\type{changement(ch0, 5, 'C')} renverra \type{'GATGCCTTAGTAAGGGGTAGA'}.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it 
+Écrire une fonction \type{mutation(chaine)} qui renvoie la chaîne initiale après avoir remplacé un caractère à une position choisie aléatoirement par {\bf un autre} caractère choisi, lui aussi, aléatoirement.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def mutation(chaine):
+    n = len(chaine)
+    k = rd.randint(0, n-1)
+    car = rd.choice('ACGT')
+    while car == chaine[k]:
+        car = rd.choice('ACGT')
+    return changement(chaine, k, car)
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\type{mutation(ch0)} peut renvoyer \type{'GATGCATTAGTATGGGGTAGA'}.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+
+\medskip
+
+La probabilité de mutation d'un nucléotide dans une période d'un million d'année est estimée à $\alpha = 1,5.10^{-2}$.
+On approchera le nombre de mutations d'une chaîne de longueur $N$ dans une période de $T$ millions d'années par la partie entière de $\alpha.N.T$. 
+
+Ces mutations peuvent intervenir plus d'une fois sur le même nucléotide : le nombre de nucléotides modifiés peut donc être inférieur au nombre de mutations.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it 
+Écrire une fonction \type{mutations(chaine, T)} qui renvoie une chaîne ayant subi les mutations de puis la chaîne initiale, correspondant à une période de $T$ millions d'années.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def mutations(chaine, T):
+    alpha = 1.5e-2
+    N = len(chaine)
+    p = int(alpha*N*T)
+    for i in range(p):
+        chaine = mutation(chaine)
+    return chaine
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\type{mutations(ch0, 10)} peut renvoyer \type{ch1 = 'GAGGCATCAGTAAGGGGTGGA'}.
+\medskip
+
+Il existe des modèles plus sophistiqués de mutation.
+
+Les nucléotides sont décomposées en deux classes : 
+
+les purines (A et G) et les pyrimidines (C et T). 
+
+Les mutations se font plus souvent dans une classe (entre A et G ou entre C et T). Le modèle de Kimura (1980) estime que la probabilité de mutation vers l'élément de la  même classe est $\frac 23$ tandis que la probabilité de mutation vers un des 2 éléments de l'autre classe est de $\frac 16$.
+%--------------------------------------------------------------------------
+\begin{Exercise}[title = Question facultative]\it 
+Écrire une fonction \type{mutationsK(chaine)} qui renvoie la chaîne initiale après avoir remplacé un caractère à une position choisie aléatoirement par caractère choisi selon le modèle de Kimura.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+On commence par déterminer les choix possibles à partir d'un nucléotide : l'élément de la même classe apparaît 4 fois pour avoir une probabilité de tirage de $\frac 46=\frac 23$
+\begin{lstlisting}
+def choix(car):
+    if car  == "A":
+        return 'GGGGCT'
+    elif car  == "C":
+        return 'TTTTAG'
+    elif car  == "G":
+        return 'AAAACT'
+    else:
+        return 'CCCCAG'
+\end{lstlisting}
+
+\begin{lstlisting}
+def mutationK(chaine):
+    n = len(chaine)
+    k = rd.randint(0, n-1)
+    car = rd.choice(choix(chaine[k]))
+    return changement(chaine, k, car)
+\end{lstlisting}
+
+\begin{lstlisting}
+def mutationsK(chaine, T):
+    alpha = 1.5e-2
+    N = len(chaine)
+    p = int(alpha*N*T)
+    for i in range(p):
+        chaine = mutation(chaine)
+    return chaine
+\end{lstlisting}
+
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it 
+Écrire une fonction \type{difference(ch1, ch2)} où \type{ch1} et \type{ch2} ont même longueur qui calcule une troisième chaîne, de même longueur, contenant un espace aux positions où il n'y a pas eu mutation, et un \type{X} là où il y a une différence entre \type{ch1} et \type{ch2}. La fonction imprimera ensuite les trois chaînes en les alignant pour bien repérer les mutations et contrôler les fonctions.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def difference(ch1, ch2):
+    n = len(ch1)
+    diff = ""
+    for i in range(n):
+        if ch1[i] != ch2[i]:
+            diff = diff + 'X'
+        else:
+            diff = diff + ' '
+    print(ch1)
+    print(ch2)
+    print(diff)
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\type{difference(ch0, ch1)} imprimera
+\begin{lstlisting}
+GATGCATTAGTAAGGGGTAGA
+GAGGCATCAGTAAGGGGTGGA
+  X    X          X  
+  \end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsubsection{Recherche des séquences codantes}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Dans notre modèle, nous particulariserons quatre séquences de 3 nucléotides (ou {\bf codons}) : le codon ATG appelé {\sc start}, et les codons TAA, TAG et TGA, appelés codons {\sc stop}. Nous définirons une {\bf séquence codante} comme une portion continue de la chaîne telle que :
+\begin{itemize}
+\item elle commence par un {\sc start} et se termine par un {\sc stop},
+\item ce {\sc start} et ce {\sc stop} sont {\bf en phase}, c'est-à-dire qu'ils sont séparés par un nombre de nucléotides multiple de~3.
+\end{itemize}
+Par exemple, dans la séquence \type{ch0}, il y un codon {\sc start} commençant en 1, et 3 codons {\sc stop}: \type{'TAG'} en 7 et en 17 et \type{'TAA'} en 10. Deux couples sont en phase et correspondent donc à des régions codantes de l'ADN.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it 
+Écrire une fonction \type{reperage\_codons} qui parcourt une chaîne ADN, localise et identifie les codons {\sc start} et {\sc stop} en renvoyant deux listes: une liste des indices des positions de la première lettre des codons {\sc start} et un seconde liste des indices des positions de la première lettre de codons {\sc stop}.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def reperage_codons(chaine):
+    position_start = []
+    position_stop = []
+    for i in range(len(chaine)-2):
+        codon = chaine[i:i+3]
+        if codon =='ATG':
+            position_start+=[i]
+        if codon == 'TAA' or codon == 'TAG' or codon == 'TGA':
+            position_stop += [i]     
+    return(position_start, position_stop)
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\type{reperage\_codons(ch0)} renvoie \type{([1], [7, 10, 17])}.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it 
+Écrire une fonction \type{seq\_codantes} qui analyse la sortie de la fonction précédente pour localiser les séquences codantes en les renvoyant sous la forme de la liste des chaînes de caractères comprises (strictement) entre un codon {\sc start} et un codon {\sc stop} en phase. On devra chercher les séquences codantes dans les deux sens de la chaîne.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def seq_codantes(chaine):
+    eniahc = renverse(chaine)
+    sequences = []
+    for ch in [chaine, eniahc]:
+        start, stop = reperage_codons(ch)   
+        for i in start:
+            for j in stop:
+                if j > i  and (j-i)%3 == 0:
+                    sequences.append(ch[i+3:j])
+    return sequences
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\type{seq\_codantes(ch0)} renvoie  \type{['CAT', 'CATTAG', 'ATTACG']}
+
+\newpage
+%--------------------------------------------------------------------------
+
+ 

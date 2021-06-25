@@ -1,0 +1,248 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Entiers}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+{\sf On peut noter les deux points suivants :
+\begin{itemize}
+\item une machine n'a qu'un nombre fini d'unités de mémoire,
+\item une unité de mémoire ou {\bf bit} peut-être vue comme un paramètre pouvant valoir $1$ ou $0$.
+\end{itemize}
+
+On en déduit que $N$ bits peuvent représenter $2^N$ objets distincts.
+
+En général $N$ sera un multiple de 8 : 8 bits sont assemblés en un {\bf octet}.
+
+Voici quelques utilisations typiques :
+\begin{itemize}
+\item 8  bits ($2^8=256$) : codage d'une couleur dans les formats JPEG, Blu-ray \dots
+\item 10  bits  ($2^{10}=1\,024$): code d'une couleur dans certains formats d'images professionnels.
+\item 16  bits ($2^{16}=65\,536$) : codage des sons dans les formats audio grand public (CD, MP3\dots)
+\item 24  bits ($2^{24}=16\,777\,216$) : codage des sons dans les formats audio professionnels (mastering).
+\item 32  bits ($2^{32}=4\,294\,967\,296$) : codage des entiers dans la plupart des langages de programmation.
+\item 64  bits ($2^{64}=18\,446\,744\,073\,709\,551\,616$) : codage des flottants dans la plupart des langages de programmation.
+\end{itemize} 
+
+Cela permet, de manière générale, de stocker des ensembles finis de valeurs : on choisira $N$, le nombre de bits, suffisamment grand pour pouvoir majorer le nombre de valeurs distinctes par $2^N$.
+
+Par exemple si un voltmètre donne des résultats entre -10 V et 10 V avec une précision de 3 chiffres après la virgule, on veut pouvoir coder 20000 valeurs, il faudra alors utiliser 15 bits au minimum car on a $2^{14} = 16\,384$ et $2^{15} = 32\,768$.
+}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Entiers non signés}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Un entier est représenté par la suite de 0 et de 1 de son écriture en base 2.
+%-------------------------------------------------------------------------------
+\begin{thm}
+Pour tout entier appartenant à $\{0, 1, 2, \ldots, 2^N - 1\}$ il existe une suite unique $(\varepsilon_0, \varepsilon_1, \ldots, \varepsilon_{N-1})$ appartenant à $\{0,1\}^N$ telle que $\displaystyle n = \sum_{k=0}^{N-1}\varepsilon_k 2^k$
+\end{thm}
+%-------------------------------------------------------------------------------
+En général, un entier se voit allouer 32 bits pour sa valeur.\footnote{Si cette taille ne convient pas, certains langages obligent à demander explicitement la taille voulue dès le début ; d'autres, comme Python, peuvent dynamiquement réallouer de l'espace si nécessaire.} Cela permet de stocker $2^{32}~\text{valeurs}$.
+
+On peut donc ainsi coder en mémoire les entiers naturels de 0 à $2^{32}-1$. Ces entiers sont appelés {\bf non signés} car ils ont le même signe (positif).
+
+L'ordre le plus courant des bits est de placer les coefficients dans l'ordre décroissant des puissances : par exemple 
+$\displaystyle 142 = 2 + 4 + 8 + 128=2^1 + 2^2+ 2^3 + 2^7$ sera représenté par la suite $10001110$ sur 8 bits et par la suite $00000000\,10001110$ sur 16 bits
+
+Comme l'entier est découpé en octets pour le stockage, il y a deux grandes stratégies :
+%-------------------------------------------------------------------------------
+\begin{itemize}
+	\item La stratégie \emph{little-endian}, la plus courante dans les microprocesseurs : l'octet stocké en premier est celui de poids le plus faible. 142 sur 16  bits sera codé par 10001110~00000000.
+	\item La stratégie \emph{big-endian}, la plus courante dans les communications réseau : l'octet stocké en premier est celui de poids le plus fort. 142 sur 16  bits sera codé par 00000000~10001110.
+\end{itemize}
+%-------------------------------------------------------------------------------
+L'écriture que nous utiliserons correspond à la stratégie big-endian.
+
+\medskip
+
+Le calcul de la décomposition peut s'obtenir en remarquant que si $\displaystyle n = \sum_{k=0}^{N-1}\varepsilon_k 2^k$ alors 
+
+\begin{itemize}
+    \item $\displaystyle n = \varepsilon_0 + 2.\left(\sum_{k=1}^{N-1}\varepsilon_k2^{k-1}\right)$ donc $\varepsilon_0$ est le reste de la division de $n$ par 2 (\type{n \% 2})
+    \item $\displaystyle\sum_{k=1}^{N-1}\varepsilon_k2^{k-1}$ est la décomposition du quotient de $n$ par 2 (\type{n // 2}). 
+\end{itemize}
+
+On peut remarquer qu'on obtient ainsi les coefficients "à l'envers", on doit donc remplir le tableau des coefficicents à partir de la droite.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def binaire(n,p):
+    """Entrée : deux entiers
+       Requis : 0 <= n < 2**p
+       Sortie : la liste des p coefficients de l'écriture en base 2 
+                de n commençant le bit de poids fort"""
+    bin = [0]*p
+    for i in range(p):
+        bin[p-1-i] = n%2  
+        n = n//2
+    return bin
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Incrémentation}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+L'opération la plus simple pour les entiers et l'incrément de 1 : ajouter 1 à $n$.
+
+Pour ajouter 1 à $\displaystyle n = \sum_{k=0}^{N-1}\varepsilon_k 2^k$ :
+
+\begin{itemize}
+    \item si $\epsilon_0=1$, on le remplace par 0,
+    \item on continue le remplacement de 1 par 0 tant que $\epsilon_i=1$,
+    \item on remplace le premier coefficient nul par 1.
+\end{itemize}
+
+Par exemple $151$ est représenté par \type{[1, 0, 0, 1, 0, 1, 1, 1]},  son successeur, 152, est représenté par  \type{[1, 0, 0, 1, 1, 0, 0, 0]}.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+from copy import deepcopy
+
+def increment(bin):
+    """ Entrée : la représentation en base 2 d'un entier n
+        Sortie : la liste représente n + 1"""
+    p = len(bin)
+    b =deepcopy(bin)
+    k = p -1
+    while k >= 0 and b[k] == 1:
+        b[k] = 0
+        k = k - 1
+    if k >= 0:
+        b[k] = 1
+    return b
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Le dernier test est destiné au cas où la liste d'entrée est une suite de 1, codant $2^p-1$, le successeur est alors 0 ; l'incrémene se fait modulo $2^p$.
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Entiers signés}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Les entiers relatifs ont une valeur absolue et un signe, ce sont les entiers signés. Il faut réserver un bit pour stocker le signe, de sorte que l'on «perd un bit» pour stocker la valeur absolue. Sur $N$  bits toujours les valeurs absolues seront codées sur $N-1$ bits.
+
+L'usage général est de coder les entiers positifs entre 0 et $2^{N-1}-1$ comme dans le cas des entiers non signés : le premier bit($\varepsilon_{N-1}$) sera toujours 0. Le codage des entiers négatifs peut être fait de deux manières (au moins).
+%-------------------------------------------------------------------------------
+\begin{itemize}
+\item On peut coder la valeur absolue sur $N-1$ bits et donner la valeur 1 au bit de poids fort. Calculer l'opposé d'un entier est alors très simple (on change le bit de signe) mais l'addition est compliquée.
+\item On lui préfère le décalage : un entier $p$ compris entre $-2^{N-1}$ et -1 est codé par l'entier non signé $2^{N} + p$ qui est compris entre $2^{N-1}$ et  $2^{N}-1$. L'addition revient alors à calculer l'addition des entier non signés mais la multiplication par -1 n'est pas directe. On retrouve $p$ en soustrayant $2^N$.
+\end{itemize}
+%-------------------------------------------------------------------------------
+Pour illustrer les calculs nous allons utiliser des entiers codés sur 8 bits : on code donc des entiers entre $-128$ et 127. 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Addition}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+L'addition des entiers non signés se fait comme l'addition étudiée à l'école primaire ; on additionne des 0 et des 1 dont une retenue éventuelle dès que la somme dépasse 2.
+%-------------------------------------------------------------------------------
+\begin{enumerate}
+\item 12 est codé par 00001100 et 25 par 00011001 d'où la somme
+\begin{center}
+\begin{tabular}{r|cccccccc}
+12      &0&0&0&0&1&1&0&0\\
+25      &0&0&0&1&1&0&0&1\\
+$12+25$ &0&0&1&0&0&1&0&1\\
+\end{tabular}
+\end{center}
+On trouve bien le résultat $32 + 4 + 1 =37$
+%-------------------------------------------------------------------------------
+\item $-17$ est codé par $256-17=239$ sous la forme $11101111$ 
+\begin{center}
+\begin{tabular}{r|cccccccc}
+-17      &1&1&1&0&1&1&1&1\\
+25       &0&0&0&1&1&0&0&1\\
+$-17+25$ &0&0&0&0&1&0&0&0\\
+\end{tabular}
+\end{center}
+On obtient 8, on remarque que la dernière retenue n'a pas été utilisée
+%-------------------------------------------------------------------------------
+\item De même
+\begin{center}
+\begin{tabular}{r|cccccccc}
+12       &0&0&0&0&1&1&0&0\\
+-17      &1&1&1&0&1&1&1&1\\
+$-17+12$ &1&1&1&1&1&0&1&1\\
+\end{tabular}
+\end{center}
+On obtient le codage de $128 + 64 + 32 + 16 + 8 + 2 + 1= 251$ qui correspond à $251-256=-5$
+\end{enumerate}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Opposé}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{itemize}
+\item Si $p$ est compris entre 1 et $2^{N-1}-1$ (on exclut le cas $p=0$) alors son opposé, $-p$, est codé par $2^N -p$.
+\item Si $p$ est compris entre $-2^{N-1}+1$ et $-1$ (on exclut le cas $p=-2^{N-1}$) alors il est codé par $q=2^n+p$ donc $-p$ vaut $2^N-q$ qui est codé directement.
+\end{itemize}
+Dans les deux cas on voit $p$ et $-p$ sont représentés par des entiers non signés $p'$ et $2^N-p'$.
+
+\medskip
+Pour calculer $2^N-p'$ on peut remarque qu'on a $\displaystyle 2^N = 1 + (2^N-1) = 1 + \sum_{k=0}^{N-1} 2^k$.
+
+Or, pour $\displaystyle p' = \sum_{k=0}^{N-1} \varepsilon'_k 2^k$, on a 
+$\displaystyle (2^N - 1) - p' = \sum_{k=0}^{N-1} (1 -\varepsilon'_k) 2^k$.
+
+\newpage
+
+Ainsi, pour déterminer la représentation de $-p$ :
+\begin{enumerate}
+\item on détermine la représentation de $p$,
+\item on change chaque bit : 0 devient 1, 1 devient 0, on parle de complément à 2, c'est plutôt le complément à 1 (on remplace $\varepsilon$ par $1-\varepsilon$),
+\item on ajoute 1 pour obtenir la représentation de $-p$
+\end{enumerate}
+
+Par exemple, pour -52 sur 8 bits
+\begin{center}
+\begin{tabular}{r|cccccccc}
+54         &0&0&1&1&0&1&0&0\\
+complément &1&1&0&0&1&0&1&1\\
+ajouter 1  &1&1&0&0&1&1&0&0\\
+\end{tabular}
+\end{center}
+On retrouve bien la représentation de $128+64+8+4=204=256-52$
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Problèmes d'overflow}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Dans un des calculs ci-dessus on a vu qu'une retenue pouvait disparaître, dans le cas considéré on obtenait cependant le bon résultat. Lorsque la somme des deux entiers non signés est supérieure à $2^N$, le résultat est en fait tronqué (il manque le bit correspondant à $2^N$).
+
+Mathématiquement, les additions se font modulo $2^N$, c'est-à-dire que lors d'une opération on ajoute ou retranche un multiple de $2^n$ pour avoir un résultat appartenant à l'intervalle utilisé, ici $[-2^{N-1}; 2^{N-1}-1]$. Cela peut engendrer des résultats faux.
+%-------------------------------------------------------------------------------
+\begin{enumerate}
+\item Si on ajoute deux entiers positifs dont la somme est supérieure à $2^{N-1}$ on va aboutir à un entier négatif :
+\begin{center}
+\begin{tabular}{r|cccccccc}
+100      &0&1&1&0&0&1&0&0\\
+50       &0&0&1&1&0&0&1&0\\
+$50+100$ &1&0&0&1&0&1&1&0\\
+\end{tabular}
+\end{center}
+On aboutit à la représentation de 150 qui est celle de $150-256 = -106$.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\item De même si on somme deux entiers négatifs avec un résultat inférieur à $-2^{N-1}$ on obtient un entier positif :
+\begin{center}
+\begin{tabular}{r|cccccccc}
+-55       &1&1&0&0&1&0&0&1\\
+-99       &1&0&0&1&1&1&0&1\\
+$-55-99$  &0&1&1&0&0&1&1&0\\
+\end{tabular}
+\end{center}
+Ici encore la dernière retenue n'est pas utilisée, on apboutit à $102 = -55-99+256$.
+\end{enumerate}
+%-------------------------------------------------------------------------------
+\medskip
+
+Quand on manipule des entiers très grands en valeur absolue, il faut surveiller d'éventuels problèmes de dépassement ({\bf overflow}). Le problème est particulièrement sensible avec la multiplication.
+
+

@@ -1,0 +1,625 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Listes : 1}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{abstract}
+Jusqu’à présent nous avons utilisé des données simples : 
+entiers, réels, booléens.
+
+Nous avons aussi vu la possibilité de faire plusieurs calculs.
+
+Il est naturel de vouloir manipuler des suites de données à l'aide de suites d'instructions.
+
+Nous allons définir et apprendre à utiliser un assemblage simple de valeurs sous forme d'une suite finie.
+\end{abstract}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Introduction}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Un ensemble de données peut être vu de différentes manières
+%-------------------------------------------------------------------------------
+\begin{itemize}
+\item on peut le voir comme un casier dans lequel sont rangées, à une position repérable, les différentes données
+\item on peut le voir comme un sac dans lequel on place les données, on peut alors les en sortir selon différents critères : 
+\begin{itemize}
+\item on sort en premier le dernier arrivé, on a une structure de {\bf pile}, c'est un entassement d'objets 
+\item on sort en premier le plus ancien, on a une structure de {\bf file d' attente}
+\item on muni les élément d'une priorité et on sort en premier celui qui a la plus forte priorité
+\end{itemize}
+\end{itemize}
+%-------------------------------------------------------------------------------
+Chacune de ces structure a des avantages et des contraintes.
+
+Nous allons définir la première structure, le tableau de rangement. Mais on verra dans un chapitre suivant que son implémentation en Python est très souple et qu'on peut l'utiliser de plusieurs manières.
+
+D'autres structures seront vues en seconde année.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Définitions}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Tableaux}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+La majorité des langages de programmation définissent des assemblages appelés {\bf tableaux} :
+
+\begin{itemize}
+\item ils contiennent un nombre d'éléments fixé à la création,
+\item les éléments doivent être de même type, on n'y mélange pas les entiers et les chaînes de caractère, par exemple,
+\item les éléments sont repérés par leur adresse, un entier, qui varie, selon les langages entre 1 et $n$ ou entre 0 et $n-1$ pour les tableaux de $n$ éléments,
+\item le tableau est modifiable : non seulement on peut lire la valeur enregistrée à la position $i$ mais on peut aussi la modifier, écrire une nouvelle valeur
+\end{itemize}
+Ce type de données correspond à un usage très proche de la structure des ordinateurs, ce qui était indispensable dans les débuts de l'informatique. Les ordinateurs modernes permettent à un langage récent comme Python peut définir un type beaucoup plus souple.
+
+Nous verrons plus tard dans l'année que ce type de structure est celle des tableaux \Type{numpy}.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Listes python}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Python définit une sorte de tableaux, les {\bf listes}, qui ont les propriétés ci-dessus mais qui libèrent la contrainte de taille fixée, nous le verrons dans un prochain chapitre, et qui n'impose pas la cohérence des données : on peut y placer tout type de valeurs et modifier le type d'élément que l'on place dans une case.
+
+\begin{itemize}
+\item La longueur d'une liste \type{L}, son nombre d'éléments est donné par la fonction \type{len}.
+\item Les indices des éléments, les positions, d'une liste de longueur $n$ vont de 0 à $n-1$, on remarquera que ce sont les entiers fournis par \type{range(n}
+\item Les éléments d'une liste \type{L} sont accessibles en lecture ou en écriture (modification) par \type{liste[i]} pour les entiers $i$ compatibles avec la taille.
+\end{itemize}
+
+{\bf Exemple} : on peut calculer simplement la moyenne des termes d'une liste
+
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def moyenne(liste):
+    """Entrée : une liste de nombres
+      Sortie : la moyenne des termes de la liste"""
+    n = len(liste)
+    somme = 0
+    for i in range(n):
+        somme = somme + liste[i]
+    moy = somme/n
+    return moy
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+
+La structure de la fonction
+\begin{itemize}
+\item calcul de la longueur,
+\item initialisation,
+\item parcours de la liste,
+\item traitement final 
+\item retour du résultat
+\end{itemize}
+est générique, on écrira de nombreuses fonction sous cette forme.
+%-------------------------------------------------------------------------------
+\subsection{Tuples}
+%-------------------------------------------------------------------------------
+Si on encadre une suite d'éléments par des parenthèses, on définit un {\bf tuple}.
+
+En fait les parenthèses sont facultatives.
+
+On accède aux éléments d'un tuple et à sa longueur de la même manière qu'une liste. 
+
+Cependant les éléments {\bf ne sont pas modifiables}.
+
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> a = 2, 3, 7
+>>> a
+(2, 3, 7)
+>>> len(a)
+3
+>>> a[2]
+7
+>>> a[1] = 0
+TypeError: 'tuple' object does not support item assignment
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Renvoyer plusieurs élément dans un \type{return} renvoie en fait un tuple.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Opérations}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Création}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Pour manipuler une liste, il faut l'avoir créée.
+Plusieurs méthodes sont possibles
+%-------------------------------------------------------------------------------
+\subsubsection{Définition par extension}
+%-------------------------------------------------------------------------------
+On  peut créer une liste en écrivant tous ses éléments séparés par des virgules et encadrés par des crochets.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+carres = [1, 4, 9, 16, 25, 36, 49]
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Cette méthode n'est possible que pour les petites longueurs.
+
+%-------------------------------------------------------------------------------
+\subsubsection{Définition par remplissage}
+%-------------------------------------------------------------------------------
+Une méthode plus efficace consiste à créer un casier et le remplir :
+%-------------------------------------------------------------------------------
+\begin{itemize}
+  \item on crée une liste "neutre",
+  \item on la remplit pas-à-pas à l'aide d'une boucle.
+\end{itemize}
+%-------------------------------------------------------------------------------
+La création d'une liste de taille $n$ peut se faire par \type{[0]*n}.
+
+Dans l'exemple, on choisit de donner la création d'une liste de carrés par une fonction.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def listeCarres(n):
+    """Entrée : un entier n
+       Sortie : la liste des carrés des entiers de 1 à n"""
+    carres = [0]*n
+    for i in range(n):
+        carres[i] = (i+1)**2
+    return carres
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+\subsubsection{Définition par compréhension}
+%-------------------------------------------------------------------------------
+Dans un exemple ci-dessus, on a créé les valeurs d'une liste en appliquant une fonction, ici $i \mapsto (i+1)^2$, aux indices produits par une instruction \type{for}. La construction peut être synthétisée en python de manière simple.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+liste = [(i+1)**2 for i in range(n)]
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Le cas particulier \type{[i for i in range(n)]} peut s'écrire plus simplement comme une conversion vers une liste, de type \type{list}. Les fonctions de conversion portent le nom du type souhaité : \type{list(range(i))}.
+%-------------------------------------------------------------------------------
+\subsubsection{Définition par adjonctions}
+%-------------------------------------------------------------------------------
+À voir dans un prochain chapitre.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Opérations algébriques}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Python permet la manipulation de listes : dans ces opérations ce sont les listes qui sont transformées, par leurs éléments.
+%-------------------------------------------------------------------------------
+\subsubsection{Addition}
+%-------------------------------------------------------------------------------
+On peut additionner (on dit {\bf concaténer}) deux listes.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> carres = [1, 4, 9, 16, 25]
+>>> cubes = [1, 8, 27, 64]
+>>> carres + cubes
+[1, 4, 9, 16, 25, 1, 8, 27, 64]
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+\subsubsection{Multiplication}
+%-------------------------------------------------------------------------------
+Ajouter une liste plusieurs fois à elle-même revient à la multiplier par un entier
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> cubes = [1, 8, 27, 64]
+>>> cubes*3 
+[1, 8, 27, 64, 1, 8, 27, 64, 1, 8, 27, 64]
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+On peut aussi noter \type{n*liste} ; il est nécessaire que le facteur multiplicatif soit entier.
+%-------------------------------------------------------------------------------
+\subsection{Extraction}
+%-------------------------------------------------------------------------------
+On peut extraire une sous-liste d'une liste Python. L'extraction d'une tranche se fait en indiquant le premier indice choisi et le premier indice non pris séparés par un ":".
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> liste = [3, 1, 4, 1, 5, 9, 2, 6, 5, 2]
+>>> liste1 = liste[2 : 7]
+>>> liste1
+[4, 1, 5, 9, 2]
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+On peut noter que \type{liste[a : b]} contient $b-a$ éléments.
+%-------------------------------------------------------------------------------
+\subsubsection{Valeurs par défaut}
+%-------------------------------------------------------------------------------
+Si on n'indique pas le premier terme il prendra la valeur 0 par défaut.
+
+Si on n'indique pas le second terme il prendra la valeur $n$ par défaut où $n$ est la longueur de la liste.
+En particulier \type{liste[:]} reproduit la liste entière.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> liste = [3, 1, 4, 1, 5, 9, 2, 6, 5, 2]
+>>> liste2 = liste[ : 5] # correspond à liste[0 : 5]
+>>> liste2
+[3, 1, 4, 1, 5]
+>>> liste3 = liste[5 : ] # correspond à liste[5 : 10]
+>>> liste3
+[9, 2, 6, 5, 2]
+>\end{lstlisting}
+%-------------------------------------------------------------------------------
+On remarque que \type{liste[:k]} et \type{liste[k:]} définissent une partition de la liste : la somme des deux extractions reconstitue la liste initiale.
+%-------------------------------------------------------------------------------
+\subsubsection{Pas}
+%-------------------------------------------------------------------------------
+On peut même sélectionner les termes en les prenant séparés par un pas constant. 
+
+On ajoute le pas en troisième paramètre après un ":".
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> l = [3, 1, 4, 1, 5, 9, 2, 6, 5, 2]
+>>> liste1 = liste[1:8:2]
+>>> liste1
+[1, 1, 9, 6]
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+
+Dans le cas d'un pas négatif les valeurs par défaut sont 
+
+$n$ (la longueur) pour le premier terme et $-1$ pour le deuxième. 
+
+{\bf En particulier on peut calculer la liste avec l'ordre des termes inversé par \type[ : : -1].}
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> l = [3, 1, 4, 1, 5, 9, 2, 6, 5, 2]
+>>> liste[ : : -1]
+[2, 5, 6, 2, 9, 5, 1, 4, 1, 3]
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+La syntaxe d'extraction permet aussi de définir une portion de liste à modifier :
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> liste1 = [1,1,1,1,1,1,1,1,1,1]
+>>> liste2 = [2,2,2]
+>>> liste1[2:5] = liste2
+>>> liste1
+[1,1,2,2,2,1,1,1,1,1]
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> liste1 = [9,8,7,6,5,4,3,2,1]
+>>> liste1[6:] = liste1[:8:2]
+>>> liste1
+[1,1,2,2,2,1,9,7,5,3]
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Particularités de Python}
+%-------------------------------------------------------------------------------
+Python permet des constructions supplémentaires qui ne sont pas usuelles dans les autres langages.
+%-------------------------------------------------------------------------------
+\subsubsection{Indices négatifs}
+%-------------------------------------------------------------------------------
+On peut accéder aux éléments depuis la fin : le dernier élément a l'indice -1, 
+le précédent l'indice -2 et on continue jusqu'au premier qui a l'indice $-n$ où n est la longueur de la liste. 
+
+Par exemple pour la liste {[4, 9, 2, 3, 7]}
+%-------------------------------------------------------------------------------
+\[\begin{tabular}{|r|c|c|c|c|c|}
+\hline
+élément & 4 & 9 & 2 & 3 & 7 \\
+\hline
+indice & 0 & 1 & 2 & 3 & 4 \\
+indice négatif & $-5$ & $-4$ & $-3$ & $-2$ & $-1$ \\
+\hline
+\end{tabular}\]
+%-------------------------------------------------------------------------------
+\begin{itemize}
+  \item En particulier on accède alors au dernier élément sans calculer la longueur : \type{list[-1]}.
+  \item Pour une liste de longueur $n$, les indices $i$ et $i-n$ définissent le même élément ($0 \le i < n$).
+\end{itemize}
+%-------------------------------------------------------------------------------
+\subsubsection{Itération sur une liste}
+%-------------------------------------------------------------------------------
+Le langage Python permet de parcourir la liste sans passer par les indices avec une boucle \type{for}.
+
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def somme(liste):
+    """Entrée : une liste
+       Sortie : la somme des termes"""
+    som = 0           
+    for x in liste: 
+        som = som + x 
+    return som
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Cela est utile si on n'a pas besoin des indices.
+
+Cela permet une création par extension d'une liste obtenue en appliquant une fonction à une liste :
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def f(x):
+    return x**2 - 3*x +4
+
+l = [2, 4, 6, 7]
+ll = [f(x) for x in l]
+print(ll)
+----------
+[2, 8, 22, 32]
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Modification de listes}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Voici un comportement qui peut surprendre.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> liste1 = [3, 2, 5]
+>>> liste2 = liste1
+>>> liste2
+[3, 2, 5]
+>>> liste1[1] = 3
+>>> liste1
+[3, 3, 5]
+>>> liste2
+[3, 3, 5]
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Une modification de \type{liste1} influe sur \type{liste2} !
+
+Nous allons esquisser l'origine de ce comportement et en tirer des conséquences.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Subtilité de l'affectation}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Nous avons vu le fonctionnement de l'affectation \type{variable = expression}. 
+%-------------------------------------------------------------------------------
+\begin{enumerate}
+ \item L'expression est évaluée, le résultat est stocké à une adresse {\type ad}.
+\item Un nouveau nom de variable est défini (même s'il existait déjà avant, dans ce cas l'ancien est oublié)
+\item {\type ad} est lié au nom de la variable.
+\end{enumerate}
+%-------------------------------------------------------------------------------
+Il y a, en fait, une exception : dans le cas où l'expression est en fait une variable simple, \type{b = a}, alors le fonctionnement ci-dessus change. \type{a} et \type{b} sont maintenant associés à la même adresse. Ce sont deux synonymes d'une même variable.
+%-------------------------------------------------------------------------------
+Dans le cas de variables simples cela n'a pas d'incidence car la modification d'une variable en crée une nouvelle.
+
+\[
+\type{a = 2}
+\hskip 5mm
+\begin{tikzpicture}[node distance=8mm and 2mm]
+\tikzstyle{vr}=[circle,draw,minimum size =10mm]
+\tikzstyle{vl}=[rectangle,draw,minimum size =12mm]
+\node (val) [vl]{2};
+\node (var) [vr,above=of val] {\tt a};
+\path (var) edge (val);
+\end{tikzpicture}
+\hskip 10mm
+{\tt b = a}
+\hskip -3mm
+\begin{tikzpicture}[node distance=8mm and 2mm]
+\tikzstyle{vr}=[circle,draw,minimum size =10mm]
+\tikzstyle{vl}=[rectangle,draw,minimum size =12mm]
+\node (val) [vl]{2};exo
+\node (var1) [vr,above left=of val] {\tt a};
+\node (var2) [vr,above right=of val] {\tt b};
+\path (var1) edge (val);
+\path (var2) edge (val);
+\end{tikzpicture}
+\hskip 7mm
+{\tt a = 3}
+\hskip 5mm
+\begin{tikzpicture}[node distance=8mm and 2mm]
+\tikzstyle{vr}=[circle,draw,minimum size =10mm]
+\tikzstyle{vl}=[rectangle,draw,minimum size =12mm]
+\node (val1) [vl]{3};
+\node (var1) [vr,above=of val1] {\tt a};
+\path (var1) edge (val1);
+\node (val2) [vl,right=of val1]{2};
+\node (var2) [vr,above=of val2] {\tt b};
+\path (var2) edge (val2);
+\end{tikzpicture}
+\]
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Cas des listes}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{minipage}{0.30\textwidth}
+\begin{tikzpicture}[node distance=8mm and 6mm]
+\tikzstyle{vr}=[circle,draw,minimum size =10mm]
+\tikzstyle{vl}=[rectangle,draw,minimum size =12mm]
+\tikzstyle{el}=[rectangle,draw,minimum size =8mm]
+\node (el0) [el]{3};
+\node (el1) [el,right=of el0]{2};
+\node (el2) [el,right=of el1]{5};
+\node (vr0) [vr,above=of el0]{\tt [0]};
+\node (vr1) [vr,above=of el1]{\tt [1]};
+\node (vr2) [vr,above=of el2]{\tt [2]};
+\node (vl) [vl,above=of vr1] {\tt len = 3};
+\node (vr) [vr,above=of vl] {\tt liste1}; 
+\path (vr) edge (vl);
+\path (vl) edge (vr0);
+\path (vl) edge (vr1);
+\path (vl) edge (vr2);
+\path (vr0) edge (el0);
+\path (vr1) edge (el1);
+\path (vr2) edge (el2);
+\end{tikzpicture}
+\end{minipage}
+%-------------------------------------------------------------------------------
+\begin{minipage}{0.40\textwidth}
+Dans le cas des listes le processus est le même mais les listes sont modifiables en interne tout en demeurant le même objet liste.
+
+Voici ce que produisent les instructions
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+liste1 = [3, 2, 5]
+liste2 = liste1
+\end{lstlisting}
+\end{minipage}
+%-------------------------------------------------------------------------------
+\begin{minipage}{0.30\textwidth}
+\begin{tikzpicture}[node distance=8mm and 6mm]
+\tikzstyle{vr}=[circle,draw,minimum size =10mm]
+\tikzstyle{vl}=[rectangle,draw,minimum size =12mm]
+\tikzstyle{el}=[rectangle,draw,minimum size =8mm]
+\node (el0a) [el]{3};
+\node (el1a) [el,right=of el0a]{2};
+\node (el2a) [el,right=of el1a]{5};
+\node (vr0a) [vr,above=of el0a]{\tt [0]};
+\node (vr1a) [vr,above=of el1a]{\tt [1]};
+\node (vr2a) [vr,above=of el2a]{\tt [2]};
+\node (vla) [vl,above=of vr1a] {\tt len = 3};
+\node (vide3) [above=of vla]{};
+\node (var1a) [vr,left=of vide3] {\tt liste1};
+\node (var2a) [vr,right=of vide3] {\tt liste2};
+\path (var1a) edge (vla);
+\path (var2a) edge (vla);
+\path (vla) edge (vr0a);
+\path (vla) edge (vr1a);
+\path (vla) edge (vr2a);
+\path (vr0a) edge (el0a);
+\path (vr1a) edge (el1a);
+\path (vr2a) edge (el2a);
+\end{tikzpicture}
+\end{minipage}
+%-------------------------------------------------------------------------------
+\begin{minipage}{0.40\textwidth}
+\vspace{0pt}
+L'affectation \type{liste1[1] = 3} 
+
+ne fait que modifier un emplacement dans la liste et les deux listes associées ont toujours des valeurs égales.
+
+On en conclut que 
+
+{\bf l'affectation \type{liste1 = liste2} ne crée pas une copie.}
+On peut 
+\end{minipage}
+%-------------------------------------------------------------------------------
+\begin{minipage}{0.60\textwidth}
+\vspace{0pt}
+\begin{center}
+%-------------------------------------------------------------------------------
+\begin{tikzpicture}[node distance=8mm and 6mm]
+\tikzstyle{vr}=[circle,draw,minimum size =10mm]
+\tikzstyle{vl}=[rectangle,draw,minimum size =12mm]
+\tikzstyle{el}=[rectangle,draw,minimum size =8mm]
+\node (el0) [el]{3};
+\node (el1) [el,right=of el0]{3};
+\node (el2) [el,right=of el1]{5};
+\node (vr0) [vr,above=of el0]{\tt [0]};
+\node (vr1) [vr,above=of el1]{\tt [1]};
+\node (vr2) [vr,above=of el2]{\tt [2]};
+\node (vl) [vl,above=of vr1] {\tt len = 3};
+\node (var1) [vr,above left=of vl] {\tt liste1};
+\node (var2) [vr,above right=of vl] {\tt liste2};
+\path (var1) edge (vl);
+\path (var2) edge (vl);
+\path (vl) edge (vr0);
+\path (vl) edge (vr1);0
+\path (vl) edge (vr2);
+\path (vr0) edge (el0);
+\path (vr1) edge (el1);
+\path (vr2) edge (el2);
+\end{tikzpicture}
+%-------------------------------------------------------------------------------
+\end{center}
+\end{minipage}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Copie de listes}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Comment alors copier une liste ?
+
+On peut utiliser les calculs qui créent des nouvelles listes dans des cas où le résultat est semblable à l'original :
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+liste1 = liste2*1
+liste1 = liste2 + []
+liste1 = liste2[ : ]
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Mais ces moyens ne sont pas fiables dans tous les cas, on retrouvera des situations semblables à celle décrite ci-dessus dans le cas, par exemple de listes dont des éléments sont des listes.
+
+Si on veut dupliquer une liste le moyen recommandé est d'utiliser une fonction à importer.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+from copy import deepcopy
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+ La fonction \type{deepcopy} est alors disponible et \type{liste2 = deepcopy(liste1)} crée une nouvelle liste \type{liste2} qui a les mêmes valeurs que \type{liste1} mais qui est indépendante.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Modification d'une liste dans une fonction}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Une fonction peut avoir pour but de modifier certaines valeurs d'une liste passée en paramètre. Dans ce cas la variable employée dans la fonction est associée à la liste initiale et les modification seront conservées à la fin de la fonction. On n'a pas besoin d'instruction \type{return} : le résultat est porté par la liste donnée en paramètre.
+
+Un exemple classique est l'échange de deux termes dans une liste.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def echange(liste,i,j):
+    """Entree : une liste et deux indices i, j 
+       Requis : 0 <= i,j < len(liste)
+       Sortie : les termes i et j sont échangés"""
+    temp = liste[i] 
+    liste[i] = liste[j]
+    liste[j] = temp
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+
+On verra aussi les fonctions de tri, très importantes.
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Exercice}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title= Extraction]
+
+On définit \type{liste = [2, 8, 4, 6, 2, 7, 3, 5]}
+
+Dans chacun des cas suivants prévoir le résultat de la commande.
+%-------------------------------------------------------------------------------
+\begin{enumerate}
+\item \type{ liste[1]}
+\item \type{ liste[-3]}
+\item \type{ liste[8]}
+\item \type{ liste[-8]}
+\item \type{ liste[3 : 6]}
+\item \type{ liste[3 : 7 : 2]}
+\item \type{ liste[6 : 2]}
+\item \type{ liste[6 : 2 :-1]}
+\item \type{ liste[-2 : -5]}
+\item \type{ liste[-2 : -5: -1]}
+\item \type{ liste[-5 : 6]}
+\item \type{ liste[4 : 8] = liste[0 : 4]}
+ 
+\type{ liste}
+\end{enumerate}
+%-------------------------------------------------------------------------------
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{enumerate}
+\item \type{ liste[1] -> 8}
+\item \type{ liste[-3] -> 7}
+\item \type{ liste[8] -> {\rm {\bf IndexError}: list index out of range}}
+\item \type{ liste[-8] = 2}
+\item \type{ liste[3:6] -> [6, 2, 7]}
+\item \type{ liste[3:7:2] -> [6, 7]}
+\item \type{ liste[6:2] -> []}
+\item \type{ liste[6:2:-1] -> [3, 7, 2, 6]}
+\item \type{ liste[-2:-5] -> []}
+\item \type{ liste[-2:-5:-1] -> [3, 7, 2]}
+\item \type{ liste[-5:6] -> [6, 2, 7]}
+\item \type{ liste[4:8] = liste[0:4]}
+ 
+\type{ liste -> [2, 8, 4, 6, 2, 8, 4, 6]}
+\end{enumerate}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------

@@ -1,0 +1,40 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+% Chargement des macros et des packages
+\input{../definitions}
+%-------------------------------------------------------------------------------
+%------------------------------------------------------------------------------- 
+% Personnalisations générales
+%-------------------------------------------------------------------------------
+% Indication du type de document
+\def\titre{Devoirs d'informatique}
+% Pour changer le nom des composantes :
+% La syntaxe est compliquée car on a chargé babel
+\addto\captionsfrench{\renewcommand{\chaptername}{Devoir}}
+% Pagination par chapitre
+\usepackage{chappg}
+%-------------------------------------------------------------------------------
+% Classe(s) concernée(s)
+\def\classe{MPSI}
+%-------------------------------------------------------------------------------
+% Année
+\def\annee{2019-2020}
+%-------------------------------------------------------------------------------
+% Où trouver les images
+\graphicspath{{./Images/}}
+%-------------------------------------------------------------------------------
+% Commande pour les solutions des exercices
+% Si une composante n'a pas de solution, ou l'inclut avec \chapitre
+% Sinon on l'inclut avec \chapitreSol
+% Si on veut les solution on l'indique par \reponsestrue
+% Sinon on l'indique par \reponsefalse
+\reponsestrue 
+%------------------------------------------------------------------------------- 
+\begin{document}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\premierePage
+\tableofcontents
+\chapitreSol{DS01MPSI}
+\chapitreSol{DS02MPSI}
+\end{document}

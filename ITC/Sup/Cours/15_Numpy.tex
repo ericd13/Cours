@@ -1,0 +1,268 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Module Numpy}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\section{Listes Python}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\subsection{Avantages}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+Les liste python sont un type de données très souple :
+\begin{itemize}
+\item on accède aux éléments directement aux éléments par leur indice,
+\item les valeurs sont modifiables,
+\item on peut combiner plusieurs types de données dans les valeurs, entiers, booléens, flottants, \dots
+\item on peut ajouter des éléments à une extrémité pour un coût faible : \type{append},
+\item on peut combiner des listes en les ajoutant,
+\item on peut répéter une liste en la multipliant par un entier positif, 
+\item on peut extraire une portion de liste : \type{liste[a : b]},
+\item on peut itérer sur une liste ; \type{for x in liste:}, 
+\item il existe de nombreuses méthodes de modification : \type{pop}, \type{remove}, \type{del}, \dots
+\end{itemize}
+
+Comme exemple de cette souplesse, il existe au moins 3 façons d'appliquer une fonction à une liste.
+
+\begin{lstlisting}
+def appliquer1(f, liste):
+    n = len(liste)
+    out = [0]*n
+    for i in range(n):
+        out[i] = f(liste[i])
+    return out
+\end{lstlisting}
+
+\begin{lstlisting}
+def appliquer2(f, liste):
+    n = len(liste)
+    out = []
+    for i in range(n):
+        out.append(f(liste[i]))
+    return out
+\end{lstlisting}
+
+\begin{lstlisting}
+def appliquer3(f, liste):
+    return [f(x) for x in liste]
+\end{lstlisting}
+%--------------------------------------------------------------------------
+\newpage
+%--------------------------------------------------------------------------
+\subsection{Inconvénients}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+Cette richesse fonctionnelle ne va pas sans quelques  problèmes.
+
+\begin{itemize}
+\item Les méthodes  \type{pop}, \type{remove}, \type{del} et autres ont un coût caché qui rend leur utilisation dangereuse en raison même de leur simplicité apparente.
+\item La richesse de la structure rend le temps de calcul sur des grandes listes plus lent que dans d'autres langages.
+\item La création d'une liste neutre de $n$ éléments ne semble pas "naturelle".
+\item On pourrait souhaiter que l'application d'une fonction à une liste s'écrive simplement \type{f(liste)}.
+\end{itemize}
+
+Cependant ce qui manque le plus pour un usage scientifique de Python est l'inaptitude des listes à représenter simplement des vecteurs. On aura souvent besoin de considérer les éléments d'une liste comme les composantes d'un vecteur auquel on voudrait appliquer les lois d'un espace vectoriel : addition de deux vecteurs et multiplication par un scalaire.
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\section{Le module Numpy}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\subsection{Présentation}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+Il existe un module qui permet d'utiliser des listes de manière plus efficace dans le cadre du calcul scientifique : {\tt  numpy}. C'est un ensemble de fonctions centrées autour d'un nouveau type de données, des tableaux nommés {\tt array}. 
+
+Ce type présente des limitations par rapport aux listes de python :
+
+\begin{itemize}
+\item la longueur est fixée, on ne peut pas utiliser la méthode \type{append},
+\item le type des composantes est unique et fixé à l'avance, tous les éléments seront soit des flottants, soit des entiers.
+\end{itemize}
+
+En contrepartie il y a des avantages :
+
+\begin{itemize}
+\item les tableaux peuvent être additionnés terme-à-terme comme des vecteurs,
+\item on peut appliquer une fonction à un tableau, 
+cela applique la fonction à tous les termes,
+\item en particulier on peut multiplier un tableau par un scalaire, cela multiplie chaque composante,
+\item les calculs sont plus rapides.
+\end{itemize}
+
+L'accès aux éléments, la longueur et l'extraction sont écrits de la même façon que dans le cas des listes python.
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\subsection{Premières fonctions}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+Le module doit être importé 
+\begin{lstlisting}
+import numpy as np
+\end{lstlisting}
+Il est recommandé de ne pas importer le module de manière anonyme (\type{from numpy import *}) et ne nom abrégé, \type{np}, est conventionnel.
+
+Le module contient les fonctions mathématiques usuelles, il est préférable d'utiliser ces fonctions plutôt que celles du module \type{math}.
+%--------------------------------------------------------------------------
+\subsubsection{Création}
+%--------------------------------------------------------------------------
+Pour créer un tableau, plusieurs moyens sont possibles.
+
+\begin{enumerate}
+\item On peut convertir, par la fonction \type{np.array}, une liste python
+
+\begin{lstlisting}
+>>> m = np.array([1, 2, 5, 3])
+>>> m
+array([1, 2, 5, 3])
+\end{lstlisting}
+
+L'affichage par \type{print} supprime les virgules,
+\begin{lstlisting}
+>>> print(m)
+[1 2 5 3]
+\end{lstlisting}
+\newpage
+\item On peut créer un tableau de valeurs nulles avec {\tt np.zeros} :
+\begin{lstlisting}
+>>> np.zeros(4)
+array([ 0.,  0.,  0.,  0.])
+\end{lstlisting}
+On remarquera que les valeurs sont des flottants.
+
+\item On peut forcer le type des valeurs avec le paramètre optionnel \type{dtype}
+\begin{lstlisting}
+>>> np.zeros(4, dtype = int)
+array([ 0,  0,  0,  0])
+\end{lstlisting}
+On peut choisir des types entiers spécifiques, signés/non signés, sur 8, 16, 32 ou 64 bits.
+
+\item On peut créer un tableau de valeurs unitaires avec {\tt np.ones} :
+\begin{lstlisting}
+>>> np.ones(5)
+array([1., 1., 1., 1., 1.])
+\end{lstlisting}
+
+\item On notera que le type des données est contraignant
+\begin{lstlisting}
+>>> m =  np.zeros(4, dtype = int)
+>>> m[1] = 2.6
+>>> m
+array([0, 2, 0, 0])
+\end{lstlisting}
+
+Lorqu'un tableau est crée avec des valeurs entières alors qu'on veut faire des calculs flottants, on devra mettre au moins un des termes sous forme flottante.
+\begin{lstlisting}
+>>> m = np.array([1.0, 2, 5, 3])
+>>> m
+array([1., 2., 5., 3.])
+\end{lstlisting}
+
+\item La fonction \type{np.linspace(a, b, n)} crée un tableau de taille $n$ avec des valeurs de $a$ à $b$ également espacées.
+\begin{lstlisting}
+>>> np.linspace(0, 1, 5)
+array([0.  , 0.25, 0.5 , 0.75, 1.  ])
+\end{lstlisting}
+
+\item La fonction \type{np.arange(a, b, r)} crée le tableau des valeurs qui commencent par $a$, espacées de $r$ et qui ne dépassent pas $b$ ($b$ est exclu).
+\begin{lstlisting}
+>>> np.arange(0, 1, 0.2)
+array([0. , 0.2, 0.4, 0.6, 0.8])
+
+>>> np.arange(0, 1, 0.3)
+array([0. , 0.3, 0.6, 0.9])
+\end{lstlisting}
+
+\item La fonction \type{np.copy(a)} crée une copie indépendante de l'original.
+\end{enumerate}
+%--------------------------------------------------------------------------
+\subsubsection{Opérations}
+%--------------------------------------------------------------------------
+On utilisera les tableaux \type{a = np.array([1.2, 2.0, -1.4])} et \type{b = np.array([2.0, 4, 3])}.
+\begin{enumerate}
+\item La somme de deux tableaux {\bf de même longueur} est le tableau des sommes.
+\begin{lstlisting}
+>>> a + b
+array([3.2, 6. , 1.6])
+\end{lstlisting}
+La somme de deux tableaux de longueurs différentes engendre une erreur.
+%--------------------------------------------------------------------------
+\item Le produit de deux tableaux {\bf de même longueur} est le tableau des produit.
+\begin{lstlisting}
+>>> a*b
+array([ 2.4,  8. , -4.2])
+\end{lstlisting}
+On peut aussi diviser un tableau par un autre.
+%--------------------------------------------------------------------------
+\item On peut ajouter un scalaire à un tableau, on obtient le tableau dans lequel le scalaire a été ajouté à chaque terme.
+\begin{lstlisting}
+>>> a + 2.7
+array([3.9, 4.7, 1.3])
+\end{lstlisting}
+%--------------------------------------------------------------------------
+\item On peut calculer le tableau des puissances des termes d'un tableau
+\begin{lstlisting}
+>>> a**2
+array([1.44, 4.  , 1.96])
+\end{lstlisting}
+On peut donc appliquer un polynôme à un tableau
+\begin{lstlisting}
+def P(x):
+    return x**3 - 2*x**2 + 7*x + 4
+
+>>> P(a)
+array([ 11.248,  18.   , -12.464])
+\end{lstlisting}
+%--------------------------------------------------------------------------
+\item Plus généralement on peut appliquer une {\bf fonction \type{numpy}} à un tableau
+\begin{lstlisting}
+>>> np.sin(a)
+array([ 0.93203909,  0.90929743, -0.98544973])
+\end{lstlisting}
+Cela est possible pour une fonction définie à partir des fonctions \type{numpy}.
+\begin{lstlisting}
+def f(x):
+    return 1 + 2.5*np.sin(3*x) - np.cos(np.pi*x)
+
+>>> f(a)
+array([ 0.70271589, -0.69853875,  3.48795643])
+\end{lstlisting}
+%--------------------------------------------------------------------------
+\item Une fonction définie avec des instructions conditionnelles ne s'applique pas directement ; elle n'est pas une fonction universelle (\Type{ufunc}) pour \type{numpy}. On peut la transformer pour qu'elle puisse agir sur les tableaux \type{numpy} avec l'instruction \type{np.vectorize}.
+\begin{lstlisting}
+def signe1(x):   
+    if x > 0: 
+        return 1    
+    elif x == 0:
+        return 0
+    else:
+        return -1
+
+>>> signe1(a)
+...
+ValueError: ...
+
+signe = np.vectorize(signe1)
+
+>>> signe(a)
+array([ 1,  1, -1])
+\end{lstlisting} 
+%--------------------------------------------------------------------------
+\item On peut affecter une valeur à tous les termes d'une extraction :
+{\bf on modifie alors le tableau}.
+\begin{lstlisting}
+>>> a[1:3] = 2.5
+>>> a
+array([1.2, 2.5, 2.5])
+\end{lstlisting} 
+%--------------------------------------------------------------------------
+\end{enumerate}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------

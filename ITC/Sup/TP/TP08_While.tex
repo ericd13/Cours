@@ -1,0 +1,324 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Boucles conditionnelles}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+{\sf Dans ce T.P. nous allons utiliser l'instruction de répétitions sous conditions, \Type{while}. Bien que plus puissantes que les boucles \type{for}, les boucles \type{while} nécessitent un grand soin pour s'assurer de la sortie de la boucle, elles ne seront utilisées que lorsqu'elles sont nécessaires.}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Suite de Collatz} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+La suite de Collatz de valeur initiale $a$ est définie par $u_0=a$ et, pour $n\in \N$,
+
+\[
+u_{n+1} = \left\{\begin{matrix}3 u_n + 1&\hbox{si $u_n$ est impair}\\
+u_n/2&\hbox{si $u_n$ est pair}
+\end{matrix}\right.\]
+
+Dans un premier temps, on emploie une boucle \type{for}.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title= Valeur]\it
+
+Écrire une fonction \type{Collatz(a, n)} qui détermine terme d'indice $n$ de la suite de Collatz de terme initial $a$.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer} Penser à effectuer une division entière pour ne pas transformer les nombres en flottants.
+\begin{lstlisting}
+def Collatz(a, n):
+    u = a
+    for i in range(n):
+        if u%2 == 0:
+            u = u//2
+        else:
+            u = 3*u + 1
+    return u
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+
+Par exemple, pour $u_0=13$, la suite est 
+$13, 40,20,10,5,16,8,4,2,1,4,2,1,\ldots$. 
+
+La suite $13, 40,20,10,5,16,8,4,2,1,4,2,1$ est le vol depuis $a=13$.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Valeurs caractéristiques} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Il semble\footnote{C'est une conjecture non prouvée.} que, pour toute valeur initiale $a\ge 1$, la suite atteint la valeur 1 après un nombre fini d'itérations et devient alors périodique.
+
+Dans les exercices on supposera qu'on a $a\ge 1$ sans avoir besoin de le vérifier.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title= Longueur de vol]\it 
+Écrire une fonction \type{longueurCollatz(a)} qui détermine le premier entier $n$ tel que $u_n=1$ pour la suite de Collatz de terme initial $a$.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer} 
+\begin{lstlisting}
+def longueurCollatz(a):
+    u = a
+    n = 0
+    while u > 1:
+        if u%2 == 0:
+            u = u//2
+        else:
+            u = 3*u + 1
+        n = n + 1
+    return n
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+On constate aussi que les valeurs de $u_n$ peuvent être grandes, même pour $u_0$ assez petit. Par exemple, pour $u_0 = 703$, on a $u_{82}= 250504$.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title= Hauteur de vol]\it
+Écrire un programme \type{hauteurCollatz(a)} qui détermine l'entier maximal atteint par la suite de Collatz de terme initial $a$.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer} 
+\begin{lstlisting}
+def hauteurCollatz(a):
+    u = a
+    maximum = a
+    while u > 1:
+        if u%2 == 0:
+            u = u//2
+        else:
+            u = 3*u + 1
+        if u > maximum:
+            maximum = u
+    return maximum
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title= {Hauteur de vol, bis}]\it
+Modifier la fonction précédente pour qu'elle renvoie, en plus l'indice $n$ en lequel $u_n$ atteint son maximum.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer} 
+\begin{lstlisting}
+def hauteurCollatz(a):
+    u = a
+    maximum = a
+    n = 0
+    n_max = 0
+    while u > 1:
+        n = n + 1
+        if u%2 == 0:
+            u = u//2
+        else:
+            u = 3*u + 1
+        if u > maximum:
+            maximum = u
+            n_max = n
+    return maximum, n_max
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Seuils} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Nous allons maintenant détecter les valeurs de $a$ en lesquelles les caractéristiques ci-dessus dépassent une valeur posée.
+
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title= Longueur à atteindre]\it
+Écrire une fonction \type{longueurSeuil(s)} qui renvoie le plus petit entier $a$ tel que la longueur de vol de la suite de Collatz de premier terme $a$ est supérieure à $s$. La fonction renverra aussi la longueur atteinte.
+
+\type{longueurSeuil(100)} renverra \type{(27, 111)},
+
+\type{longueurSeuil(250)} renverra \type{(6171, 261)}.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer} 
+\begin{lstlisting}
+def longueurSeuil(s):
+    l= 1
+    a = 1
+    while l < s:
+        a = a + 1
+        l = longueurCollatz(a)
+    return a, l
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title= Hauteur à atteindre]\it
+Écrire une fonction \type{hauteurSeuil(s)} qui calcule le plus petit entier $a$ tel que la hauteur de vol de la suite de Collatz de premier terme $a$ est supérieure à $s$. La fonction renverra le triplet formé de la valeur initiale $a$, de la hauteur atteinte et de l'indice $n$ en le quel la hauteur est atteinte.
+
+On recevra le résultat de \type{hauteurCollatz} par l'instruction
+\begin{lstlisting}
+h, n = hauteurCollatz(a)
+\end{lstlisting}
+
+\type{hauteurSeuil(10000)} renverra \type{(13120, 255, 15)},
+
+\type{hauteurSeuil(10**9)} renverra \type{(1570824736, 77671, 71)}.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer} 
+\begin{lstlisting}
+def hauteurSeuil(s):
+    h = 1
+    a = 1
+    n = 0
+    while h < s:
+        a = a + 1
+        h, n = hauteurCollatz(a)
+    return h, a, n
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Exercices supplémentaires} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title= Logarithme entier]
+Écrire une fonction \type{logEntier(n)} qui renvoie l'entier $p$ tel que $2^p \le n < 2^{p+1}$. 
+
+On n'utilisera pas la fonction logarithme.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+
+On calcule les puissances de 2 jusqu'au moment où on dépasse n strictement.
+
+On doit alors diminuer l'exposant de 1.
+
+On calcule les puissances dans une variable pour diminuer les calculs.
+\begin{lstlisting}
+def logEntier(n):
+    """Entrée : un entier strictement positif
+        Sortie : le plus grand entier p tel que 2**p <= n"""
+    p = 0
+    puiss2 = 1
+    while puiss2 <=  n:
+        p = p + 1
+        puiss2 = 2*puiss2
+    return p-1 
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Un nombre est dit {\bf parfait} s'il est la somme de ses diviseurs, distincts de lui-même, ses diviseurs {\bf propres}. 
+Les deux premiers nombres parfaits sont $6=1+2+3$ et $28 = 1+2+4+7+14$.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title= Nombres parfaits]\it
+Trouver les deux suivants.
+
+On pourra écrire une fonction qui calcule la somme des diviseurs propres d'un entier.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def sommeDiviseurs(n):
+    somme = 0
+    for i in range(1,n): # On commence par 1, on finit à n-1
+        if n % i == 0:
+            somme = somme + i
+    return somme
+\end{lstlisting}
+
+\begin{lstlisting}
+k  = 29
+for i  in range(2):
+    while sommeDiviseurs(k) != k:
+        k = k + 1
+    print(k)
+    k = k + 1
+\end{lstlisting}
+On trouve 496 et $8\,128$.
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Charger la fonction \type{randint} du module \type{random} à l'aide de l'instruction 
+\begin{lstlisting}
+from random import randint
+\end{lstlisting}
+
+On simule un tirage de pile-ou-face par le choix aléatoire d'un entier 0 ou 1 (\type{randint(0,1)}).
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title= Hasard]\it
+Écrire une fonction qui fait des tirages successifs jusqu'à tirer 3 fois 1 consécutivement et renvoie le nombre de tirages qui ont été nécessaires.
+
+Par exemple si les tirages donnent 0,1,1,0,0,1,0,1,1,0,0,0,1,0,1,1,1,\dots 
+
+la valeur renvoyée doit être 17. 
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+from random import randint
+
+def nbTirages():
+    nb_tirages = 0 
+    nb_un = 0 
+    while nb_un < 3:
+        k = randint(0,1)
+        nb_tirages = nb_tirages + 1
+        if k == 1:
+            nb_un = nb_un + 1
+        else:
+            nb_un = 0
+    return nb_tirages
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title= Somme de deux termes]\it
+Écrire une fonction \type{somme2(liste, k)} qui renvoie deux indices $i$ et $j$, $i < j$, tels que 
+
+\type{liste[i] + liste[j] = k} ; la fonction renverra \type{(-1, -1)} s'il n'existe pas de tels indices. 
+
+Écrire une fonction plus rapide (une seule boucle) si on suppose que la liste est triée par ordre croissant.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def somme2(liste, k):
+    n = len(liste)
+    for i in range(n-1):
+        for j in range(i+1, n):
+            if liste[i] + liste[j] == k:
+                return (i, j)
+    return (-1, -1)
+\end{lstlisting}
+
+Si la liste est triée, on part des extrémité, on calcule la somme. Si la somme est trop petite, on doit augmenter donc on incrémente le petit indice, sinon on décrémente le grand indice. On s'arrête dès que les indices ont croisé.
+\begin{lstlisting}
+def somme2(liste, k):
+    n = len(liste)
+    i = 0
+    j = n-1
+    while i < j:
+        s = liste[i] + liste[j]
+        if s == k:
+            return (i, j)
+        elif s < k:
+            i = i + 1
+        else:
+            j = j - 1
+    return (-1, -1)
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+
+

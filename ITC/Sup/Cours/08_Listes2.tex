@@ -1,0 +1,311 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Listes : 2}
+%-------------------------------------------------------------------------------
+%TODO filtrage de listes
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+%-------------------------------------------------------------------------------
+\begin{abstract}
+Nous avons défini le type \type{list} de python et les fonctions de base : on les retrouve dans la plupart des langages de programmation, avec un type très souvent appelé {\bf tableau} ({\it array}). Dans ces langages apparaît souvent un autre type d'assemblage, appelé liste, qui se construit et s'utilise pas-à-pas. Dans le langage python ces deux types sont combinés et nous allons étudier les actions supplémentaires sur les listes.
+\end{abstract}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Création de liste par augmentations}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Définition}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Jusqu'à présent nous utilisions les listes avec une longueur fixée : on pouvait changer les valeurs de chacune des positions mais on ne pouvait pas ajouter un élément supplémentaire.
+
+On peut créer une {\bf nouvelle} liste avec un élément de plus :
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> l = [4, 3, 7, 6, 0]
+>>> l1 = l + [5]
+>>> l1
+[4, 3, 7, 6, 0, 5]
+>>> l
+[4, 3, 7, 6, 0]
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Cette opération ne modifie pas la liste initiale mais crée une nouvelle liste : cela nécessite de copier tous les éléments et a donc un coût que l'on souhaite éviter.
+
+Python a prévu cette possibilité sous la forme d'une méthode.
+
+%-------------------------------------------------------------------------------
+\begin{defin}[Méthode]
+Une méthode est une fonction d'un type spécial qui est invoquée en ajoutant son nom {\bf après} l'objet auquel elle s'applique avec un point de séparation. Une méthode peut avoir des paramètres, ils seront placés classiquement entre les parenthèses qui suivent le nom de la méthode.
+\end{defin}
+%-------------------------------------------------------------------------------
+\begin{defin}[append]
+L'instruction \Type{liste.append(x)} attache l'élément \type{x} au bout de la liste \type{liste}. C'est une instruction élémentaire qui procède sans affectation, elle ne fait que modifier sans créer.
+\end{defin}
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> l = [4, 3, 7, 6, 0]
+>>> l.append(5)
+>>> l
+[4, 3, 7, 6, 0, 5]
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Cette opération a un coût constant\footnote{Cela n'est vrai qu'en moyenne, on parle de coût amorti.}, il ne dépend pas de la longueur de la liste initiale.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Usage}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+On obtient ainsi une autre méthode pour construire une liste.
+
+En voici quelques exemples
+%-------------------------------------------------------------------------------
+\subsubsection{Application d'une fonction aux éléments d'une liste}
+%-------------------------------------------------------------------------------
+\begin{multicols}{2}
+\setlength{\columnseprule}{1pt}
+
+\begin{lstlisting}[frame=no]
+def carre(liste):
+    n = len(liste)
+    l2 = [0]*n
+    for x in liste:
+        l2[i] = x**2
+    return l2
+\end{lstlisting}
+
+\begin{lstlisting}[frame=no]
+def carre(liste):
+    l2 = []
+    for x in range(n):
+        l2.append(x**2)
+    return l2
+\end{lstlisting}
+\end{multicols}
+
+On voit que, même si on utilise la lecture directe des éléments de la liste (\type{for x in liste}), la méthode classique nécessite de connaître la longueur de la liste. Cependant la méthode la plus directe est d'utiliser la construction Python :
+\begin{lstlisting}
+def carre(liste):
+    return [x**2 for x in liste]
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+\subsubsection{Calcul des termes d'une suite}
+%-------------------------------------------------------------------------------
+\begin{multicols}{2}
+\setlength{\columnseprule}{1pt}
+
+\begin{lstlisting}[frame=no]
+def fibonacci(n):
+    F = [0]*(n+1)
+    F[0] = 0
+    F[1] = 1
+    for i in range(2, n+1):
+        F[i] = F[i-1] + F[i-2]
+    return F
+\end{lstlisting}
+
+\columnbreak 
+
+\begin{lstlisting}[frame=no]
+def fibonacci(n):
+    F = [0, 1]
+    for i in range(2, n+1):
+        F.append(F[i-1] + F[i-2])
+    return F
+\end{lstlisting}
+\end{multicols}
+
+Dans le cas des adjonction on peut remplacer le calcul par \type{ F.append(F[-1] + F[-2])}.
+%-------------------------------------------------------------------------------
+\subsubsection{Filtrage d'une liste}
+%-------------------------------------------------------------------------------
+On veut extraire d'une liste ses termes positifs.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def positifs(liste):
+    pos = []
+    for x in liste:
+        if x >= 0:
+            pos.append(x)
+    return pos
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Ici l'écriture classique n'est pas raisonnable, il faudrait commencer par calculer le nombres de termes positifs puis les écrire dans une liste de taille adaptée. 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it 
+Écrire cette fonction.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def positifs(liste):
+    nb_pos = 0
+    for x in liste:
+        if x >= 0:
+            nb_pos = nb_pos + 1
+    pos = [0]*nb_pos
+    k = 0
+    for x in liste:
+        if x >= 0:
+            pos[k] = x
+            k = k + 1
+    return pos
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Ici encore, Python fournit une construction très efficace.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def positifs(liste):
+    return [x for x in liste if x >= 0]
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Autres méthodes}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+
+L'opération inverse de \type{append} est notée \type{pop} ; l'instruction \type{liste.pop()} a deux effets
+%-------------------------------------------------------------------------------
+\begin{enumerate}
+\item elle modifie la liste en lui enlevant son dernier élément,
+\item elle renvoie ce dernier élément. Il sera souvent utile de conserver ce dernier élément dans une variable : 
+
+\type{a = liste.pop()}.
+\end{enumerate}
+%-------------------------------------------------------------------------------
+Il est indispensable d'écrire les parenthèses.
+
+\medskip
+
+Il existe d'autres méthodes qui modifient une liste. Ce ne sont plus des opérations élémentaires, leur temps d'exécution dépend de la taille.
+%-------------------------------------------------------------------------------
+\begin{enumerate}
+\item \type{liste.pop(k)} qui enlève l'élément d'indice $k$ de la liste et le renvoie. 
+\item \type{liste.remove(x)} qui enlève la première apparition de $x$ dans la liste. Si $x$ n'est pas présent dans la liste, la méthode renvoie une erreur.
+\item \type{liste.insert(i,x)} qui insère $x$ dans la liste à la position $i$ en décalant les termes suivants. 
+\item \type{liste.reverse()} qui retourne la liste. 
+\item \type{liste.sort()} qui trie la liste. 
+\end{enumerate}
+%-------------------------------------------------------------------------------
+
+
+\medskip
+
+On peut simuler le comportement de \type{liste.pop(k)} à l'aide d'une fonction.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def enlever(k, liste):
+    a = liste[k]
+    n = len(liste)
+    for i in range(k, n-1):
+        liste[i] = liste[i+1]
+    liste.pop()
+    return a
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+On voit qu'on effectue $n-1=k$ affectations, le temps d'exécution dépend de la longueur.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it 
+Simuler de même les méthodes \type{remove} et \type{insert}.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+
+\medskip
+
+\begin{minipage}{0.53\textwidth}
+\begin{lstlisting}
+def oter(x, liste):
+    n = len(liste):
+    k = 0
+    while k < n 
+      and liste[k] != x:
+        k = k + 1
+    if k < n:
+        for i in range(k, n-1):
+          liste[i] = liste[i+1]
+        liste.pop()
+\end{lstlisting}
+\end{minipage}
+\begin{minipage}{0.47\textwidth}
+\begin{lstlisting}
+def inserer(x, k, liste):
+    n = len(liste):
+    liste.append(x)
+    for i in range(n, k, -1):
+        liste[i] = liste[i-1]
+    liste[k] = x
+\end{lstlisting}
+\end{minipage}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Décomposition en base 2}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+La représentation interne des entiers dans un ordinateurs se fait en base 2.
+
+Elle s'appuie sur la possibilité d'écrire tout entier positif $n < 2^{p+1}$ de manière unique sous la forme
+\[n = \sum_{k=0}^p \epsilon_k2^k\hbox{ avec } \epsilon_k\in\{0, 1\}\]
+Pour calculer les $\epsilon_k$, on utilise les propriétés suivantes
+\begin{enumerate}
+    \item Comme $2^k$ est pair pour $k\ge 0$, $\epsilon_0$ vaut 1 si et seulement si $n$ est impair, c'est le {\bf bit de parité}. $\epsilon_0$ est donc la valeur de \type{n\%2}.
+    \item Pour $0\le q\le p$, la décomposition de la division entière de $n$ par $2^q$ est $\displaystyle \sum_{k=q}^p \epsilon_k2^{k-q}$. 
+    
+    $\epsilon_q$ est donc la valeur de \type{(n//2**q)\%2}.
+    \item Pour $q>p$ la division entière de $n$ par $2^q$ donne 0, il n'y a plus de composante à calculer. On peut donc calculer la liste des $\epsilon_k$ utiles sans connaître $p$ à l'avance en s'arrêtant dès que le quotient \type{n//2**q} vaut 0.
+\end{enumerate}
+
+\medskip
+
+On va donc calculer la liste des coefficients \type[e0, e1, ..., ep] par adjonctions successives. On remarque que l'on obtient le coefficient de $2^0$ (de poids faible) en premier ; si on a besoin des coefficients dans l'ordre inverse, on retournera la liste obtenue.
+
+\medskip
+
+Voici une première écriture possible.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def base2(n):
+    b2 = []
+    q = 0
+    while n//2**q > 0:
+        e = (n//2**q)%2
+        b2.append(e)
+        q = q + 1
+    return b2
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+
+\medskip
+
+On remarque que l'on fait des calculs inutiles :
+
+\begin{enumerate}
+    \item \type{n//2**q} est calculé deux fois,
+    \item plutôt que le calculer, on peut passer de \type{n//2**q} à \type{n//2**(q+1)} en divisant par 2.
+\end{enumerate}
+
+\medskip
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def base2(n):
+    b2 = []
+    while n > 0:
+        e = n%2
+        b2.append(e)
+        n = n//2
+    return b2
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Solutions} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\shipoutAnswer

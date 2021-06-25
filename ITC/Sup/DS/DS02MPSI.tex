@@ -1,0 +1,284 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{DS2}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Une suite}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+On considère la suite $(S_n)_{n\in \N^*}$ définie par $\displaystyle S_n = \sum_{k=1}^n \frac 1{3k+1}$.
+
+On a $S_1 = 0,25$, $S_2 \simeq 0,39$, $S_3 \simeq 0,49$, $S_4 \simeq 0,57$, $S_5 \simeq 0,63$.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Écrire une fonction \type{S(n)} qui renvoie le terme $S_n$.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}2 points
+\begin{lstlisting}
+def S(n):
+    u = 0
+    for k in range(1, n+1):
+        u = u + 1/(3*k+1)
+    return u
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Combien d'opérations (additions, multiplications, divisions) sont effectuées lors du calcul de \type{S(n)} ?
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}1 point
+
+On effectue $n$ passages dans la boucle, chacun demande 4 opérations.
+Il y a donc $4n$ opérations.
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+On prouve en mathématiques que la suite tend vers $+\infty$.
+
+On veut trouver le premier entier $n$ tel que $S_n \ge A$.
+
+On propose la fonction suivante.
+\begin{lstlisting}
+def seuil(A):
+    n = ??
+    ??? S(n) < A:
+        n = ???
+    return n
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Compléter le code.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}1 point
+\begin{lstlisting}
+def seuil(A):
+    n = 1
+    while S(n) < A:
+        n = n + 1
+    return n
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Si le résultat de \type{seuil(A)} est $N$, déterminer, en fonction de $N$, le nombre d'opérations effectuées. On comptera bien sur les opérations effectuées pour tous les calculs des $S(n)$.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}2 points
+ 
+On calcule \type{S(n)} pour $1\le n \le N$ d'où $\displaystyle \sum_{n=1}^N 4n = 2N^2 + 2N$ opérations et on ajoute 1 à $n$ pour $1\le n< N$. Il y a donc $2N^2+3N-1$ opérations en tout.
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Écrire la fonction \type{seuil(A)} d'une autre manière (sans utiliser la fonction \type{S}) afin que le nombre d'opérations soit plus petit : il sera majoré par $4N$ si le résultat de \type{seuil(A)} est $N$.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}2 points
+\begin{lstlisting}
+def seuil1(A):
+    n = 1
+    S = 1/4
+    while S < A:
+        n = n + 1
+        S = S + 1/(3*n+1)
+    return n
+\end{lstlisting}
+On effectue $4N-3$ opérations.
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\medskip
+
+Dans la partie suivante on pourra utiliser le fait que le dernier terme d'une liste est déterminé par l'indice $-1$ (et l'avant dernier par l'indice $-2$). Par exemple, pour \type{L = [7, 4, 3, 5, 8]}, \type{L[-1]} renvoie \type{8} et  \type{L[-1]} renvoie \type{5}.
+\newpage
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Décomposition de Fibonacci}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Rappel : la suite de Fibonacci $(F_n)_{n\in \N}$ est définie par
+\[F_0=0,\ F_1= 1\hbox{ et }F_{n+2} = F_{n+1} + F_n \hbox{ pour }n\in\N\]
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Écrire une fonction \type{fibo(n)} qui renvoie une liste contenant les nombres de Fibonacci $F_0$, $F_1$, \ldots, $F_n$. Cette liste sera de longueur $n+1$.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}2 points
+\begin{lstlisting}
+def fibo(n):
+    F = [0]*(n+1)
+    F[0] = 0
+    F[1] = 1
+    for i in range(2,n+1): 
+       F[i] = F[i-1] + F[i-2]
+    return F
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\type{fibo(14)} doit renvoyer \type{[0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377]}.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Écrire une fonction \type{petitsFibo(n)} qui renvoie une liste contenant les nombres de Fibonacci $F_0$, $F_1$, \ldots, $F_p$ inférieurs à $n$. 
+
+On ne  connaît pas la longueur de cette liste à l'avance. On pourra supposer qu'on a $n\ge 1$.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}2 points
+\begin{lstlisting}
+def petitsFibo(n):
+    F = [0, 1]
+    while F[-1] + F[-2] <= n:
+        F.append(F[-1] + F[-2])
+        n = n + 1
+    return F
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\type{petitsFibo(200)} doit renvoyer \type{[0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144]}.
+
+\medskip
+
+On appelle $\phi(n)$ le dernier élément de la liste \type{petitsFibo(n)}. C'est le plus grand nombre de Fibonacci inférieur ou égal à $n$, c'est aussi l'unique nombre de Fibonacci $F_p$ tel que $F_p \le n < F_{p+1}$.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+
+Prouver que, si $\phi(n) = F_p$, alors $n - \phi(n) < F_{p-1}$.
+
+En déduire que, pour tout entier $n\ge 1$ il existe des indices $i_1$, $i_2$, \dots, $i_p$ tels que 
+\begin{itemize}
+    \item $n = F_{i_1} +  F_{i_2} +  \cdots +  F_{i_p}$, 
+    \item $2\le i_1\le i_2-2$, $i_2 \le i_3 -2$, \dots, $i_{p-1}\le i_p-2$.
+\end{itemize}  
+On pourra utiliser une récurrence généralisée.
+
+On appelle décomposition de Fibonacci de $n$ une suite $( F_{i_1}, F_{i_2},  \ldots,  F_{i_p})$ vérifiant ces propriétés.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}2 points
+
+On a $\phi(n) = F_p \le n < F_{p+1}$ donc $0\le n-\phi(n) < F_{p+1}-F_p=F_{p-1}$.
+
+1 admet la décomposition $1=F_2$.
+
+On suppose que tout entier $k$ vérifiant $1\le k\le n-1$ pour $n\ge 2$ admet une décomposition de Fibonacci.
+
+On a $n\ge 2$ donc $\phi(n) \ge 2$ et $k=n-\phi(n) \le n-2 \le n-1$ ; 
+\begin{itemize}
+    \item si $k=0$, $n = \phi(n) = F_p$ est une décomposition de Fibonacci de $n$,
+    \item si $k\ge 1$, il admet une décomposition de Fibonacci $k =  F_{i_1} +  F_{i_2} +  \cdots +  F_{i_q}$ avec $F_{i_q} \le k < F_{p-1}$ donc $i_q\le p-2$ et $n =  F_{i_1} +  F_{i_2} +  \cdots +  F_{i_q} + F_p$ est bien une décomposition de Fibonacci de $n$ car les inégalités sont vérifiées pour les $i_k$ et $i_q\le p - 2$.
+\end{itemize}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Écrire une fonction \type{decomp(n)} qu renvoie la suite des nombres de Fibonacci d'une décomposition de Fibonacci de $n$. On pourra renvoyer le résultat sous forme d'une liste décroissante.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}2 points
+\begin{lstlisting}
+def decomp(n):
+    decFibo = []
+    k = n
+    while k > 0:
+        L = petitsFibo(k)
+        phi = L[-1]
+        decFibo.append(phi)
+        k = k - phi
+    return decFibo
+
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Recherche}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+À partir d'une liste \type{L} dont les éléments sont triés par ordre croissant et d'un élément \type{a} on veut trouver l'indice $i_0$ tel que \type{L[i] <= a < L[i+1]}. 
+
+Par exemple pour \type{L0 = [4, 8, 14, 14, 18, 19, 26, 41]} et \type{a = 20}, la réponse est $i_0=5$ 
+
+et pour \type{a = 14}, la réponse est $i_0=3$.
+
+Dans les questions on supposera que la liste est triée et qu'on a \type{L[0] <= a < L[-1]}.
+
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Proposer une fonction \type{position(L, a)} qui calcule $i_0$ en comparant \type{L[i]} à \type{a} tant qu'on a \type{L[i] <= a}.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}2 points
+\begin{lstlisting}
+def position(L, a):
+    i = 0
+    while L[i] <= a:
+        i = i + 1
+    return i - 1
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Proposer une fonction \type{position1(L, a)} qui calcule $i_0$ beaucoup plus rapidement en s'inspirant de la recherche par dichotomie dans une liste triée.
+
+Avec l'exemple ci-dessus \type{position1(L0, a)} n'effectuera que 3 comparaisons.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}2 points
+\begin{lstlisting}
+def position1(L, a):
+    av = 0
+    ap = len(L) - 1
+    while ap - av > 1:
+        c = (av + ap)//2
+        if L[c] > a:
+            ap = c
+        else:
+            av = c
+    return av
+
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Prouver que votre fonction \type{position1} renvoie bien le résultat souhaité.
+
+Estimez le nombre de comparaisons effectuées.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}2 points
+
+On a toujours \type{L[av] <= a < L[ap]}.
+
+Si la longueur est majorée par $2^p$, on effectue au plus $p$ comparaisons.
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+
+
+
+

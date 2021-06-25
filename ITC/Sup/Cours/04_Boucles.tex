@@ -1,0 +1,379 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Boucles simples}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{abstract}Dans ce chapitre nous allons voir comment faire beaucoup travailler un ordinateur sans devoir écrire beaucoup de code.
+\end{abstract}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Pourquoi les boucles ?}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Un ordinateur peut exécuter des tâches à notre place mais si il faut écrire une instruction pour le moindre calcul, le temps d'écriture peut devenir rédhibitoire. 
+
+Nous allons ici introduire les instructions qui permettent de faire répéter un grand nombre de fois des opérations similaires avec peu de moyens.
+
+Nous utilisons très souvent de tels raccourcis.
+%-------------------------------------------------------------------------------
+\begin{enumerate}
+\item Faire 10 rangées de point droit (tricot).
+\item Copier 100 fois "Je dois apporter mon cahier en cours".
+\item Faire 10 longueurs de bassin à la brasse.
+\item Écrire la table de multiplication par 7.
+\item Ranger les habits dans l'armoire.
+\end{enumerate}
+%-------------------------------------------------------------------------------
+Toutes ces instructions contiennent des gestes élémentaires à répéter : soit en répétant les mêmes choses (1, 2, 3), soit en faisant une action pour chaque élément d'un ensemble, les entiers de 1 à 10 dans le cas 4, les différents habits pour le cas 5.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Répétitions}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Nous commençons par un cas particulier de répétition inconditionnelle.
+%-------------------------------------------------------------------------------
+\subsection{Un exemple}
+%-------------------------------------------------------------------------------
+La méthode de Héron permet de calculer une valeur approchée de la racine carrée d'un réel positif $a$ : on part d'une valeur pas trop éloignée, $x$, et on calcule $x'=\frac 12 \bigl(x + \frac ax\bigr)$. C'est en fait un cas particulier de la méthode de Newton que l'on étudiera plus tard. Une propriété remarquable est que $x'$ est plus proche de $\sqrt a$ que $x$ en général. Si on répète l'opération en choisissant $x'$ à la place de $x$ on obtient un meilleure approximation et on peut alors recommencer un certain nombre de fois.
+
+\newpage
+
+Voici un programme qui itère 3 fois le procédé à partir de $a$.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def racine3(a):
+    """Entrée : un réel positif a
+       Sortie : une valeur approchée de la racine de a"""
+    x = a
+    x = (x + a/x)/2
+    x = (x + a/x)/2
+    x = (x + a/x)/2
+    return x
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+On notera qu'on n'a pas utilisé 3 variables, on recycle \type{x}.
+
+\medskip
+
+On peut alors tester la fonction
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> racine3(2)
+1.4142156862745097
+
+>>> racine3(9)
+3.023529411764706
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Le résultat est satisfaisant pour des réels entre 1 et 10. Comme la qualité du résultat dépend de la valeur initiale le résultat est moins spectaculaire pour d'autres valeurs.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> racine3(100)
+15.025530119986813
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Cependant on a ici une instruction que l'on répète 3 fois et il suffit de la répéter encore pour obtenir une meilleure précision. On aimerait éviter d'avoir à effectuer cette réécriture et pouvoir demander à la machine, de façon concise, de répéter un ensemble d'instructions.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def racine(a, n):
+    """Entrée : un réel positif a et un entier n
+       Sortie : une valeur approchée de la racine de a
+                obtenue en itérant n fois 
+                la méthode de Heron """
+    x = a
+    # repéter n fois
+        x = (x + a/x)/2
+    return x
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Traduction python}
+%-------------------------------------------------------------------------------
+Les instructions Python pour répéter $n$ fois un ensemble d'instructions sont 
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+    for i in range(n):
+        instruction 1 à répéter
+        instruction 2 à répéter
+        ...
+        instruction p à répéter
+    suite des instructions après répétition
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Les instructions à répéter forment un bloc qui est repéré par l'indentation supplémentaire.
+
+Notons que ce bloc est précédé du symbole de ponctuation \type{:} comme lors de la définition d'une fonction. Dans la syntaxe python toute instruction qui nécessite un bloc est suivie du deux-points.
+
+\newpage
+
+Le programme ci-dessus devient donc
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def racine(a, n):
+    """Entrée : un réel positif a et un entier n
+       Sortie : une valeur approchée de la racine de a
+                obtenue en itérant n fois 
+                la méthode de Heron """
+    x = a
+    for i in range(n):
+        x = (x + a/x)/2
+    return x
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Boucles inconditionnelles}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Définition}
+%-------------------------------------------------------------------------------
+\begin{defin}[Boucle inconditionnelle]
+Les instructions 
+
+%-------------------------------------------------------------------------------
+{\normalfont
+\begin{lstlisting}
+    for i in range(n):
+        instruction 1 à répéter
+        instruction 2 à répéter
+        ...
+        instruction p à répéter
+    suite des instructions après répétition
+\end{lstlisting}
+}
+%-------------------------------------------------------------------------------
+\begin{enumerate}
+  \item créent une suite d'entiers 0, 1, \ldots, $n-1$,
+  \item pour chacun de ces entiers, 
+  
+  la variable ($i$ ici, mais tout nom de variable est possible) prend cette valeur
+
+et les instructions du bloc sont exécutées.
+\end{enumerate}
+\end{defin}
+%-------------------------------------------------------------------------------
+La variable $i$ prend bien $n$ valeurs ; cependant ces $n$ valeurs ne sont pas les entiers de 1 à $n$ mais ceux de 0 à $n-1$. Ils correspondent aux indices des suites de $n$ éléments que l'on étudiera dans un prochain chapitre, les {\bf listes}.
+
+Ce décalage d'indice par rapport aux habitudes mathématiques demande un apprentissage mais la cohérence avec les autres notations python le rend vite naturel.
+
+\medskip
+
+À chaque passage dans la boucle la variable $i$ prend une valeur différente : on peut donc l'utiliser pour faire des calculs. 
+
+Par exemple $n!$ est le produit des entiers de 1 à $n$, on peut donc calculer la factorielle en multipliant par $i+1$ pour chaque valeur de $i$ entre 0 et $n-1$. On a besoin d'un support pour contenir les produits, on va donc initialiser une variable, la valeur de départ doit être neutre pour le produit, c'est 1.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def factorielle(n):
+    """Entrée : un entier positif n
+       Sortie : n! """
+    produit = 1
+    for i in range(n):
+        k = i + 1
+        produit  = produit*k
+    return produit 
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+On peut remarquer que, lors du premier passage ($i=0$), l'instruction \type{produit  = produit*k} aurait donné une erreur si on n'avait pas initialisé \type{produit} ; dans la partie droite la variable \type{produit} n'existe pas encore.
+
+\medskip
+
+Dans la fonction \type{racine} ci-dessus, l'instruction \type{for i in range(n):} introduit une variable, \type{i}, dont on ne s'est pas servi. On pouvait l'éviter avec le caractère tiret bas qui permet le calcul de la répétition sans utiliser de variable.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def racine(a, n):
+    x = a
+    for _ in range(n):
+        x = (x + a/x)/2
+    return x
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Généralisation}
+%-------------------------------------------------------------------------------
+La création des indices par \type{range} crée un compteur simple.
+
+Quand on a besoin d'une suite d'entiers non consécutifs on peut les calculer à partir du compteur. 
+
+On l'a fait dans la factorielle, voici un autre exemple.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def sommeImpairs(n):
+    """Entrée : un entier positif n
+       Sortie : la somme des n premiers impairs """
+    somme = 0
+    for i in range(n):
+        k = 2*i + 1
+        somme  = somme + k
+    return somme 
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+
+La fonction \type{range} permet de créer une suite finie d'entiers plus générale si on lui donne 3 paramètres : 
+\Type{range(debut,fin,pas)} crée une suite finie d'entiers
+%-------------------------------------------------------------------------------
+\begin{itemize}
+\item qui commence par \type{debut} 
+\item qui progresse de \type{pas} à chaque étape 
+\item qui s'arrête dès qu'elle dépasse (ou atteint) \type{fin}
+\end{itemize}
+%-------------------------------------------------------------------------------
+On peut omettre le pas : il prendra alors la valeur 1.
+
+Si le pas est positif (resp. négatif) et si on a \type{debut >= fin} (resp. \type{debut <= fin}), la boucle n'est pas parcourue : en particulier c'est le cas d'une boucle de la forme \type{for i in range(0)} ou \type{for i in range(a, a)}.
+
+Quelques exemples
+%-------------------------------------------------------------------------------
+\begin{itemize}
+\item \type{range(5,17,3)} produit $(5,8,11,14)$ (la borne supérieure est exclue)
+\item \type{range(5,9)} est équivalent à {\tt range(5,9,1)} donc produit $(5,6,7,8)$
+\item \type{range(5)} est équivalent à {\tt range(0,5)} donc à  {\tt range(0,5,1)} et produit $(0,1,2,3,4)$.
+\item \type{range(6,0,-1)} produit $(6,5,4,3,2,1)$,
+\item \type{range(4,-1,-1)} produit $(4,3,2,1,0)$.
+\end{itemize}
+%-------------------------------------------------------------------------------
+On peut écrire alors la sommes des impairs
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def sommeImpairs(n):
+    """Entrée : un entier positif n
+       Sortie : la somme des n premiers impairs """
+    somme = 0
+    for k in range(1, 2n, 2):
+        somme = somme + k
+    return somme
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\section{Complexité : 1}
+%-------------------------------------------------------------------------------
+\subsection{Introduction}
+%-------------------------------------------------------------------------------
+Le but de la programmation sera souvent de répondre à un problème.
+Nous verrons qu'il existe dans de nombreux cas plusieurs algorithmes (que l'on traduit en programmes) qui permettent de résoudre un même problème.
+
+Dans ce cas il sera utile d'essayer de comparer ces différents algorithmes en nous posant la question de l'efficacité. 
+
+Cette efficacité doit être celle de l'algorithme utilisé.
+
+%-------------------------------------------------------------------------------
+\begin{enumerate}
+
+\item Ce n'est donc pas la durée de réflexion nécessaire à l'achèvement de l'algorithme.
+
+\item Ce n'est pas non plus la facilité d'écriture du programme dans un environnement donné : {\it "Il a fallu 250 heures pour écrire le programme"}. On mesurerait en fait l'habileté des programmeurs, la richesse des bibliothèques \dots
+ 
+\end{enumerate}
+%-------------------------------------------------------------------------------
+
+Nous choisirons souvent de nous intéresser au temps de calcul nécessaire\footnote{Nous verrons dans un prochain chapitre qu'on peut s'intéresser aussi à la quantité de mémoire utilisée à l'exécution du programme}. 
+
+On peut penser à mesurer le temps effectivement pris par le programme pour exécuter la tâche. Si on veut comparer deux algorithmes il faudra le faire sur les mêmes machines, avec le même langage, le mêmes conditions etc
+
+Cependant cette mesure est à la fois trop précise, on n'a pas réellement besoin de la durée {\bf exacte}, et trop imprécise car on veut savoir ce qui se passe pour des données d'entrée de plus en plus grandes (et sans perdre notre temps à faire tourner réellement le programme). On veut pouvoir prévoir l'ordre de grandeur du temps.
+
+Pour cela on va compter les instructions "élémentaires" qu'effectue le programme.
+
+La notion d'instruction élémentaire est difficile à définir, nous allons dans un premier temps compter les affectations \type{variable = calcul}. 
+Lorsque le calcul fait appel lui-même à des fonctions il faudra compter les affectations qu'il engendre.
+
+\medskip\penalty -1000
+
+Dans la suite de l'année on pourra choisir de compter d'autres instructions élémentaires :
+\begin{itemize}
+  \item les opérations arithmétiques,
+  \item les comparaisons,
+  \item les lectures et écritures dans un fichiers, \dots
+\end{itemize}
+
+Dans le cas de boucles les lignes de programme de la boucle sont effectuées plusieurs fois, il faudra compter ce nombre de passages.
+
+L'intérêt du calcul de complexité est d'anticiper le temps de calcul pour des données d'entrées de plus en plus grandes. Pour cela on fixe un mesure de la taille de cette entrée et on évalue la complexité de l'algorithme en fonction de cette taille. On obtiendra une fonction $C(n)$ où $n$ représente la taille de l'entrée.
+%-------------------------------------------------------------------------------
+\begin{defin}[Complexités] La complexité est
+
+\begin{enumerate}
+  \item {\bf linéaire} si elle est de la forme $C(n)= an+b$ ou si elle est majorée par une telle fonction. 
+  \item {\bf quadratique} si elle est de la forme $C(n)= an^2+bn+c$. 
+  \item {\bf polynomiale} si elle est majorée par un polynôme en la taille de l'entrée
+\end{enumerate}
+\end{defin}
+%-------------------------------------------------------------------------------
+Un complexité linéaire donnera des programmes dont le temps de calcul est approximativement proportionnel à la taille de l'entrée.
+
+Par contre si on double la taille d'entrée d'un programme de complexité quadratique le temps de calcul va être multiplié par 4 : le temps de calcul va devenir un problème plus rapidement que dans le cas d'un programme de complexité linéaire.
+
+De manière générale on préférera des algorithme de complexité polynomiale de degré le plus petit possible.
+
+\medskip
+
+{\bf Exemple} Dans le calcul de la factorielle, on commence par une affectation, la boucle comporte 2 affectations et elle est parcourue $n$ fois. La complexité est dont $C(n)=2n+1$, elle est linéaire.
+%-------------------------------------------------------------------------------
+\subsection{Une étude de cas}
+%-------------------------------------------------------------------------------
+On s'intéresse à la suite définie par 
+$\displaystyle \left\{ \begin{matrix} u_0 = 2\\
+u_{n+1} = \frac 12\left(u_n + \frac 2{u_n}\right)
+\end{matrix}\right.$
+
+\medskip
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def u(n):
+    """Entrée : un entier n
+       Sortie : le n-ième terme de la suite u"""
+    x = 2
+    for i in range(n):
+        x = (x + 2/x)/2
+    return x
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+
+La complexité de cette fonction, en nombre d'affectations, est $C_u(n)=1 + n$.
+
+On veut ensuite calculer $\displaystyle S_n = \sum_{k=0}^n u_k$.
+
+\medskip\penalty -1000
+
+L'écriture naturelle d'une fonction python est
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def S(n):
+    """Entrée : un entier n
+       Sortie : le n-ième terme de la suite S"""
+    somme = 0
+    for k in range(n+1):
+        somme = somme + u(k)
+    return somme
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+On notera que la borne du \type{range} est $n+1$ pour calculer les $u_k$ jusqu'à $u_n$.
+
+À chaque passage dans la boucle on effectue une instruction et l'appel de la fonction \type{u(k)} demande $k$ instructions. La complexité est donc $\displaystyle C_S(n) = \sum_{k=0}^n (1 + k) = \sum_{p=1}^{n+1} = \frac{(n+1)(n+2)}2$. 
+
+La complexité est quadratique. 
+
+Le calcul de \type{S(1000)} demande 0,06 secondes, celui de \type{S(10000)} demande 6 secondes.
+
+\medskip
+
+On peut faire plus rapide en remarquant que les appels successifs à la fonction \type{u} calculent à chaque fois les mêmes termes avant de calculer le dernier. On va calculer les termes successifs dans le corps de la fonction principale.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def S_mieux(n):
+    """Entrée : un entier n
+       Sortie : le n-ième terme de la suite S"""
+    u = 2
+    somme = 0
+    for k in range(n+1):
+        somme = somme + u
+        u = (u + 2/u)/2
+    return somme
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+La complexité cette fonction, en nombre d'affectations, est $C(n) = 2  + 2(n+1)$. C'est maintenant une complexité linéaire. Le calcul de \type{S\_mieux(10000)} demande 1 ms.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------

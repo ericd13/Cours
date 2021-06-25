@@ -1,0 +1,704 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Polynômes}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\vskip -1cm
+
+{\sf On choisit de représenter le polynôme $P=\sum\limits_{k=0}^n a_kX^k$ où les $a_k$ sont des réels 
+
+sous la forme d'une liste $[a_0,a_1,\cdots a_n]$ d'objets de type \type{float}.
+
+
+Il est important de noter que l'on peut avoir les derniers termes nuls : 
+$1+X+2X^2$ peut être représenté par \type{[1, 1, 2]} mais aussi par \type{[1, 1, 2, 0]} ou par  \type{[1, 1, 2, 0, 0, 0, 0]}.
+
+La représentation $[a_0,a_1,\cdots a_n]$ avec $a_n \ne 0$ est la représentation {\bf réduite} du polynôme, par exemple  \type{[1, 1, 2]} est la représentation réduite de $1+X+2X^2$. On notera que la représentation réduite du polynôme nul est la liste vide \type{[]}.
+}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsubsection{Réduction}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title=Degré]\it
+Écrire une fonction \type{degre(P)} qui renvoie le degré d'un polynôme donné en paramètre. 
+
+Par convention, elle renverra $-1$ pour le polynôme nul.
+\end{Exercise} 
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def degre(P):
+    """Entrée : une liste qui représente un polynome
+       Sortie : le degré du polynôme, -1 pour le polynome nul"""
+    deg = -1
+    for k in range(len(P)):
+        if P[k] != 0:
+            deg = k
+    return deg
+\end{lstlisting}
+\end{Answer}  
+%-------------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}[title=Réduction]\it  
+Écrire une fonction \type{reduire} qui renvoie la représentation réduite d'un polynôme. 
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}Si $d$ est le degré, le polynôme réduit est celui où on ne garde que les termes d'indices 0 à $d$.
+\begin{lstlisting}
+def reduire(P):
+    """Entrée : une liste qui représente un polynome
+       Sortie : une liste qui représente le même polynôme 
+                et dont le dernier terme est non nul"""
+    d = degre(P)
+    return P[0:d+1] # On doit garder P[d]
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\medskip
+
+{\bf Dans la suite toute fonction qui renvoie un polynôme devra renvoyer sa représentation réduite.}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsubsection{Fonction polynôme}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title=Derivation]\it
+Écrire une fonction \type{derive(P)}  qui renvoie le polynôme dérivé formel (sous forme de liste aussi) d'un polynôme donné en paramètre.
+\end{Exercise} 
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def derive(P):
+    """Entrée : une liste qui représente un polynome
+       Sortie : une liste qui représente la dérivée"""
+    n = len(P)
+    deri=[]
+    for k in range(1, n):
+        deri.append(k*P[k])
+    return reduire(deri)
+\end{lstlisting}
+\end{Answer}  
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title=Évaluation]\it 
+Écrire une fonction \type{calculNaif(x, P)} qui renvoie la valeur en un réel $x$ d'un polynôme donné $P$.
+
+ Cette fonction utilisera \type{x**k} pour calculer $x^k$.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def calculNaif(x,  P):
+    """Entrée : un nombre 
+                et une liste représentant un polynome
+       Sortie : la valeur de P(x)"""
+    n = len(P)
+    val = 0
+    for k in range(n):
+        val = val + P[k]*x**(k)
+    return val
+\end{lstlisting}
+\end{Answer}  
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Pour $P=\sum\limits_{k=0}^n a_kX^k$ et $x$ réel, on observe que 
+\[P(x)=\sum_{k=0}^n a_kx^k=a_0+x(a_1+x(a_2+x(a_3+\cdots +x(a_{n-1}+x(a_n))\cdots)))\]
+
+Cette façon de représenter $P(x)$ est l'algorithme de Hörner. Elle peut aussi s'écrire
+\[ P(x)=a_0+x(a_1+x(a_2+x(a_3+\cdots +x(a_{n-1}+x(a_n+x.0))\cdots)))\]
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Écrire (sur un papier!) la forme de Hörner de $P(x)=1+2x+3x^2+x^4-x^5$.
+\end{Exercise} 
+%-------------------------------------------------------------------------------
+\begin{Answer}
+
+$1+x(2+x(3+x(0+x(1-x))))$
+\newpage
+\end{Answer}  
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Écrire une fonction \type{horner(x, P)} qui calcule $P(x)$ en utilisant l'algorithme de Hörner.
+\end{Exercise} 
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def horner(x, P):
+    """Entrée : un nombre 
+                et une liste représentant un polynome
+       Sortie : la valeur de P(x)"""
+    n = len(P)
+    res = 0
+    for k in range(1, n+1):
+        res= x*res + P[-k]
+    return res 
+\end{lstlisting}
+\end{Answer}  
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsubsection{Opérations algébriques}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}\it Écrire une fonction qui calcule la somme de 2 polynômes.
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}Il faut faire attention aux longueurs différentes.
+\begin{lstlisting}
+def sommeP(P1,P2):
+    """Entrée : deux listes
+       Sortie : une liste qui représente la somme des
+                polynômes représentés par les listes"""
+    n1 = len(P1)
+    n2 = len(P2)
+    som = []
+    for i in range(min(n1, n2)):
+        som.append(P1[i] + P2[i])
+    if n1 < n2:
+        som = som + P2[n1:n2]
+    elif n2 < n1:
+        som = som + P1[n2:n1]
+    return reduire(som)
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}\it Écrire une fonction \type{produitMonome(P,a,k)} qui calcule le produit d'un polynôme $P$ par $aX^k$.
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def produitMonome(P, a, k):
+    """Entrée : une liste P, un réel a et un entier positif k
+       Sortie : une liste qui représente le produit par aX**k
+                du polynôme représenté par la liste P"""
+    n = len(P)
+    res = []
+    for i in range(k):
+        res.append(0)
+    for i in range(n):
+        res.append(a*P[i])
+    return reduire(res)
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}\it En déduire une fonction \type{produitP(P1,P2)} qui calcule le produit de 2 polynômes.
+
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def produitP(P1, P2):
+    """Entrée : deux listes 
+       Sortie : une liste qui représente le produit des
+                deux polynômes représentés par les listes"""
+    n = len(P1)
+    res = []
+    for k in range(n):
+        res = sommeP(res, produitMonome(P2, P1[k], k))
+    return reduire(res)
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsubsection{Complément 1 : polynômes de Tchebychev}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+Ce sont les polynômes définis par $T_n\bigl(\cos(x)\bigr) = \cos(nx)$.
+
+On peut alors prouver qu'on a 
+\begin{enumerate}
+  \item $T_0(X)=1$
+  \item $T_1(X)=X$
+  \item $T_{n}(X) = 2XT_{n-1}(X)-T_{n-2}(X)$.
+\end{enumerate}
+%--------------------------------------------------------------------------
+\begin{Exercise}\it Écrire une fonction \type{tchebychev(n)} qui renvoie la liste des polynômes de Tchebychev $T_0$ à $T_n$.
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def tchebychev(n):
+    """Entrée : un entier positif n
+       Sortie : la liste de listes représentants les
+                polynômes de Tchebychev de T0 à Tn"""
+    T = [[1], [0, 1]] # On initialise avec T0 et T1
+    for k in range(n-1): # Il manque n-1 polynômes
+        P = produitMonome(T[-1], 2, 1)
+        Q = produitMonome(T[-2], -1, 0)
+        T.append(sommeP(P, Q))
+    return T
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsubsection{Complément 2 : division euclidienne}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Le théorème de la division euclidienne affirme que pour deux polynômes $A$ et $B$ avec $B$ non nul il existe deux polynômes $Q$ et $R$ tels que 
+\[\left\{\begin{matrix} A = P.B +R\\ \deg(R) < \deg(B)\hbox{ ou } R = 0\end{matrix}\right.\]
+
+Le calcul du quotient $Q$ et du reste $R$ se fait par étape en déterminant le termes $aX^m$ tel que $A' = A-B.aX^m$ ait un degré strictement inférieur à celui de $A$ (ou est nul) et en recommençant à partir de $A'$ tant que le degré est supérieur à celui de $B$.
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}\it Écrire une fonction \type{division(A, B)} qui retourne le reste et la division du quotient de $A$ par $B$.
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def division(A, B):
+    n = degre(A)
+    m = degre(B)
+    q = max(0, n-m+1)
+    Q = [0]*q
+    r = n
+    R = A
+    while r >= m:
+        a = R[r]/B[m]
+        Q[r-m] = a
+        P1 = produitMonome(B, -a, r-m)
+        R = sommeP(R, P1)
+        r = degre(R)
+    return R, Q
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+
+
+
+
+
+% Les termes calculés dans la méthode de Hörner apparaissent dans un autre contexte.
+
+% Si $P$ est un polynôme alors $\alpha$ est une racine de $P-P(\alpha)$ donc il existe un polynôme $Q$\footnote{C'est le résultat obtenu en effectuant la division euclidienne de $P$ par $X-\alpha$.} tel que
+% $P-P(\alpha) = (X-\alpha).Q$, $P = (X-\alpha).Q + P(\alpha)$. 
+
+
+
+% Si on pose $\displaystyle P=\sum_{k=0}^d a_kX^k$ et $\displaystyle Q=\sum_{k=0}^{d-1} b_kX^k$ on obtient 
+% \[a_d = b_{d-1},\ a_k = b_{k-1}-\alpha b_k\hbox{ pour }1\le k \le d-1\hbox{ et }a_0=-\alpha b_0 + P(\alpha)\]
+
+% On remarque que les valeurs successives $b_{d-1}=a_d$ et $b_{k-1}=a_k  + \alpha b_k$ correspondent aux valeurs successives calculées dans la méthode de Hörner.
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \begin{Exercise}[label=exo:quotient]\it
+% Écrire, en utilisant ces relations, une fonction \type{divEuc(P, a)} qui renvoie une liste représentant le polynôme $Q=\dfrac{P}{X-a}$ lorsque $a$ est une racine de $P$.
+% \end{Exercise} 
+% %-------------------------------------------------------------------------------
+% \begin{Answer}
+% On remarque que, si on pose $b_n=0$, on a $b_{k-1}=a_k  + \alpha b_k$ pour tout $k$
+% \begin{lstlisting}
+% def divEuc(P, a):
+%     """Entrée : un nombre 
+%                 et une liste représentant un polynome
+%       Requis : P(a) = 0
+%       Sortie : une liste représentant P/(X-a)"""
+%     n = len(P)
+%     Q = [0]*(n-1)
+%     b = 0
+%     for k in range(n - 2, -1, -1):
+%         b= a*b + P[k+1]
+%         Q[k] = b
+%     return Q 
+% \end{lstlisting}
+% \end{Answer}  
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+
+% \medskip
+% {\bf Remarque} : si on dérive $P=(X-\alpha)Q+\beta$ alors on a $P'(\alpha)=Q(\alpha)$ : l'algorithme ci-dessus permet donc de calculer $P'(\alpha)$  sans utiliser la dérivée de $P$. 
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \section{Recherche d'une racine}
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \subsection{Plus grande racine}
+% %-------------------------------------------------------------------------------
+% On se place dans cette partie dans le cas d'un polynôme $\displaystyle P = \sum_{k=0}^d a_k X^k$ scindé à racines simples réelles qui admet, de plus, une unique racine de valeur absolue maximale. Si on note $r_1, r_2, \ldots, r_d$ ses racines on a, par exemple, $|r_k| < |r_d|$ pour tout $k$ appartenant à $\{1, 2, \ldots, d-1\}$.
+
+% On définit alors une suite $(u_n)_{n\in\N}$ en choisissant $u_0$, $u_1$, \dots, $u_{d-1}$ puis en calculant, par récurrence, 
+% \[ u_{n+d} = \frac{-1}{a_d} \sum_{k=0}^{d-1} a_k u_{n+k}\]
+
+% On démontre alors qu'on a $\displaystyle u_n = \sum_{k=1}^d A_k r_k^n$ avec $A_1$, $A_2$, \dots, $A_d$ constantes réelles.
+
+
+% Si les valeurs initiales sont bien choisies on a $A_d\ne 0$ donc la suite $\displaystyle \left(\frac{u_{n+1}}{u_n}\right)$ converge vers $r_d$.
+% %-------------------------------------------------------------------------------
+% \subsection{Exemple}
+% %-------------------------------------------------------------------------------
+% On prend $P=X^3-4X^2-7X+10$ ; $P$ vérifie les hypothèses ci-dessus (un graphe rapide permet de s'en convaincre).
+
+% On définit alors une suite $(u_n)_{n\in \N}$ par 
+% \[u_0=1,\ u_1=2,\ u_2=1\hbox{ et }\forall n>2, u_{n+3}=4u_{n+2}+7u_{n+1}-10u_n\]
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \begin{Exercise}\it
+% Écrire une fonctions \type{termesU(n)} qui renvoie la listes des valeurs de $u_k$ pour $0\le k\le n$.
+
+% On pourra supposer qu'on a $n\ge 2$.
+% \end{Exercise} 
+% %-------------------------------------------------------------------------------
+% \begin{Answer}
+% \begin{lstlisting}
+% def termesU(n):
+%     """Entrée : un entier positif
+%       Sortie : la liste des n+1 premiers termes
+%                 de la suite u"""
+%      U = [1, 2, 1]
+%      for k in range(3, n+1):
+%          a = U[k-3]
+%          b = U[k-2]
+%          c = U[k-1]
+%          u = 4*c + 7*b -10*a
+%          U.append(u)
+%     return U
+% \end{lstlisting}
+% \end{Answer}  
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \begin{Exercise}\it 
+% Écrire une fonction \type{quotients(n)} qui renvoie la liste des quotients $\dfrac{u_{k+1}}{u_k}$ pour $k$ variant de $0$ à $n-1$.
+% \end{Exercise} 
+% %-------------------------------------------------------------------------------
+% \begin{Answer}
+% \begin{lstlisting}
+% def quotients(n):
+%     """Entrée : un entier positif
+%       Sortie : la liste des n premiers termes
+%                 de la suite u(k+1)/u(k)"""
+%     U = termesU(n)
+%     Q = []
+%     for k in range(n):
+%         q = U[k+1]/U[k]
+%         Q.append(q)
+%     return Q
+% \end{lstlisting}
+% \newpage
+% \end{Answer}  
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \begin{Exercise}\it
+% Représenter graphiquement les valeurs de la suite des quotients (\type{plt.plot(Y)}) pour $n = 15$.
+
+% Que semble être la limite ?
+% \end{Exercise} 
+% %-------------------------------------------------------------------------------
+% \begin{Answer}
+% \begin{lstlisting}
+% plt.plot(quotients(15))
+% plt.show()
+% \end{lstlisting}
+% \begin{center}
+% \includegraphics[scale=0.4]{Images/06_quotients}
+% \end{center}
+% La suite semble converger vers 5.
+% \end{Answer}  
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \begin{Exercise}\it
+% On note $q_k=\dfrac{u_{k+1}}{u_k}$, représenter graphiquement les valeurs $\displaystyle \left(\frac{q_{k+1}-5}{q_k-5}\right)$ pour $0\le k\le 13$.
+
+% Quel semble être son comportement ?
+
+% Que peut-on en déduire ?
+
+% \end{Exercise} 
+% %-------------------------------------------------------------------------------
+% \begin{Answer}
+% \begin{lstlisting}
+% Q = quotients(15) # quotients pour 0 <= k < 15
+% T = []
+% for i in range(14):
+%     t = (Q[i+1] - 5)/(Q[i] - 5)
+%     T. append(t)
+% plt.plot(T)
+% plt.show()
+% \end{lstlisting}
+% \begin{center}
+% \includegraphics[scale=0.4]{Images/06_taux}
+% \end{center}
+% On observe une convergence vers une limite environ égale à $-0.4$.
+
+% La convergence est géométrique ; le caractère négatif signifie que la suite passe alternativement au dessus et en dessous de $5$.
+
+% \newpage
+% \end{Answer}  
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \subsection{Cas général}
+% %-------------------------------------------------------------------------------
+% Si 1 n'est pas une racine de $P$, on pourra choisir 1 pour les valeurs initiales de la suite $(u_n)_{n\in \N}$.
+% %-------------------------------------------------------------------------------
+% \begin{Exercise}\it
+% Écrire une fonction \type{racine} qui calcule la plus grande racine (en valeur absolue) d'un polynôme $P$ vérifiant les hypothèses ci-dessus et n'admettant pas 1 pour racine.
+% \end{Exercise} 
+% %-------------------------------------------------------------------------------
+% \begin{Answer}
+% \begin{lstlisting}
+% def racines(P):
+%     """Entrée : une liste représentant un polynome
+%       Requis : le polynome est scindé sur R, P(1) non nul
+%       Sortie : la plus grande racine"""
+%     n = len(P) - 1
+%     coef = []
+%     for i in range(n):
+%         c = -P[i]/P[-1]
+%         coef.append(c)
+%     U = [1]*(n)
+%     for k in range(n, 100):
+%         u = 0
+%         for i in range(n):
+%             u = u + U[k-n+i]*coef[i]
+%         U.append(u)
+%     return U[-1] /U[-2]
+% \end{lstlisting}
+% \end{Answer}  
+% %-------------------------------------------------------------------------------
+% \subsection{Méthode de Laguerre}
+% %-------------------------------------------------------------------------------
+% Il existe de nombreux algorithmes de recherche de valeur approchée d'une racine d'un polynôme.
+
+% Nous allons en présenter un, particulièrement rapide.
+
+% On suppose que  $P$ est un polynôme réel ayant au moins une racine réelle $a$.
+
+% On note $d$ le degré de $P$ et $H$ la fonction définie par
+% \[H(x)=(d-1)^2P'(x)^2-d(d-1)P(x)P''(x)\]
+
+
+% On définit alors la suite des valeurs $(x_n)$ en choisissant $x_0$ réel puis 
+% \[\forall k\ge 0,\ x_{k+1}=x_k-\dfrac{d.P(x_k)}{P'(x_k)+\varepsilon\sqrt{H(x_k)}}\] 
+% où $\varepsilon$ est choisi dans $\left\lbrace-1,1\right\rbrace$ de même signe que $P'(x_k)$.
+
+% Comme $\sqrt{H(x_k)}$ est positif, $\varepsilon$ a pour effet de maximiser la valeur absolue du dénominateur.
+
+% Le principal inconvénient de cette méthode est le calcul des valeurs de la dérivée seconde. 
+
+% Par contre, en théorie, elle est très rapide.
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \begin{Exercise}\it
+% Écrire une fonction \type{H(x, P)} qui prend en paramètre $x$ et $P$ et qui donne $H(x)$.
+% \end{Exercise} 
+% %-------------------------------------------------------------------------------
+% \begin{Answer}
+% \begin{lstlisting}
+% def H(x, P):
+%     dP = derive(P)
+%     ddP = derive(dP)
+%     d = degre(P)
+%     Px = horner(x, P)
+%     dPx = horner(x, dP)
+%     ddPx = horner(x, ddP)
+%     res = (d-1)**2*dPx**2 - d*(d-1)*Px*ddPx
+%     return res
+% \end{lstlisting}
+% \end{Answer}  
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \begin{Exercise}\it
+% Écrire une fonction \type{maxV(x, P)} qui prend en paramètre $x$ et $P$ et qui donne, parmi les deux valeurs $P'(x) + \sqrt{H(x)}$ et $P'(x) - \sqrt{H(x)}$, celle qui a la plus grande valeur absolue. 
+% \end{Exercise} 
+% %-------------------------------------------------------------------------------
+% \begin{Answer}
+% \begin{lstlisting}
+% def MaxV(x, P):
+%     dP = derive(P)
+%     A = horner(x, dP)
+%     B = H(x, P)**0.5
+%     if A > 0:
+%         return A + B
+%     else:
+%         return A - B
+% \end{lstlisting}
+% \end{Answer}  
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \begin{Exercise}\it
+%  Écrire une fonction \type{algo(P, x0, n)} qui renvoie $x_n$ pour le polynôme $P$, la valeur initiale $x_0$ et l'entier naturel $n$.
+ 
+%  Tester \type{algo} pour $P=X(X-1)(X+2)(X-5)=X^4-4X^3-7X^2+10X$ et différents choix de $n$ et de graine $x_0$.
+% \end{Exercise} 
+% %-------------------------------------------------------------------------------
+% \begin{Answer}
+% \begin{lstlisting}
+% def algo(P, x0, n):
+%     d = degre(P)
+%     x = x0
+%     for i in range(n):
+%         x = x - d*horner(x, P)/MaxV(x, P)
+%     return x
+% \end{lstlisting}
+% \newpage
+% \end{Answer}  
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \newpage
+
+% On admet que plus $\displaystyle \frac{x_n-x_{n-1}}{x_{n-1}-x_{n-2}}$ est petit, plus la vitesse de convergence est grande. 
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \begin{Exercise}\it
+% Récrire \type{algo} pour obtenir \type{algoV} qui renvoie en plus la valeur de $\dfrac{x_n-x_{n-1}}{x_{n-1}-x_{n-2}}$ qui devrait nous donner une idée de la vitesse de convergence.
+
+% Tester \type{algoV} pour $P=X^4-4X^3-7X^2+10X$ puis pour $Q=XP$.
+
+% Observer que la vitesse de convergence est plus lente quand on approche une racine multiple.
+% \end{Exercise} 
+% %-------------------------------------------------------------------------------
+% \begin{Answer}
+% On doit avoir $n\ge 2$.
+% \begin{lstlisting}
+% def algoV(P, x0, n):
+%     d = degre(P)
+%     x_2 = x0
+%     x_1 = x0 - d*horner(x0, p)/MaxV(x0, P)
+%     x = x_1 - d*horner(x_1, p)/MaxV(x_1, P)
+%     for i in range(n-2):
+%         x_2 = x_1
+%         x_1 = x
+%         x = x - d*horner(x, P)/MaxV(x, P)
+%     return x, (x - x_1)/(x_1 - x_2)
+% \end{lstlisting}
+% \end{Answer}  
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \subsection{Autres racines}
+% %-------------------------------------------------------------------------------
+% Pour itérer l'algorithme, si on a trouvé une racine $\alpha$ pour un polynôme $P$, on peut réutiliser la même méthode appliquée au polynôme $Q=\dfrac{P}{(X-\alpha)}$. 
+
+% On a calculé le quotient dans l'exercice \ref{exo:quotient}.
+% %-------------------------------------------------------------------------------
+% \begin{Exercise}\it
+% Écrire une fonction qui calcule les racines d'un polynôme $P$.
+
+% On peut supposer que toutes les racines de $P$ sont réelles et de valeurs absolues distinctes. 
+
+% Appliquer à $X^4-10X^2+4X+8$.
+% \end{Exercise} 
+% %-------------------------------------------------------------------------------
+% \begin{Answer}
+% \begin{lstlisting}
+% def racines(P):
+%     """Entrée : une liste représentant un polynome
+%       Requis : le polynome est scindé sur R
+%       Sortie : la liste des racines"""
+%     R = []
+%     while horner(1, P) == 0:
+%         R.append(1)
+%         P = divEuc(P, 1)
+%     while len(P) >  1:
+%         a = racine(P)
+%         R.append(a)
+%         P = divEuc(P, a)
+%     return R
+% \end{lstlisting}
+% \end{Answer}  
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \section{Compléments}
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \subsection{Amplification des erreurs}
+% %-------------------------------------------------------------------------------
+% On définit une suite récurrente $(u_n)_{n\in \N}$ par $u_0=\frac{1}{12}$ et  $\forall n \in \N,u_{n+1}=13 u_n-1$.
+
+% Une récurrence immédiate montre que la suite est constante égale à $\frac{1}{12}$.
+% \begin{Exercise}\it
+% Écrire une fonction \type{suite1(n)} qui prend un entier $n$ en paramètre et qui renvoie la valeur de $u_n$.
+
+% Expérimenter pour différentes valeurs de $n$. Expliquer.
+% \end{Exercise} 
+% %-------------------------------------------------------------------------------
+% \begin{Answer}
+% \begin{lstlisting}
+% def suite1(n):
+%     u = 1/12
+%     for i in range(n):
+%         u = 13*u-1
+%     return u
+% \end{lstlisting}
+% $(u_n)$ ne semble pas converger vers $\frac 1{12}$.
+
+% Si $u_k = \frac 1{12}+\varepsilon$ , alors $u_{k+1} =  \frac 1{12}+13.\varepsilon$ donc les $u_k$ s'écartent de $\frac 1{12}$ quand  on n'a pas une valeur exacte de $\frac 1{12}$. Or cette valeur n'existe pas dans la représentation des réels : elle est approchée, d'où la divergence.
+% \end{Answer}  
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \medskip
+
+% On définit une suite récurrente $(u_n)_{n\in \N}$ par
+% \[u_0=-18,\ u_1=22 \text{ et } \forall n \in \N,\ u_{n+2}=\frac{10}{3}u_{n+1}-u_n-56\]
+
+% On peut prouver qu'il existe $\lambda$ et $\mu$ tels que $u_{n}=\lambda \left(\frac{1}{3} \right)^n+\mu 3^n+42$ pour tout $n$
+% .
+% Les conditions initiales imposent $\mu=0$ et $\lambda=-60$ donc $\lim\limits_{n\rightarrow +\infty} u_n=42$.
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \begin{Exercise}\it
+% Écrire une fonction \type{suite1(n)} qui renvoie la valeur de $u_n$.
+
+% Quelle semble être la limite de la suite ? 
+
+% Proposer une explication
+% \end{Exercise} 
+% %-------------------------------------------------------------------------------
+% \begin{Answer}
+% \begin{lstlisting}
+% def suite2(n):
+%     u = -18
+%     u_next = 22
+%     for i in range(n):
+%         u_new = 10*u_next/3 - u - 56
+%         u = u_next
+%         u_next = u_new
+%     return u
+% \end{lstlisting}
+% \begin{center}
+% \includegraphics[scale=0.4]{Images/06-exercice19}
+% \end{center}
+
+
+% La suite se rapproche de 42 puis tend vers $-\infty$.
+
+% Les raisons sont les mêmes qu'à l'exercice ci-dessus.
+% \end{Answer}  
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \subsection{Racines complexes}
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+% \begin{Exercise}\it
+% Reprendre la méthode d'approximation d'une racine pour un polynôme à racine complexes. 
+
+% On aura alors parfois $H(x_k)$ négatif et on devra en tenir compte et remplacer $\sqrt{H(x_k)}$ par une des racines complexes de $H(x_k)$.
+% \end{Exercise} 
+% %-------------------------------------------------------------------------------
+% \begin{Answer}
+% Il suffit de changer \type{MaxV}
+% \begin{lstlisting}
+% def MaxV(x, P):
+%     dP = derive(P)
+%     A = horner(x, dP)
+%     B = H(x, P)**0.5
+%     if abs(A+B) > abs(A-B):
+%         return A + B
+%     else:
+%         return A - B
+% \end{lstlisting}
+% \end{Answer}  
+% %-------------------------------------------------------------------------------
+% %-------------------------------------------------------------------------------
+
+
+%\shipoutAnswer

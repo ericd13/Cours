@@ -1,0 +1,443 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Textes et fichiers}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Les chaînes de caractères}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Une chaîne de caractères est un assemblage de caractères, plus précisément : 
+
+Les chaînes de caractères Python sont des assemblages :
+%-------------------------------------------------------------------------------
+\begin{enumerate}
+  \item homogènes, ils ne contiennent que des caractères,
+  \item dont les éléments sont accessibles par leur indice,
+  \item non mutables : on ne peut en modifier ni la longueur, ni les éléments, contrairement aux listes.
+\end{enumerate}
+%-------------------------------------------------------------------------------
+\medskip
+%-------------------------------------------------------------------------------
+\begin{itemize}
+  \item On définit une chaîne en écrivant les caractères entre guillemets simples ou doubles :\\
+\type{mot = 'bonjour'} ou \type{nom = "Tournesol"}. La chaîne vide s'écrit donc \type{''} ou \type{""}.
+%-------------------------------------------------------------------------------
+\smallskip
+%-------------------------------------------------------------------------------
+\item Le type des chaînes de caractères en Python est \Type{str} :
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> type('oui') 
+<class 'str'>
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+\smallskip
+%-------------------------------------------------------------------------------
+\item On accède aux caractères d'une chaîne par leur numéro, sous la forme \type{ch[i]}. La numérotation démarre à 0. Le nombre de caractères d'une chaîne est donné par \type{len(ch)}.
+%-------------------------------------------------------------------------------
+\smallskip
+%-------------------------------------------------------------------------------
+\item Dans une boucle, on peut parcourir les caractères constituant une chaîne par leurs indices
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+n=len(ch)
+for i in range(n):
+    x=ch[i]
+    ...
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+mais on peut aussi le faire sous la forme :
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+for x in ch:
+    ...
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+\item Par contre on ne peut pas remplacer un caractère par un autre.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> ch = "Bonjaur"
+>>> ch[4] = 'o'
+TypeError: 'str' object does not support item assignment
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+\end{itemize}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Caractères (rappels)}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Dans Python, les caractères usuels sont associées à un entier entre 0 et 255 selon un encodage ASCII sur 8 bits avec les fonctions 
+%-------------------------------------------------------------------------------
+\begin{itemize}
+\item \type{ord}, qui donne le code d'un caractère,
+\item \type{chr}, qui donne le caractère associé à un entier.
+\end{itemize}Les caractères seront utilisés le plus souvent sous la forme d'une assemblage de caractères, la {\bf chaîne de caractères} de type \Type{str}.
+
+Le symbole \type{'$\backslash$'} n'est pas un caractère, il est un symbole d'échappement et permet de définir des caractères spéciaux dans une chaînes de caractères, ils seront interprétés par la fonctions \type{print}. 
+%-------------------------------------------------------------------------------
+\begin{itemize}
+\item \type{$\backslash$'} est remplacé par une apostrophe,
+\item \type{$\backslash\backslash$} est remplacé par le symbole $\backslash$,
+\item \type{$\backslash$"} est remplacé par une apostrophe double,
+\item \type{$\backslash$n} est remplacé par un retour à la ligne,
+\item \type{$\backslash$t} est remplacé par une tabulation \dots
+\end{itemize}
+%-------------------------------------------------------------------------------
+Ces caractères spéciaux sont signifiés à l'aide de deux signes mais sont considérés chacun comme un seul caractère.
+
+
+
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Fonctions, opérations et méthodes sur les chaînes}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Les fonctions imposées par le programme sont la création, l'accès à un caractère, la concaténation et les conversions de type.
+%-------------------------------------------------------------------------------
+\begin{itemize}
+  \item La concaténation permet de joindre deux chaînes et d'en créer une nouvelle.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> ch1 = "aujourd'hui,"
+>>> ch2 = 'il fait beau'
+>>> ch3 = ch1 + ch2
+>>> print(ch3)
+aujourd'hui,il fait beau
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+  \item L'extraction d'une tranche se fait comme ce qui a été vu pour les listes.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> \type{ch} = "Il faut imaginer Sisyphe heureux"
+>>> ch1=ch[1:4]
+>>> ch2=ch[20:]
+>>> print(ch1)
+l f
+>>> print(ch2)
+yphe heureux
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+  \item Voici maintenant quelques exemples de changement de type :
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> str(2.5)
+'2.5'
+>>> int('54')
+54
+>>> float('3.7')
+3.7
+>>> list('bonjour')
+['b','o','n','j','o','u','r']
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+  \item On peut convertir les caractère en leur code ASCII et réciproquement.
+  
+  Pour récupérer le code ASCII de la lettre a, on demande \type{ord('a')}, qui renvoie \type{97}. 
+  
+  L'instruction \type{chr(65)} renvoie \type{'A'}, c'est la lettre de code ASCII égal à \type{65}.
+%-------------------------------------------------------------------------------
+\end{itemize}
+%-------------------------------------------------------------------------------
+
+\medskip
+
+Python définit un grand nombre de méthodes dont l'argument est une chaîne de caractères. 
+
+Nous allons en explorer certaines. Il n'est pas nécessaire de les connaître mais les outils acquis vont nous permettre de les écrire nous-même sous forme de fonction.
+%--------------------------------------------------------------------------
+\begin{description}
+    \item {\bf Décompte d'une lettre}
+    
+    \Type{ch.count(a)} compte le nombre d’occurrences du caractère \type{a} dans la chaîne \type{ch}. 
+%--------------------------------------------------------------------------
+\item{\bf Première occurrence}
+
+\Type{ch.index(a)} renvoie l'indice de la première occurrence du caractère \type{a} dans la chaîne \type{ch}.
+%--------------------------------------------------------------------------
+\item{\bf Passage en majuscules}
+
+\Type{ch.upper()} convertit tous les caractères alphabétiques de la chaîne \type{ch} en majuscules.
+%--------------------------------------------------------------------------
+\item{\bf Découpage d'une chaîne}
+
+Dans le traitement des fichiers, nous aurons souvent besoin de découper des chaînes de caractères selon un critère. Par exemple, des phrases sont des mots séparés par des blancs, les données d'un fichier {\sc csv} sont séparés par des points-virgule. 
+
+\Type{ch.split(a)} est une méthode qui fournit la liste des chaînes de caractère extraites de \type{ch} qui étaient délimitées par le caractère \type{a} (ou le début ou la fin de la chaîne) ; le caractère \type{a} est enlevé. Par exemple 
+%--------------------------------------------------------------------------
+\begin{lstlisting}
+>>> 'Il fait beau et chaud'.split(' ')
+['Il', 'fait', 'beau', 'et', 'chaud']
+\end{lstlisting}
+%--------------------------------------------------------------------------
+\end{description}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}[title={Écriture des méthodes}]\it
+Écrire les fonctions 
+\begin{enumerate}
+    \item \type{compte(a, ch)} qui renvoie le nombre d'apparitions d'une lettre\type{a} dans une chaîne de caractères,
+    \item \type{premier\_indice(a, ch)} qui renvoie le premier indice d'apparition d'une lettre dans une chaîne de caractères ; la fonction renverra $-1$ si le caractère n'est pas dans la chaîne,
+    \item \type{majuscules(ch)} qui renvoie une chaîne de caractères obtenue à partir de {ch} en remplaçant toutes les minuscules non accentuées par des majuscules ; les majuscules et les minuscules se suivent dans le même ordre dans la liste des caractères donnés par la fonction \type{ord},
+    \item \type{separe(ch, a)} qui renvoie la liste des chaînes extraites de \type{ch} en découpant de part et d'autre du caractère \type{a}.
+\end{enumerate}
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{enumerate}
+\item Méthode \type{count}
+\begin{lstlisting}
+def compte(a, ch):
+    compteur = 0
+    for x in ch:
+        if x == a:
+            compteur = compteur + 1
+    return compteur
+\end{lstlisting}
+%--------------------------------------------------------------------------
+\item Méthode \type{index}
+\begin{lstlisting}
+def premier_indice(a, ch):
+    resultat  = -1
+    n = len(ch)
+    position  = 0
+    while position < n and resultat = -1:
+        if ch[position] == a:
+            resultat = position
+        position  = position + 1
+    return resultat
+\end{lstlisting}
+%--------------------------------------------------------------------------
+\item Méthode \type{upper}
+
+\begin{lstlisting}
+def majuscules(ch):
+    ecart = ord("A") - ord("a")
+    resultat  = ""
+    for x in ch:
+    k = ord(x)
+        if ord("a") <= k and k <= ord("z"):
+            y = chr(ord(x) + ecart)
+        else:
+            y = x # On ne change que a .. z
+        resultat = resultat + y
+    return resultat
+\end{lstlisting}
+%--------------------------------------------------------------------------
+\item Méthode \type{split}
+
+\begin{lstlisting}
+def separe(ch, a):
+    reponse = []
+    mot = ""
+    for x in ch:
+        if x != a:
+            mot = mot + x
+        else:
+            reponse.append(mot)
+            mot = ""
+    return reponse
+\end{lstlisting}
+\end{enumerate}
+\newpage
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\section{ Les fichiers }
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+Les fichiers permettent, entre autre, de stocker des résultats ou d'en récupérer: acquisitions physiques de données, recueil de statistiques,\dots 
+
+Nous allons ici simplement définir un moyen de lire et écrire des données dans un fichier texte simple accessible depuis l'ordinateur. Les moyens d'accéder aux répertoires dépendent du système et de l'environnement; ils ne seront pas étudiés ici.
+%--------------------------------------------------------------------------
+\subsection{Ouvrir un fichier}
+%--------------------------------------------------------------------------
+Pour permettre à Python d'accéder à un fichier, on utilise l'instruction  
+
+\Type{fichier = open(nomDuFichier,mode)}. Pour cette syntaxe,
+
+\begin{itemize}
+  \item \type{fichier} est le nom que l'on donne à la variable qui est associée au fichier
+  \item \type{nomDuFichier} est une chaîne de caractères qui indique où trouver le fichier. Si on a su indiquer comme répertoire courant celui qui contient le fichier, il suffit de donner son nom (\type{'nombresPremier.txt'} par exemple). 
+  
+  Mais en général, il faudra donner l'arborescence globale, du style 
+  
+  \type{'/home/moi/travail/python/nombresPremiers.txt'} dans une arborescence Linux.
+  \item  Le mode permet de préciser l'action souhaitée; les principaux mode sont:
+  
+  \begin{itemize}
+    \item \type{'r'} pour {\it read} . C'est le mode lecture. On lit les données du fichier.
+    \item \type{'w'} pour {\it write}. C'est le mode écriture. C'est un mode destructif: l'ancien fichier est détruit et remplacé par ce que l'on met. Si le fichier n'existait pas, il est créé.
+    \item \type{'a'} pour {\it append}. C'est le mode ajout. On ajoute ce que l'on écrit à ce qui existait précédemment.
+  \end{itemize}
+\end{itemize}
+
+Après l'avoir utilisée, on doit fermer la communication avec le fichier par l'instruction \Type{fichier.close()}. Un fichier ouvert doit toujours être fermé.
+%--------------------------------------------------------------------------
+\subsection{Écrire dans un fichier}
+%--------------------------------------------------------------------------
+Un fichier est considéré comme une chaîne de caractères. Lorsque l'on utilise le mode \type{'w'}, cette chaîne initiale est vide (et le fichier est créé si nécessaire); lorsque l'on utilise le mode \type{'a'}, cette chaîne initiale est le contenu du fichier au moment de son ouverture.\\
+\\
+L'instruction \Type{fichier.write(chaineCaractères)} ajoute la chaîne de caractères passée en argument au fichier. En général, on structure un peu le fichier, notamment avec des passages à la ligne (\type{'$\backslash$n'}). 
+
+Dans l'exemple suivant, on suppose que le répertoire de travail a été bien défini.
+%--------------------------------------------------------------------------
+\begin{lstlisting}
+def prem(n): # on suppose n plus grand que 5
+    l = [2]
+    for k in range(3,n):
+        premier = True
+        for j in range(2,k-1):
+            if k%j == 0:
+                premier = False
+        if premier:
+            l.append(k)
+\end{lstlisting}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{lstlisting}[frame=lines, caption={Les premiers nombres premiers}]
+fichier=open('nombresPremiers.txt','w') # creation
+
+liste = prem(20)
+for n in liste:
+    ch= str(n)+'\n'    # on cree la chaine
+    fichier.write(ch)  # on l'ajoute
+fichier.close()        # on ferme le fichier
+# on veut rajouter 23
+fichier = open('nombresPremiers.txt','a')
+ch=str(23)+'\n'
+fichier.write(ch)
+fichier.close()
+\end{lstlisting}
+%--------------------------------------------------------------------------
+\subsection{Lire un fichier }
+%--------------------------------------------------------------------------
+Il y a plusieurs méthodes pour lire un fichier ouvert en mode lecture.
+%--------------------------------------------------------------------------
+\begin{itemize}
+\item \Type{ch} = fichier.read() lit tout le fichier et l'affecte à la variable \type{ch}.
+\item 
+L'exemple ci-dessus donne
+%--------------------------------------------------------------------------
+\begin{lstlisting}
+'2\n3\n5\n7\n11\n13\n17\n19\n23\n'
+\end{lstlisting}
+%--------------------------------------------------------------------------
+\item On peut lire tout le fichier grâce à \Type{liste = fichier.readlines()}. 
+
+Ceci crée la liste des lignes du fichier (les lignes sont délimitées par \type{'$\backslash$n'}). 
+
+\item L'exemple ci-dessus donne
+%--------------------------------------------------------------------------
+\begin{lstlisting}
+['2\n', '3\n', '5\n','7\n','11\n','13\n','17\n','19\n','23\n']
+\end{lstlisting}
+%--------------------------------------------------------------------------
+\type{len(liste)} donne alors le nombre de lignes présentes dans le fichier.
+\item On peut lire le fichier ligne par ligne . \Type{ch = fichier.readline()} lit les caractères du fichier depuis la position actuelle jusqu'à \type{'$\backslash$n'} (ou jusqu'au bout s'il n'y a plus ce caractère). On peut alors parcourir tout le fichier ligne par ligne  grâce à une boucle (le point précédent nous donne le nombre de lignes à considérer). 
+
+L'instruction \Type{for ligne in fichier} permet d'accomplir cela directement.
+\end{itemize}
+
+\vspace{0.5cm}
+%--------------------------------------------------------------------------
+\begin{lstlisting}[frame=lines, caption={Lecture des premiers nombres premiers}]
+fichier = open('nombresPremiers.txt','r') #m ode lecture
+liste = []
+for ligne in fichier:
+    p = len(ligne)
+    ch = int(ligne[0:p-1])  # on enleve le caractere \n
+    liste.append(ch)
+fichier.close()
+print(liste)
+
+[2, 3, 5, 7, 11, 13, 17, 19, 23]
+\end{lstlisting}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\section{Recherche naïve d'un mot dans une chaîne de caractères}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Supposons  \type{texte}  une chaîne de caractères et \type{motif} une chaîne de caractères de longueur inférieure à celle de \type{texte}. On s'intéresse à l'apparition du motif dans le texte.
+%-------------------------------------------------------------------------------
+\begin{itemize}
+  \item \type{motif} est-il une sous-chaîne de \type{texte}? 
+  \item Si oui, combien de fois \type{motif} apparaît-il si on lit \type{texte} en entier ?
+  \item À quel(s) endroit(s) de \type{texte} rencontre-t-on \type{motif} ? 
+\end{itemize}
+%-------------------------------------------------------------------------------
+\subsection*{Quelles sont les positions possibles ?}
+%-------------------------------------------------------------------------------
+Si on note $n$ la longueur du texte et $p$ celle du motif, le motif peut démarrer au maximum à l'indice i avec $i + p - 1\le n-1 $, soit $i = n-p$. On utilisera donc une boucle \type{for i in range(n-p+1)}.
+%-------------------------------------------------------------------------------
+\subsection*{Comment comparer ?}
+%-------------------------------------------------------------------------------
+La méthode de base consiste à comparer le caractère $i$ du texte avec le caractère 0 du motif, puis le caractère $i+1$ du texte avec le caractère 1 du motif et ainsi de suite jusqu'au dernier caractère du motif. En Python, cela revient à comparer la chaîne extraite \type{texte[i:i+p]} avec le motif. Bien qu'écrit en une seule instruction, ceci demande $p$ opérations élémentaires (des comparaisons).
+%-------------------------------------------------------------------------------
+\subsection*{Les fonctions}
+%-------------------------------------------------------------------------------
+On commence par repérer les apparitions du motif.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}[caption={Compter les occurences d'un motif}]
+def nombreOcc(texte, motif):
+    """ Entrée : 2 chaînes de caractères"
+          Sortie : le nombre d'apparitions 
+                  de la seconde chaîne dans la première"""
+    n = len(texte)
+    p = len(motif)
+    compt = 0   # compteur initialisé à 0
+    for i in range(n - p + 1):
+        if motif == texte[i:i + p]:
+            compt = compt + 1
+    return compt
+\end{lstlisting}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}[title={Autres fonctions}]\it
+Écrire les fonctions 
+\begin{enumerate}
+    \item \type{listeOcc(texte, motif)} qui renvoie la liste des positions en lesquelles le motif apparaît dans le texte,
+    \item \type{present(texte, motif)} qui renvoie \type{True} ou \type{False} selon que le motif est présent ou non dans le texte.
+\end{enumerate}
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{enumerate}
+\item Liste des occurences
+\begin{lstlisting}
+def listeOcc(texte,motif):
+    """ Entrée : 2 chaînes de caractères"
+          Sortie : la liste des positions d'apparitions
+                  de la seconde chaîne dans la première"""
+    n = len(texte)
+    p = len(motif)
+    liste = []
+    for i in range(n - p + 1):
+        if motif == texte[i:i + p]:
+            liste.append(i)
+    return liste
+\end{lstlisting}
+%--------------------------------------------------------------------------
+\item Tester la présence d'un motif.
+\begin{lstlisting}
+def present(texte, motif):
+    n = len(texte)
+    p = len(motif)
+    for i in range(n-p+1):
+        if motif == texte[i:i+p]:
+            return True
+    return False
+    
+def present(texte, motif):
+    return nombreOcc(texte,motif) > 0
+\end{lstlisting}
+\end{enumerate}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+

@@ -1,0 +1,498 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Fonctions}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{abstract}Dans ce chapitre nous allons apprendre l'écriture des fonctions et leur usage.
+L'écriture de fonctions sera l'activité principale pendant l'enseignement de l'informatique.
+
+\end{abstract}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Pourquoi des fonctions ?}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+
+{\bf Readability counts}
+
+Écrire un code nécessite deux impératifs quant à sa lecture :
+\begin{itemize}
+\item il doit être lisible par l'ordinateur, sa syntaxe doit être correcte,
+\item il doit être lisible par un programmeur afin de pouvoir le corriger, l'améliorer \dots
+\end{itemize}
+
+Un des meilleurs moyens pour rendre le code humainement lisible est d'utiliser des fonctions.
+
+\subsubsection{Modularité}
+On sépare le programme à écrire en plusieurs parties sous forme de fonctions, on écrit ainsi des parties indépendantes que l'on va pouvoir assembler. On peut répéter ce procédé, une fonction peut elle-même se décomposer en plusieurs parties, qui seront écrites sous forme de fonctions qui elles aussi peuvent se décomposer \dots
+
+\subsubsection{Mise en commun}
+Il arrivera souvent que l'on répète le même calcul à plusieurs endroits. L'usage des fonctions permet alors de n'écrire qu'une fois le code et l'utiliser à chaque fois que nécessaire. On applique ici le principe DRY
+\Type{Don't Repeat Yourself} : ne pas se répéter.
+
+\medskip
+
+Bien entendu l'écriture et l'usage des fonctions doivent se conformer à des règles strictes : une fonction, lorsqu'elle est écrite, correspond à une "boîte noire" qui reçoit des paramètres (les variables de la fonction) bien déterminés, dans un ordre fixé et qui renvoie le résultat.
+
+Par exemple la fonction {\bf sinus} reçoit  un angle $\alpha$ dont on doit fixer l'unité, radian ou degré, et renvoie $\sin(\alpha)$.
+Cette fonction fait des calculs mais nous ne savons pas lesquels lors de son utilisation.
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\section{Des fonctions déjà écrites}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Fonctions primitives}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Python, comme tout langage, contient des fonctions de base, en voici la liste. 
+%-------------------------------------------------------------------------------
+\begin{table}[h]
+\caption{Fonctions de base de Python}
+\label{tab:coreFn}
+\begin{center}
+\begin{tabular}{lllllll}
+abs&all&any&ascii&bin&bool&breakpoint\\
+bytearray&bytes&callable&chr&@classmethod&compile&complex\\
+delattr&dict&dir&divmod&enumerate&eval&exec\\
+filter&float&format&frozenset&getattr&globals&hasattr\\
+hash&help&hex&id&input&int&isinstance\\
+issubclass&iter&len&list&locals&map&max\\
+memoryview&min&next&object&oct&open&ord\\
+pow&print&property&range&repr&reversed&round\\
+set&setattr&slice&sorted&@staticmethod&str&sum\\
+super&tuple&type&vars&zip&\_\_import\_\_\\    
+\end{tabular}  
+\end{center}
+\end{table}
+%-------------------------------------------------------------------------------
+On y reconnaît
+%-------------------------------------------------------------------------------
+\begin{itemize}
+\item des fonctions mathématiques : \type{abs, divmod, max, min, pow},
+\item les nombreuses fonctions de conversion : 
+ \type{bin, bool, chr, complex, float, hex, int,}
+
+\type{list, oct, ord, round, set, str, tuple},
+\item \type{bin, hex, oct} donnent les écritures des entiers en base 2, 16 et 8 sous forme de chaînes de caractères précédées respectivement de \type{'0b} \type{'0x} et \type{'0o},
+\item des fonctions d'entrée-sortie\footnote{La fonction \type{open} sera étudiée plus tard.} : \type{input, open, print}.
+\end{itemize}
+%-------------------------------------------------------------------------------
+Nous utiliserons lors de l'étude des listes les fonctions \type{len} et \type{range}.
+ 
+Les autres fonctions ne seront pas utilisées.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Fonctions de bibliothèques : Batteries Included Philosophy}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+On voit qu'il y a peu de fonctions. 
+ Cependant python est fourni avec un grand nombre de fonctions regroupées par thèmes dans des {\bf modules}.
+
+Ces modules ne sont pas inclus au démarrage mais on peut charger ceux dont on a besoin très simplement.
+
+On a déjà utilisé le module type{math} qui contient les fonctions mathématiques et des constantes.
+
+Si on veut utiliser les fonctions d'un module, il y a plusieurs méthodes que nous allons exposer pour le module \type{math}.
+%-------------------------------------------------------------------------------
+\begin{itemize}
+\item \type{import math}. C'est la méthode de base, on accède aux fonctions en préfixant par le nom du module, $\type{math.sin(math.pi/6)}$
+\item \type{import math as m}. C'est la méthode employée pour écrire un alias plus court (ici \type{m}) à la place du nom complet du module : on accède aux fonctions du module en préfixant par cet aliax, $\type{m.cos(0.5)}$
+\item \type{from math import pi, tan}. On peut n'importer que quelques fonctions : dans ce cas les noms sont accessibles  directement, \type{tan(pi/4}.
+\item \type{from math import *}. On importe de nouveaux toutes les fonctions du module mais ici les fonctions sont nommées directement : \type{exp(1.5) - e}. Bien que séduisante cette méthode ne sera pas toujours recommandée, en effet elle masque l'origine des fonction et peut induire des confusions quand un même nom de fonction est utilisé dans deux modules.
+\end{itemize}
+
+\medskip
+
+Bien que très complète, la collection fournie par python n'offre pas les fonctions très spécialisées. Nous emploierons dans l'année 3 bibliothèques scientifiques : \type{numpy}, \type{matplotlib} et \type{scipy}. Il faudra les ajouter (c'est déjà fait dans la distribution Anaconda).
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Définir ses propres fonctions}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Un exemple}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+On considère une fonction mathématique simple, $f$ :  $\displaystyle x \mapsto \frac{x^2+3x+2}{1+x^2}$.
+
+En Python on va retrouver les mêmes éléments.
+\begin{enumerate}
+	\item La déclaration du nom de la fonction, ici $f$
+	\item le nom choisi pour la variable (ou les noms), ici $x$
+	\item les calculs qui permettent de trouver le résultat souhaité.
+\end{enumerate}
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def f(x):
+	"""Entrée : une variable flottante
+	   Sortie : la valeur de la fonction en ce point"""
+	numerateur = x**2 + 3*x + 2
+	denominateur = 1 + x**2
+	y = numerateur/denominateur
+	return y
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+on peut alors utiliser la fonction directement
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> f(2)
+8.0
+>>> f(5)
+5.5
+>>> a = 2
+>>> b = f(a)
+>>> b
+8.0
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+ou par des appels dans l'éditeur, il conviendra d'utiliser la fonction \texttt{print} afin d'afficher le résultat.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+print(f(5))
+a = 2
+b = f(a)
+print(b)
+-----
+5.5
+8
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\subsection{Structure}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Une fonction est définie par :
+\begin{enumerate}
+\item une première ligne de déclaration composée
+\begin{enumerate}
+    \item du mot-clé \Type{def},
+    \item du nom choisi pour la fonction
+    \item de la liste des variables utilisées, entre parenthèses,
+    
+    les parenthèses doivent être écrites, même s'il n'y a pas de variable,
+    \item du symbole \Type{:}
+\end{enumerate}
+\item des instructions permettant le calcul attendu, dans un bloc indenté (de 4 espaces)
+\item d'une ligne facultative, indentée elle aussi, commençant par \Type{return} pour donner la valeur (ou les valeurs) que la fonction doit renvoyer.
+\end{enumerate}
+  
+\medskip
+
+Afin de savoir quel est le rôle d'une fonction, dans quel ordre il faut rentrer les paramètres ou quelles sont les valeurs renvoyées, il est important de documenter sa fonction. Pour cela on peut écrire une documentation de la fonction : le {\bf docstring}. Voici un autre exemple.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def hypotenuse(a, b):
+    """Entrees : 2 nombres, les cotes d'un triangle rectangle
+        Sortie : l'hypotenuse du triangle """
+	c = (a**2 + b**2)**0.5
+	return c
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Le docstring s'écrit dans le corps de la fonction, juste après la première ligne de déclaration. La documentation commence par \texttt{"""} et se termine par \type{"""}.
+Cette documentation doit donc indiquer :
+\begin{itemize}
+	\item la liste des paramètres attendus dans l'ordre, 
+	\item la ou les valeurs renvoyées s'il y en a.
+\end{itemize}
+
+Il est possible de faire appel à cette documentation dans une console en tapant \type{help(nom\_fonction)}.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> help(hypotenuse)
+Help on function hypotenuse in module __main__:
+
+def hypotenuse(a, b):
+    Entrees : 2 nombres, les cotes d'un triangle rectangle
+    Sortie : l'hypotenuse du triangle
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Cette documentation n'est pas obligatoire, Python saura  utiliser la fonction. Mais elle a pour rôle de permettre à un utilisateur de mettre en œuvre une fonction dont il ne connaît pas la structure interne, à ce titre elle est indispensable.
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\subsection{Documentation d'une fonction pour les programmeurs}
+%-------------------------------------------------------------------------------
+Lorsque l'on écrit une fonction il faut prévoir qu'elle sera relue, modifiée, corrigée. 
+
+À ce moment le lecteur (ce peut être l'auteur original) devra comprendre les idées de l'auteur, c'est souvent très difficile.
+
+Il est donc recommandé de "commenter" la fonction en indiquant les étapes intermédiaires, les significations des variables, les astuces utilisées.
+
+Pour cela on peut écrire des phrases humainement lisibles après le caractère \type{\#}, tout ce qui suit sera ignoré par python mais sera lisible par celui ou celle qui lira le code.
+
+Voici, par exemple, un code produit dans un TIPE, il n'y a malheureusement pas de docstring. Les éléments utilisés seront expliqués dans les chapitres suivants.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def premiersZeros(nb,n):
+    h = 0.1          # Pas pour la recherche
+    epsilon = 1e-10  # Précision pour les zéros,
+                     # on peut la diminuer
+    zeros = []       # Liste pour recevoir les zéros
+    a = h            # On commence à h, pas en 0, 
+                     # car jn(n,0) = 0
+    def f(x):          # On définit la fonction que l'on 
+        return jn(n,x) # utilise, ici Bessel à l'ordre n
+    for i in range(nb):  # On veut nb zéros
+        while f(a)*f(a+h) > 0:      # On balaye à la recherche 
+            a  = a + h              # d'un changement de signe
+        z = dicho(f,a,a+h,epsilon)  # On cherche la racine 
+        zeros.append(z)             # On l'ajoute à la liste
+        a = a + h                   # On part un cran plus loin
+    return zeros
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Plus la fonction est longue plus il sera nécessaire de la commenter, il arrivera fréquemment que les commentaires prennent plus de place que le code.
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\section{Usage des fonctions}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+La traduction d'un programme s'effectuant ligne par ligne, la définition d'une fonction doit s'effectuer en amont de son usage.
+Ainsi pour notre fonction hypoténuse, son utilisation peut s'écrire dans l'éditeur mais seulement après l'écriture de la fonction.
+
+\begin{lstlisting}
+def hypotenuse(a, b):
+    """Entrees : 2 nombres, les cotes d un triangle rectangle
+      Sortie : l hypotenuse du triangle """
+	c = (a**2 + b**2)**0.5
+	return c
+
+valeur_hyp=hypothenuse(3 ,5)
+print(valeur_hyp)
+\end{lstlisting}
+On obtient \type{5.830951894845301}.
+%-------------------------------------------------------------------------------
+\subsection{Paramètres}
+%-------------------------------------------------------------------------------
+Les paramètres d'une fonction doivent être rentrés dans l'ordre 
+
+\begin{lstlisting}
+def devoirs(lycee, annee, jour) :
+    print("Au lycee", lycee, ", les devoirs sur table en", annee, "ont lieu le", jour)
+
+devoirs("Faidherbe","1ere annee","samedi")
+devoirs("samedi","1ere annee","Faidherbe")
+\end{lstlisting}
+
+donnera
+
+\begin{lstlisting}
+Au lycee Faidherbe, les devoirs sur table en 1ere annee ont lieu le samedi
+Au lycee samedi, les devoirs sur table en 1ere annee ont lieu le Faidherbe
+\end{lstlisting}  
+
+
+Il est cependant possible d'utiliser le nom des paramètres et ainsi de s'affranchir de l'ordre de la définition.
+
+\begin{lstlisting}
+devoirs(jour="samedi", annee="1ere annee", lycee="Faidherbe") :  
+\end{lstlisting}
+
+\medskip
+
+Lorsqu'une fonction ne demande pas de paramètre son appel doit comporter les parenthèses.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def bonjour():
+    print("Bienvenue a Faidherbe")
+    
+>>> bonjour()
+Bienvenue a Faidherbe
+>>> bonjour
+<function bonjour at 0x7f4ae14e06a8>
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\subsection{Valeurs renvoyées}
+%-------------------------------------------------------------------------------
+Une fonction fait des calculs et on veut pouvoir les utiliser.
+
+\begin{itemize}
+	\item On ne pourra pas invoquer les variables définies dans la fonction car celles-ci sont effacées de la mémoire à la fin du calcul de la fonction, elles ne peuvent donc pas servir à transmettre des résultats.
+	\item Si on imprime une valeur, elle sera consultable par un humain qui lirait l'écran mais elle est inutilisable par le programme, il ne sait pas lire l'écran.
+\end{itemize}
+
+Pour recevoir les valeurs utiles calculées par une fonction, on doit utiliser la commande \Type{return} : les valeurs ainsi retournées remplaceront, lors de l'usage de la fonction, l'appel de la fonction.
+
+Par exemple \type{hypothenuse(3.0, 4.0)} sera remplacé par \type{5.0}.
+
+Il faudra alors affecter une variable avec ce résultat ou l'utiliser dans une expression pour pouvoir l'utiliser ensuite.
+
+Quand une fonction renvoie plusieurs valeurs, on recevra les différents résultats dans plusieurs variables (en nombre correspondant) séparées par des virgules.
+
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def sphere(rayon):
+    """ Entree : un nombre positif, le rayon de la sphere
+        Sortie : la surface et le volume de la sphere """
+    surf=4*math.pi*rayon**2
+    vol=(4/3)*math.pi*rayon**3
+    return surf, vol
+
+
+>>> surface, volume = sphere(2)
+>>> surface
+50.26548245743669
+>>> volume
+33.510321638291124
+>>> 
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+ Une fonction qui ne possède pas d'instruction \type{return} ne renvoie pas rien ; par défaut la valeur renvoyée est \type{None}, c'est-à-dire "rien".
+%-------------------------------------------------------------------------------
+\subsection{Paramètres optionnels}
+%-------------------------------------------------------------------------------
+Lorsque l'on définit une fonction on peut utiliser des paramètres qui ont une valeur par défaut mais que l'on voudrait bien pouvoir faire varier si besoin.
+
+Python permet cette expressivité.
+
+\begin{itemize}
+\item Lors de l'écriture de la fonction, on écrit les paramètres optionnels {\bf après} ceux qui ne le sont pas dans la liste des paramètres de la fonction. À ce moment, on leur affecte une valeur par défaut.
+\item Lors de l'appel de la fonction, on peut ignorer ces paramètres optionnels, on n'introduit que les paramètres "normaux".
+\item On peut aussi modifier la valeur donnée par défaut : il faut alors donner  une nouvelle affectation dans l'appel de la fonction. On peut aussi indiquer simplement la valeur du paramètre (sans le nom) à condition de respecter l'ordre des paramètres.
+\end{itemize}
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+import math 
+
+def logarithme(x, base = math.e):
+    """Entrees : un nombre positif, x
+                 un nombre positif optionnel, base
+                 qui vaut e par défaut
+      Sortie : le logarithme en base "base" de x"""
+      y = math.log(x)/math.log(base)
+      return y
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+    
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+>>> logarithme(10) # Sans paramètre optionnel 
+                   # on a le logarithme népérien
+2.302585092994046
+>>> logarithme(10, base = 2)
+3.3219280948873626
+>>> logarithme(9, 3)
+2.0
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Exercice : le jeu des erreurs}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+On veut calculer la hauteur parcourue par un objet en chute libre.
+
+Chacun des programmes suivants est réalisé dans l'éditeur puis compilé complètement ; il engendre une erreur ou des résultats surprenants. 
+Prévoir les problèmes et les corriger.
+
+\medskip
+
+%-------------------------------------------------------------------------------
+\begin{minipage}{0.48\textwidth}
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def chuteLibre1(t):
+    z = 0.5*g*t**2 
+    return z  
+
+print(chuteLibre(2))  
+\end{lstlisting}
+
+\begin{lstlisting}
+print(chuteLibre(2))
+                                       
+def chuteLibre3(t):       
+    g = 10               
+    z = 0.5*g*t**2   
+    return z           
+\end{lstlisting}
+
+\begin{lstlisting}
+def chuteLibre5(t):
+    g = 10 
+    t = 1 
+    z = 0.5*g*t**2  
+    return z 
+
+print(chuteLibre(2))  
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+\end{minipage}
+\begin{minipage}{0.48\textwidth}
+\begin{lstlisting}
+def chuteLibre2(t):
+    g = 10
+    z = 0.5*g*t**2
+    print(z)
+
+resultat = chuteLibre(2)
+print(resultat)
+\end{lstlisting}
+
+\begin{lstlisting}
+def chuteLibre4(t):
+    g = 10
+    z = 0.5*g*t**2
+    return z
+
+chuteLibre(2)
+print(z)
+\end{lstlisting}
+
+\begin{lstlisting}
+def chuteLibre6(t):
+    g = 10
+    z = 0.5*g*t**2
+    return z 
+    
+ print(chuteLibre(2))  
+\end{lstlisting}
+\end{minipage}
+%-------------------------------------------------------------------------------
+
+Pour ne pas envahir les textes le docstring n'est pas écrit. Il devrait être
+%------------------------------------------------------------
+\begin{lstlisting}
+    """ Entrée : un réel t
+        Sortie : la distance parcourue pour une durée t 
+                 pour un objet en chute libre
+                 de position et vitesse initiales nulles"""
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+{\bf Indications}
+
+Les messages d'erreur peuvent être instructifs.
+
+\begin{enumerate}
+
+\item \type{NameError: global name 'g' is not defined}
+
+\item \type{20.0} La distance calculée est affichée mais le résultat est 
+\type{None}, on ne peut rien en faire.
+
+\item \type{NameError: name 'chuteLibre' is not defined}
+
+On utilise la fonction avant sa définition.
+
+\item \type{20.0}, \type{NameError: name 'z' is not defined}
+
+\type{z} n'existe plus en dehors de la fonction.
+
+\item \type{5.0} : le temps est modifié dans la fonction, on a calculé \type{chuteLibre(1)}.
+
+\item \type{IndentationError: unindent does not match any outer indentation level}.
+
+Une erreur parfois difficile à détecter
+\end{enumerate}
+
+
+
+
+

@@ -1,0 +1,410 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Intégration numérique}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+{\sf Le but de ce chapitre est de calculer, de diverses manières l'intégrale d'une fonction $f$ sur un segment $[a;b]$. On supposera, lors des calculs que la fonction $f$ est suffisamment régulière.
+
+On va utiliser deux outils :
+\begin{enumerate}
+    \item découper l'intervalle d'intégration en $n$ petits intervalles,
+    \item approcher l'intégrale en remplaçant la fonction à intégrer par une fonction simple dont on connaît les primitives.
+\end{enumerate}
+Dans le chapitre $f$ est une fonction (au moins) continue sur un segment $[a;b]$ et on note
+\[I = \int_a^b f(t) \d t\]
+}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Subdivision}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Une subdivision de $[a;b]$ est une suite finie $(a_0, a_1, \ldots, a_n)$ qui vérifie 
+\begin{enumerate}
+    \item $a_0=a$,
+    \item $a_n=b$,
+    \item $a_0 < a_1 < a_2 < \ldots < a_{n-1} < a_n$
+\end{enumerate}
+La subdivision est {\bf régulière} si on a $a_1-a_0=a_2-a_1=\cdots=a_n - a_{n-1}$.
+
+La valeur constante de $a_k-a_{k-1}$ est le {\bf pas}  de la subdivision et il vaut
+$\displaystyle \frac{b-a}n$. 
+
+On a alors $\displaystyle a_k = a + k\frac{b-a}n$.
+
+Dans toute la suite on ne considérera que les subdivisions régulières de $[a;b]$ et on calculera, à l'aide de la formule de Chasles, pour $n$ fixé
+\[I = \int_a^b f(t) \d t=\sum_{k=0}^{n-1}\int_{a_k}^{a_{k+1}} f(t)\d t\]
+
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\section{Méthode des rectangles}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+On est donc amené à approcher des intégrales $\displaystyle \int_{a_k}^{a_{k+1}} f(t)\d t$ avec $a_{k+1} - a_k = \frac{b-a}n$ qui devient "petit" si on choisit $n$ assez grand.
+
+La continuité de $f$\footnote{Plus précisément la continuité uniforme de $f$ sur $[a;b]$} implique qu'on a $|f(x)-f(y)|\le \varepsilon$ pour $x, y \in [a_k;a_{k+1}]$ dès que $n$ est assez grand. On peut ainsi approcher 
+\[\int_{a_k}^{a_{k+1}} f(t)\d t \simeq \int_{a_k}^{a_{k+1}} f(c_k)\d t = (a_{k+1} - a_k)f(c_k)\]
+avec $c_k$ appartenant à $[a_k;a_{k+1}]$.
+
+On aboutit à $\displaystyle I = \sum_{k=0}^{n-1} (a_{k+1} - a_k)f(c_k)
+=\frac{b-a}{n}\sum_{k=0}^{n-1} f(c_k)$, ce sont les {\bf sommes de Riemann}.
+
+La méthode des rectangles à gauche consiste à choisir $c_k=a_k$ : $\displaystyle R_{g, n}= \frac{b-a}{n} \sum_{k=0}^{n-1} f\left(a+k\frac{b-a}{n}\right)$,
+
+la méthode des rectangles à droite consiste à choisir $c_k=a_{k+1}$  : $\displaystyle R_{d, n}= \frac{b-a}{n} \sum_{k=1}^{n} f\left(a+k\frac{b-a}{n}\right)$.
+
+Pour $f$ : $x\mapsto = 3\sin\left(\frac{x+1}2\right)$ sur $[0;5]$ avec $n=10$ on obtient les figures ci-dessous. 
+
+La partie hachurée représente la surface utilisée comme approximation de l'intégrale.
+%-------------------------------------------------------------------------------
+\begin{figure}[ht]
+   \begin{minipage}[t]{8cm}
+      \begin{tikzpicture}
+      \draw[thick, ->] (-0.3, 0) --(5.3, 0);
+      \draw[thick, ->] (0, -0.3) --(0, 3.5);
+      \foreach \p in {1, 2, 3, 4, 5}
+          \draw (\p, 0) -- +(0,-0.1) node[below]{$\p$};
+      \foreach \p in {1, 2, 3}
+          \draw (0, \p) -- +(-0.1, 0) node[left]{$\p$};
+      \draw [samples=100,domain=0:10] plot({\x/2},{3*sin(deg(\x/4 + 0.5))});
+      \foreach \k in {0, 1, ..., 9}
+          \draw[pattern=north east lines] ({\k/2}, 0) rectangle ({\k/2+1/2}, {3*sin(deg(\k/4 + 0.5))});
+      \end{tikzpicture}
+      \caption{Rectangles à gauche, $n = 10$}
+      \label{fig:recg}
+   \end{minipage}
+   \begin{minipage}[t]{8cm}
+      \begin{tikzpicture}
+      \draw[thick, ->] (-0.3, 0) --(5.3, 0);
+      \draw[thick, ->] (0, -0.3) --(0, 3.5);
+      \foreach \p in {1, 2, 3, 4, 5}
+          \draw (\p, 0) -- +(0,-0.1) node[below]{$\p$};
+      \foreach \p in {1, 2, 3}
+          \draw (0, \p) -- +(-0.1, 0) node[left]{$\p$};
+      \draw [samples=100,domain=0:10] plot({\x/2},{3*sin(deg(\x/4 + 0.5))});
+      \foreach \k in {0, 1, ..., 9}
+          \draw[pattern=north east lines] ({\k/2}, 0) rectangle ({\k/2+1/2}, {3*sin(deg((\k+1)/4 + 0.5))});
+      \end{tikzpicture}
+      \caption{Rectangles à droite, $n = 10$}
+      \label{fig:recd}
+   \end{minipage}
+\end{figure}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{lstlisting}[caption = {Méthode des rectangles (à gauche)}]
+def rectangleG(f, a, b, n):
+    pas = (b - a)/n
+    somme = 0
+    for i in range(n):
+        somme = somme + f(a + i*pas)
+    return somme*pas
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%------------------------------------------------------------
+\begin{Exercise}[title=Mesure de l'erreur]\it
+Prouver que si $f$ est de classe ${\cal C}^1$ sur $[a;b]$ et si $M_1=\sup\bigl\{|f'(t)|\ ;\ t\in[a;b]\bigr\}$, alors
+\[\left|\int_{a_k}^{a_{k+1}} f(t)\d t -(a_{k+1}- a_k) f(a_k)\right| \le \frac{M_1}2(a_{k+1}- a_k)^2\]
+En déduire qu'on a $\displaystyle \bigl|I-R_{g, n}\bigr|\le \frac{M_1.(b-a)^2}{2n}$.
+\end{Exercise}
+%------------------------------------------------------------
+\begin{Answer}
+$\displaystyle \int_{a_k}^{a_{k+1}} f(t)\d t -(a_{k+1}- a_k) f(a_k) = \int_{a_k}^{a_{k+1}} \bigl(f(t)-f(a_k)\bigr) \d t$.
+
+Or l'inégalité des accroissement finis donne $\bigl|f(t)-f(a_k)\bigr| \le |t-a_k|M_1$ donc on a 
+
+$\displaystyle \left|\int_{a_k}^{a_{k+1}} f(t)\d t -(a_{k+1}- a_k) f(a_k)\right| \le \int_{a_k}^{a_{k+1}} M_1(t-a_k)\d t = \left[\frac{M_1}2(t-a_k)^2\right]_{a_k}^{a_{k+1}}
+=\frac{M_1}2(a_{k+1}- a_k)^2$.
+
+En sommant, on obtient
+
+$\displaystyle \left|\int_a^b f(t)\d t - R_{g, n}\right| \le  \sum_{k=0}^{n-1}\frac{M_1}{2} \left(\frac{b-a}{n}\right)^2  = \frac{M_1}{2} \frac{(b-a)^2}{n} $
+
+\end{Answer}
+%------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\section{Méthode des trapèzes}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Dans la méthode précédente on a approché $f$ par une constante, c'est-à-dire un polynôme de degré 0. On va maintenant approcher $f$ par un polynôme de degré 1, une fonction affine de la forme $x\mapsto \alpha x + \beta$.
+
+On choisit d'approcher $f$ sur $[a_k; a_{k+1}]$ par une fonction affine $g_k$ avec les conditions $g_k(a_k) = f(a_k)$ et  $g_k(a_{k+1}) = f(a_{k+1})$. 
+
+L'intégrale sur $[a_k; a_{k+1}]$ est alors approchée par la surface d'un trapèze.
+
+%-------------------------------------------------------------------------------
+\begin{figure}[ht]
+\begin{center}
+  \begin{tikzpicture}[xscale=1.6]  
+  \draw[thick, ->] (-0.3, 0) --(5.3, 0);
+  \draw[thick, ->] (0, -0.3) --(0, 3.5);
+  \foreach \p in {1, 2, 3, 4, 5}
+      \draw (\p, 0) -- +(0,-0.1) node[below]{$\p$};
+  \foreach \p in {1, 2, 3}
+      \draw (0, \p) -- +(-0.1, 0) node[left]{$\p$};
+  \draw [samples=100,domain=0:10] plot({\x/2},{3*sin(deg(\x/4 +1/2))});
+  \foreach \k in {0, 1, ..., 4}
+      \draw[pattern=north east lines] ({\k}, 0) -- ({\k+1}, 0) -- ({\k+1}, {3*sin(deg((\k+1)/2 +1/2))})
+                                                  -- ({\k}, {3*sin(deg(\k/2 +1/2))}) -- cycle;
+  \end{tikzpicture}
+\end{center}
+  \caption{ Méthode des trapèzes, $n=5$}
+  \label{fig:trap}
+\end{figure}
+%------------------------------------------------------------
+%------------------------------------------------------------
+\begin{Exercise}[label=exo:trapeze]\it
+Prouver que si $f$ est une fonction affine alors 
+$\displaystyle \int_u^v f(t) \d t = \frac {v - u}2 \bigl(f(u) + f(v)\bigr)$.
+\end{Exercise}
+%------------------------------------------------------------
+\begin{Answer} $f(t) = \alpha t + \beta$.
+
+\begin{align*}
+  \int_u^v f(t) \d t 
+  & =\int_u^v (\alpha t + \beta) \d t 
+  =\left[\alpha \frac {t^2}2 + \beta t\right]_u^v
+  = \alpha\frac {v^2 - u^2}2 + \beta(v-u)\\
+  &=\frac{v-u}2 \bigl(\alpha u  + \alpha v + 2 \beta\bigr)
+  = \frac {v - u}2 \bigl(f(u) + f(v)\bigr)
+\end{align*}
+\end{Answer}
+%------------------------------------------------------------
+On  approche donc $\displaystyle\int_{a_k}^{a_{k+1}} f(t)\d t$ par $\displaystyle (a_{k+1} - a_k) \frac{f(a_k)+f(a_{k+1})}{2}$ d'où 
+
+$\displaystyle I \simeq T_n = \frac{b-a}{n}  \sum_{k=0}^{n-1} \frac{f(a_k)+f(a_{k+1})}{2}
+=\frac{b-a}{n}\left(\frac{f(a)}{2}+  \sum_{k=1}^{n-1} f(a_k)+\frac{f(b)}{2}\right)$
+\medskip
+%-------------------------------------------------------------------------------
+\begin{lstlisting}[caption = {Méthode des trapèzes}]
+def trapeze(f, a, b, n):
+    pas = (b - a)/n
+    somme = 0
+    for i in range(n):
+        somme = somme + (f(a + i*pas) + f(a + (i+1)*pas))/2
+    return somme*pas
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title=Mesure de l'erreur]\it
+On suppose que $f$ est de classe ${\cal C}^2$ sur $[a;b]$ et on note $M_2 = \sup\bigl\{|f''(t)|\ ;\ a \le t \le b\bigr\}$.
+
+Prouver que $\displaystyle \left|\int_{a_k}^{a_{k+1}} f(t)\d t -(a_{k+1}- a_k) \frac{f(a_k)+f(a_{k+1})}{2}\right| \le \frac{M_2}{12}(a_{k+1}- a_k)^3$.
+
+En déduire qu'on a $\displaystyle \bigl|I-T_n\bigr|\le \frac{M_2.(b-a)^3}{12n^2}$.
+\end{Exercise}
+%------------------------------------------------------------
+\begin{Answer}
+\begin{enumerate}
+    \item On pose $\displaystyle g(x) = \int_{a_k}^x f(t) \d t -(x - a_k)\frac{f(a_k)+f(x)}2 +A (x-a_k)^3$ avec $A$ choisi tel que $g(a_{k+1}) = 0$.
+    \item On a $g(a_{k+1}) = g(a_k) = 0$ donc il existe $c_1\in ]a_k;a_{k+1}[$ tel que $g'(c_1)=0$.
+    \item $g'(x) = f(x) - (x - a_k)\frac{f'(x)}2 - \frac{f(a_k)+f(x)}2 +3A(x-a_k)^2
+    = \frac{f(x) - f(a_k))}2 - (x - a_k)\frac{f'(x)}2  +3A(x-a_k)^2$
+    \item $g'(a_k) = g'(c_1) = 0$ donc il existe $c_2\in ]a_k;c_1[$ tel que $g''(c_2)=0$.
+    \item $g''(x) = - (x - a_k)\frac{f''(x)}2  +6A(x-a_k)2$ donc $g''(c_2)=0$ avec $c_2-a_l \ne 0$ donne $A = \frac 1{12}f''(c_2)$
+    \item $g(a_{k+1}) = 0$ donne
+    $\displaystyle \left|\int_{a_k}^{a_{k+1}} f(t) \d t -(a_{k+1} - a_k)\frac{f(a_k)+f(a_{k+1})}2\right| = \frac {(a_{k+1} - a_k)^3}{12}|-f''(c_2)|\le  \frac{M_2}{12}(a_{k+1} - a_k)^3 $
+\end{enumerate}
+En sommant, on obtient $\displaystyle \left|\int_a^b f(t)\d t - T_n\right| \le  \sum_{k=0}^{n-1}\frac{M_2}{12} \left(\frac{b-a}{n}\right)^3  
+= \frac{M_2}{12}  \frac{(b-a)^3}{n^2} $
+\end{Answer}
+%------------------------------------------------------------
+%------------------------------------------------------------
+Cette erreur ne prend en compte que l'erreur mathématique, si on ajoute les erreurs d'arrondis, l'erreur totale est de l'ordre de $\frac \alpha{n^2} + \beta.n.10^{-16}$. Il ne sert donc à rien de prendre des valeurs trop grandes pour $n$.
+%-------------------------------------------------------------------------------
+\newpage
+%-------------------------------------------------------------------------------
+\section{Compléments hors-programme : méthode de Simpson}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+On peut continuer dans la démarche et approcher $f$ sur $[a_k; a_{k+1}]$ par une fonction polynomiale de degré 2. On choisit une fonction qui prend les mêmes valeurs que $f$ aux points $a_k$, $a_{k+1}$ et $m_k=\frac 12(a_k+a_{k+1})$.
+%-------------------------------------------------------------------------------
+\begin{figure}[ht]
+\begin{center}
+  \begin{tikzpicture}[xscale=1.6, yscale = 0.75]
+  \draw[thick, ->] (-0.3, 0) --(5.3, 0);
+  \draw[thick, ->] (0, -0.3) --(0, 3.5);
+  \foreach \p in {1, 2, 3, 4, 5}
+      \draw (\p, 0) -- +(0,-0.1) node[below]{$\p$};
+  \foreach \p in {1, 2, 3}
+      \draw (0, \p) -- +(-0.1, 0) node[left]{$\p$};
+  \draw [pattern=north east lines,domain=0:5] 
+      (0, 0) -- plot({\x},{ 3*sin(deg(1/2))*(2*\x*\x-15*\x+25)/25
+                           -12*sin(deg(7/4)) *(\x*\x-5*\x)/25
+                            +3*sin(deg(3))*(2*\x*\x-5*\x)/25}) -- (5, 0) --cycle;
+  \draw [thick, domain=0:5] plot({\x},{3*sin(deg(\x/2 +1/2))});
+  \end{tikzpicture}
+\end{center}
+  \caption{ Méthode de Simpson, n = 1}
+  \label{fig:trap}
+\end{figure}
+%-------------------------------------------------------------------------------
+%------------------------------------------------------------
+\begin{Exercise}\it
+Prouver que si $f$ est une fonction polynomiale de degré 2 alors 
+\[ \int_u^v f(t) \d t = \frac {v - u}6 \left(f(u) + 4 f\left(\frac{u+v}2\right) + f(v)\right)\]
+\end{Exercise}
+%------------------------------------------------------------
+\begin{Answer}$f(t) = A t^2 + B t + C$.
+
+\begin{align*}
+  \int_u^v f(t) \d t 
+  & =\int_u^v (A t^2 + B t + C)\d t 
+  =\left[A \frac {t^3}3 + B \frac {t^2}2 + C t\right]_u^v
+  = A \frac {v^3 - u^3}3 + B \frac {v^2 - u^2}2 + C(v - u)
+  \\&
+  =\frac{v - u}6 \bigl(A u^2 + A(u^2+2uv +v^2) +Av^2 + Bu + 2B(u+v) + Bv + C +4 C +C\bigr)
+  \\&
+    =\frac {v - u}6 \left(f(u) + 4 f\left(\frac{u+v}2\right) + f(v)\right)
+\end{align*}
+
+En fait l'égalité est vraie aussi pour les polynômes de degré 3.
+
+On peut le prouver en la vérifiant pour la fonction $t\mapsto (2t-a-b)(t-a)(t-b)$.
+\newpage
+\end{Answer}
+%------------------------------------------------------------
+%------------------------------------------------------------
+La méthode de Simpson consiste donc à faire l'approximation, en notant $\displaystyle m_k = \frac{a_k+a_{k+1}}{2}$,
+\[\int_{a_k}^{a_{k+1}} f(t)\d t \simeq (a_{k+1} - a_k)\frac{f(a_k)+4f(m_k)+f(a_{k+1})}{6}\]
+On note $S_n$ l'approximation obtenus ainsi pour $I$.
+%-------------------------------------------------------------------------------
+%------------------------------------------------------------
+\begin{Exercise}\it
+Écrire une fonction \type{Simpson(f, a, b, n)} car approche l'intégrale de $f$ entre $a$ et $b$ en utilisant cette méthode.
+\end{Exercise}
+%------------------------------------------------------------
+\begin{Answer}
+$\displaystyle S_n = \frac{b-a}{6n}\sum_{k =0}^{n-1} 
+\bigl(f(a_k) + 4fm_k) + f(a_{k+1})\bigr)$.
+\begin{lstlisting}
+def Simpson(f, a, b, n):
+    pas = (b - a)/n
+    somme = 0
+    for i in range(n):
+        u = f(a + i*pas)
+        v = f(a + (i+1/2)*pas)
+        w = f(a + (i+1)*pas)
+        somme = somme + (u + 4*v + w)/6
+    return somme*pas
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%------------------------------------------------------------
+On prouve que l'erreur commise est, si $f$ est de classe ${\cal C}^4$, de l'ordre de $\frac{K}{n^4}$.
+
+En raison des erreurs d'arrondis, on se restreindra à $n\le 1000$.
+%-------------------------------------------------------------------------------
+%------------------------------------------------------------
+\begin{Exercise}[title=Lien entre les expressions]\it
+Prouver qu'on a 
+\begin{itemize}
+    \item $\displaystyle R_{n,d} = R_{n,g} + \frac{b-a}n\bigl(f(b) - f(a)\bigr)$
+    \item $\displaystyle T_n = \frac{R_{n,d} + R_{n,g}}2$
+    \item $\displaystyle T_n = R_{n,g} + \frac{b-a}{2n}\bigl(f(b) - f(a)\bigr)$
+    \item $\displaystyle T_n = R_{n,d} + \frac{b-a}{2n}\bigl(f(a) - f(b)\bigr)$
+    \item $\displaystyle S_n = \frac{4T_{2n} -T_n}3$
+\end{itemize}
+\end{Exercise}
+%------------------------------------------------------------
+\begin{Answer} 
+
+On note $\displaystyle h = \frac{b-a}{n}$ et $\displaystyle K_n = h\sum_{k=1}^{n-1} f(a_k)$.
+On a alors $R_{n,g} = hf(a) + K_n$, $R_{n,d} = K_n + hf(b)$ et $T_n = \frac h2 f(a)+ K_n+\frac h2 f(b)$ ce qui donne les 4 premières égalités.
+
+On note $\displaystyle h' = \frac{b-a}{2n}=\frac h2$ le pas de la subdivision pour $2n$ 
+
+et $a'_k$ les points correspondants : $\displaystyle a'_k = a+kh'$.
+On a $a'_{2k} = a+2kh'=a+kh = a_k$ 
+
+et $\displaystyle a'_{2k+1} = a+(2k+1)h' = a+kh + h' = a_k + \frac h2
+=a_k + \frac {a_{k+1}-a_k}2 = \frac {a_{k+1}+a_k}2 = m_k$.
+
+\begin{align*}
+\text{On a } S_n
+& 
+= \frac h6\sum_{k=0}^{n-1}\bigl(f(a_k) + 4 f(m_k) +f(a_{k+1})\bigr)
+= \frac h6\sum_{k=0}^{n-1}f(a_k) + \frac{2h}3\sum_{k=0}^{n-1}f(m_k) + \frac h6\sum_{k=0}^{n-1}f(a_{k+1})
+\\&
+=\frac 16 R_{n,g} + \frac{2h}3\sum_{p=0}^{n-1}f(a'_{2k+1}) +\frac 16 R_{n,d}
+=\frac 13 T_n + \frac{2h}3\sum_{p=0}^{n-1}f(a'_{2k+1})
+\end{align*}
+
+\begin{align*}
+T_{2n}
+& 
+= \frac{h'}2f(a) + h'\sum_{k=1}^{2n-1}f(a'_k) + \frac{h'}2f(b)
+= \frac{h}4f(a) + \frac h2\sum_{p=0}^{n-1}f(a'_{2p+1}) + \frac h2\sum_{p=1}^{n-1}f(a'_{2p}) + \frac{h}4f(b)
+\\&
+= \frac h2\sum_{p=0}^{n-1}f(m_p) + \frac{h}4f(a) + \frac h2\sum_{p=1}^{n-1}f(a_p)  + \frac{h}4f(b)
+= \frac h2\sum_{p=0}^{n-1}f(a'_{2p+1}) + \frac 12T_n 
+\end{align*}
+
+On peut combiner : $S_n - \frac 43 T_{2n} = \frac 13 T_n - \frac 23 T_n = - \frac 13 T_n$.
+
+
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+
+% \begin{Exercise}\it
+% Prouver que  pour $a\le u \le \gamma =\frac{u+v}2\le v \le b$, alors
+% \[\left|\int_\alpha^v f(t) \d t -\frac{v - \alpha}6\bigl(f(\alpha)+4f(\gamma) +f(v)\bigr)\right| \le \frac{M_4}{2880}(v - \alpha)^5\]
+% \end{Exercise}
+% %------------------------------------------------------------
+% \begin{Answer}
+% \begin{enumerate}
+%     \item On pose $\delta = \frac{v - \alpha}2$ d'où $\alpha = \gamma - \delta$ et $v = \gamma + \delta$
+%     \item On pose $\displaystyle g(x) = \int_{\gamma-x}^{\gamma+x} f(t) \d t -\frac x3\bigl(f(\gamma + x)+4f(\gamma) +f(\gamma-x)\bigr) +A x^5$ avec $A$ tel que $g(\delta) = 0$.
+%     \item On a $g(0) = g(\delta) = 0$ donc il existe $c_1\in ]0;\delta[$ tel que $g'(c_1)=0$.
+%     \item $g'(x) = \frac 23\bigl(f(x+\gamma) +f(x-\gamma)\bigr)-\frac 43 f(\gamma)
+%      -\frac x3\bigl(f'(\gamma + x)-f'(\gamma-x)\bigr)+5Ax^4$
+%     \item $g'(0) = g'(c_1) = 0$ donc il existe $c_2\in ]0,c_1[$ tel que $g''(c_2)=0$.
+%     \item $g''(x) = \frac 13\bigl(f'(x+\gamma) -f'(x-\gamma)\bigr)
+%      -\frac x3\bigl(f''(\gamma + x)+f''(\gamma-x)\bigr)+20Ax^3$
+%     \item $g''(0) = g''(c_2) = 0$ donc il existe $c_3\in ]0,c_2[$ tel que $g^{(3)}(c_3)=0$.
+%     \item $g^{(3)}(x) = -\frac x3\bigl(f^{(3)}(\gamma + x)-f^{(3)}(\gamma-x)\bigr)+60Ax^2 = x.h(x)$
+%     \item On a $h(x) = -\frac 13\bigl(f^{(3)}(\gamma + x)-f^{(3)}(\gamma-x)\bigr)+60Ax$ donc $h(0)=h(c_3)=0$ : 
+    
+%     il existe $c_4\in ]0,c_3[$ tel que $h'(c_4)=0$.
+%     \item $h'(x) = -\frac 13\bigl(f^{(4)}(\gamma + x)+f^{(4)}(\gamma-x)\bigr)+60A$ donc $h'(c_a)=0$ donne
+    
+%     $A= \frac 1{180}\bigl(f^{(4)}(\gamma + x)+f^{(4)}(\gamma-x)\bigr)$ d'où $|A| \le \frac{M_4}{90}$
+%     \item $g(\delta)=0$ donne  $\displaystyle \left|\int_\alpha^v f(t) \d t -\frac{v - \alpha}6\bigl(f(\alpha)+4f(\gamma) +f(v)\bigr)\right| =|A|\delta^5 \le \frac{M_4}{2880}(v - \alpha)^5$.
+% \end{enumerate}
+
+% \end{Answer}
+% %------------------------------------------------------------
+% %------------------------------------------------------------
+
+% \medskip
+% On a donc la majoration
+% $\displaystyle \left|\int_a^b f(t)\d t - S_n\right| \le  \frac{M_4}{2880} \times \frac{(b-a)^5}{n^4}$
+
+% Cette fois-ci, si on multiplie $n$ par 10, on gagne 4 décimales.
+% %-------------------------------------------------------------------------------
+% %------------------------------------------------------------
+% \begin{Exercise}\it
+% Si $M_4=72$ et $b-a$ = 1 quelle est la meilleure approximation que l'on peut obtenir.
+
+% Quelle valeur de $n$ ne faut-il pas dépasser ?
+
+% On supposera que les erreurs d'arrondi sont $n.10^{-16}$
+% \end{Exercise}
+% %------------------------------------------------------------
+% \begin{Answer}
+% Les erreurs totales sont donc $ \frac1{40n^4}+10^{-16}n$ : 
+
+% la fonction $x\mapsto \frac1{40x^4}+10^{-16}x$ admet un minimum pour
+% $-\frac1{10x^5}+10^{-16}=0$ donc $x = 10^{-3}$.
+
+% Il ne faut pas dépasser $n = 1000$, l'erreur optimale est $\frac 5410^{-13}$.
+% \end{Answer}
+% %------------------------------------------------------------
+% %------------------------------------------------------------
+

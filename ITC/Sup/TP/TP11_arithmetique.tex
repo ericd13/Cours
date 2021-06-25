@@ -1,0 +1,310 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Arithmetique}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\vskip -2cm
+
+{\sf Dans ce T.P. nous allons utiliser les outils vus jusqu'à présent pour étudier quelques constructions arithmétiques. On rappelle que $k$ divise $n$ si et seulement si \type{n\%k} vaut 0 (pour $k> 0$).
+}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Nombres premiers} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = Diviseurs]
+\it Écrire une fonction \type{diviseurs(n)} qui renvoie la liste de tous les diviseurs de $n$, 1 et $n$ compris. On supposera que $n$ un entier strictement positif.
+
+\type{diviseurs(30)} renvoie \type{1, 2, 3, 5, 6, 10, 15, 30]}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def diviseurs(n):
+    div = []
+    for k in range(1, n+1):
+        if n%k == 0:
+            div.append(k)
+    return div
+\end{lstlisting}
+
+On teste les divisibilités pour les entiers supérieurs à $\frac n2$, ce qui est inutile.
+
+\begin{lstlisting}
+def diviseurs(n):
+    div = []
+    for k in range(1, n//2+1):
+        if n%k == 0:
+            div.append(k)
+    div.append(n)
+    return div
+\end{lstlisting}
+
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+On rappelle qu'un entier strictement positif est {\bf premier} si et seulement si il admet exactement deux diviseurs, 1 et lui-même, ce qui exclut 1 des nombres premiers.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = Test de primalité 1]
+\it En utilisant la fonction précédente écrire une fonction \type{premier(n)} qui renvoie \type{True} ou \type{False} selon que $n$ est premier ou non.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def premier(n):
+    return len(diviseurs(n)) == 2
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+On sait aussi que, si $n$ n'est pas premier, il admet un diviseur $m$ avec $2 \le m\le \sqrt n$.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = Test de primalité 2]
+\it En utilisant cette propriété écrire une fonction \type{premier(n)} qui renvoie \type{True} ou \type{False} selon que $n$ est premier ou non. Cette fonction ne devra pas faire plus que $\sqrt n$ tests de divisibilité.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def premier(n):
+    p = 2
+    while p*p <= n:
+        if n%p == 0:
+            return False
+        p = p + 1
+    return p > 1 # 1 n'est pas premier
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Il est parfois utile de disposer de la liste des premiers nombres premiers.
+
+Le crible d'Erathostène (vers -220 avant J.C.) permet de le faire de manière efficace. La description qui suit est celle de Wikipedia.
+
+L'algorithme procède par élimination : il s'agit de supprimer d'une table des entiers de 2 à $N$ tous les multiples d'un entier (autres que lui-même). En supprimant tous ces multiples, à la fin il ne restera que les entiers qui ne sont multiples d'aucun entier à part 1 et eux-mêmes, et qui sont donc les nombres premiers.
+
+\begin{enumerate}
+    \item On commence par rayer les multiples de 2, puis les multiples de 3 restants, puis de 5,  et ainsi de suite en rayant à chaque fois tous les multiples du plus petit entier restant.
+    \item On peut s'arrêter lorsque le carré du plus petit entier restant est supérieur au plus grand entier restant, car dans ce cas, tous les non-premiers ont déjà été rayés précédemment.
+    \item À la fin du processus, tous les entiers qui n'ont pas été rayés sont les nombres premiers inférieurs à $N$.
+\end{enumerate}
+On pourra utiliser une liste de booléens pour implémenter la table des entiers à rayer.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = Crible]
+\it Écrire une fonction \type{crible(n)} qui renvoie la liste des entiers premiers de 1 à  $n$ en utilisant cette méthode.
+
+\type{crible(30)} renvoie \type{[2, 3, 5, 7, 11, 13, 17, 19, 23, 29]}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def crible(n):
+    era = [True]*(n+1)
+    prem = []
+    era[0] = False
+    era[1] = False
+    for k in range(2, n+1):
+        if era[k]:
+            prem.append(k)
+            for i in range(2*k, n+1, k):
+                era[i] = False
+    return prem
+\end{lstlisting}
+\newpage
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{P.G.C.D} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Le {\bf PGCD} de deux entier $a$ et $b$ est le plus grand entier, noté $a\wedge b$ qui divise $a$ et $b$.
+
+Par exemple $12 \wedge 30 = 6$, $25\wedge 33 = 1$, $91\wedge 169 = 13$.
+
+le TP5 proposait d'écrire une fonction simple
+\begin{lstlisting}
+def pgcd(a,b):
+    commun = 1
+    for k in range(1, min(a,b)+1):
+        if (a % k == 0) and (b % k == 0 ):
+            commun = k
+    return commun
+\end{lstlisting}
+On peut prouver que, si $b = 0$, $a\wedge b=a$ et si $b\ne 0$ et $a = b.d + r$ est la division euclidienne de $a$ par $b$ (\type{d = a//b} et \type{r = a\%b}) alors $a\wedge b = b\wedge r$. 
+
+C'est l'algorithme d'Euclide (vers -300 avant J.C.)
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = Diviseurs]
+\it Écrire une fonction \type{pgcd(a, b)} qui calcule le PGCD de $a$ et $b$ en utilisant l'algorithme d'Euclide.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def pgcd(a, b):
+    while b > 0:
+        r = a%b
+        a = b
+        b = r
+    return a
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+
+Le théorème de Bezout énonce qu'il existe des entiers $p$ et $q$ tels que $a.p + b.q = a\wedge b$. Il n'y a pas unicité des coefficients $p$ et $q$ ; par exemple
+
+$13 = 91\wedge 169 = 2\times 91 - 169 = -11\times 91 + 6\times 169 = 15\times91 - 8\times 169 = \cdots$
+
+On remarque que $p$ ou $q$ peut être négatif.
+
+Pour calculer les coefficients $p$ et $q$ on propose l'algorithme suivant.
+\begin{itemize}
+    \item Si $a^b=b$, on choisit $p = 0$ et $q = 1$.
+    \item Si $r = a\wedge b < b$, on cherche le premier entier positif $p$ tel que \type{p*a \% b == r} (on admet qu'il existe) et on pose alors \type{q = -((p*a)//b)}. 
+\end{itemize}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = Coefficients de Bezout]
+\it Écrire une fonction \type{bezout(a, b)} qui calcule un couple d'entier \type{p, q)} tels que $a.p + b.q = a\wedge b$.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def bezout(a, b):
+    r = pgcd(a, b)
+    if r == b:
+        return (0, 1)
+    else:
+        p = 1
+        while p*a % b != r:
+            p = p + 1
+        return (p, -((p*a)//b))
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Compléments (plus difficiles)} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = Diviseurs]
+\it Écrire une fonction \type{decomposition(n)} qui calcule la liste des diviseurs premiers de $n$ avec répétition et par ordre croissant.
+
+\type{decomposition(180)} renvoie \type{[2, 2, 3, 3, 5]}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def decomposition(n):
+    facteurs = []
+    d = 2
+    while d <= n:
+        if n%d == 0:
+            facteurs.append(d)
+            n = n//d 
+        else:
+            d = d + 1
+    return facteurs
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = Intersection]
+\it Écrire une fonction \type{inter(L1, L2)} qui calcule la liste des éléments communs aux deux listes \type{L1} et \type{L2} avec répétitions. On écrira un algorithme rapide qui utilise le fait que  \type{L1} et \type{L2} sont {\bf croissantes}.
+
+\type{inter([2, 5, 5, 7, 11], [2, 3, 3, 5, 5, 5])} renvoie \type{[2, 5, 5]}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def inter(L1, L2):
+    n1 = len(L1)
+    n2 = len(L2)
+    int = []
+    i1 = 0
+    i2 = 0
+    while i1 < n1 and i2 < n2:
+        if L1[i1] == L2[i2]:
+            int.append(L1[i1])
+            i1 = i1 + 1
+            i2 = i2 + 1
+        elif L1[i1] < L2[i2]:
+            i1 = i1 + 1
+        else:
+            i2 = i2 + 1
+    return int
+\end{lstlisting}
+\newpage
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = PGCD avec les décompositions]
+\it En déduire une fonction \type{pgcd\_dec(a, b)} qui calcule le PGCD en utilisant que sa décomposition est l'intersection des décompositions en facteurs premiers de $a$ et de $b$.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def produit(liste):
+    p = 1
+    for x in liste:
+        p = p*x
+    return p
+\end{lstlisting}
+
+\begin{lstlisting}
+def pgcd_dec(a, b):
+    d1 = decomposition(a)
+    d2 = decomposition(b)
+    return produit(inter(d1, d2))
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title =Coefficients de Bezout bis]
+\it Écrire une fonction \type{bezout(a, b)} qui calcule un couple d'entier \type{p, q)} tels que $a.p + b.q = a\wedge b$. On donnera un algorithme plus rapide que précédemment en suivant l'algorithme d'Euclide.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+On note $a_k$ les valeurs successives de $a$.
+
+On a $a_0 = a$ et $a_1 = b$, puis $a_{k+2} = a_k \% a_{k+1}$.
+
+On a $a_0 = a = 1.a + 0.b$ et $a_1 = b = 0.a + 1.b$. On cherche $p_k$ et $q_k$ tels que $a_k = p_k.a + q_k.b$. 
+
+L'égalité $a_{k+2} = a_k \% a_{k+1} = a_k - (a_k//a_{k+1})*a_{k+1}$ donne $p_{k+2} = p_k - (a_k//a_{k+1})*p_{k+1}$ et $q_{k+2} = q_k - (a_k//a_{k+1})*q_{k+1}$
+\begin{lstlisting}
+def bezout(a, b):
+    p_a = 1
+    q_a = 0
+    p_b = 0
+    q_b = 1
+    while b > 0:
+        r = a%b
+        d = a//b
+        a = b
+        b = r
+        p = p_a - d*p_b
+        q = q_a - d*q_b
+        p_a = p_b
+        q_a = q_b
+        p_b = p
+        q_b = q
+    return a, p_a, q_a
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+
+

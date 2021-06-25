@@ -1,0 +1,671 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{DS1}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsubsection{Recommandations}
+%-------------------------------------------------------------------------------
+\begin{itemize}
+\item Si, au cours de l’épreuve, un candidat repère ce qui lui semble être une erreur d’énoncé, il le signale sur sa copie et poursuit sa composition en expliquant les raisons des initiatives qu’il est amené à prendre.
+%-------------------------------------------------------------------------------
+\item Tout fonction demandée dans l’énoncé peut être utilisée d ans les questions ultérieures même si elle n’a pas été écrite.
+%-------------------------------------------------------------------------------
+\item Il ne faut pas hésiter à formuler les commentaires qui semblent pertinents même
+lorsque l’énoncé ne le demande pas explicitement.
+%-------------------------------------------------------------------------------
+\item L'essentiel des points est attribué à une bonne \emph{logique} : algorithme, stratégie de boucle, etc.
+%-------------------------------------------------------------------------------
+\item Il y a des points si le programme tourne sans erreur, mais ce n'est pas la majorité du barème. L'idée est qu'écrire un code sur papier n'est pas confortable et que, devant un ordinateur, beaucoup d'erreurs seraient immédiates à repérer et à corriger.
+%-------------------------------------------------------------------------------
+\item Il peut y avoir quelques points bonus pour une bonne «hygiène informatique» : ne pas faire plusieurs fois le même calcul, éviter de manipuler des valeurs numériques directement, etc
+\end{itemize}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Questions de cours}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Le code ci-dessous devrait permuter les valeurs de \type{x} et \type{y}. Que faut-il changer pour qu’il fonctionne correctement ?
+\begin{lstlisting}
+x = 1
+y = 2
+y = x
+temp = y
+x = temp
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+À la ligne 3, la valeur de \lstinline|y| est écrasée avant d'avoir été sauvegardée dans \lstinline|temp|, donc à la fin \lstinline|x| et \lstinline|y| valent toutes les deux 1. Il faut donc permuter les lignes 3 et 4.
+\begin{lstlisting}
+x = 1
+y = 2
+temp = y
+y = x
+x = temp
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+On donne \lstinline|x=7| et \lstinline|y=3|. Que valent, respectivement, \lstinline|x/y| et \lstinline|x//y| ?
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\lstinline|x/y| réalise la division en flottant et renvoie donc \lstinline|2.33|. \lstinline|x//y| renvoie le quotient de la division euclidienne, donc \lstinline|2|.
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Soit \lstinline|x| une variable qui vaut 3. Que vaut \lstinline|x>0 and x%2==0| ?
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\lstinline|x| est positive mais pas paire, donc ceci renvoie \lstinline|False|.
+\end{Answer}
+%-------------------------------------------------------------------------------
+
+\newpage
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+On écrit une fonction pour tester la parité d'un entier \lstinline|n|. 
+
+Qu'est-ce qui ne va pas dans le code ci-dessous ?
+
+\begin{lstlisting}
+def est_pair(n):
+    if n%2 == 0:
+        return False
+    else:
+        return True
+\end{lstlisting}
+
+Proposer un code qui s'écrit en 2 lignes.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+Le code a inversé les réponses : il renvoie \lstinline|False| quand \lstinline|n| est pair. Donc il faut permuter les deux \lstinline|return|.
+\begin{lstlisting}
+def est_pair(n):
+    return n%2 == 0:
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Dans le code suivant, que valent \lstinline|x| et \lstinline|y| à la fin de l'exécution ?
+
+\begin{lstlisting}
+def f(x):
+    x = 2
+    x = x + 1
+    return x
+
+x = 4
+y = f(x)
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}La variable \lstinline|x| créée ligne 6 est une variable globale. Celle créée ligne 2 dans la fonction est une variable locale. Dans une fonction, les variables locales sont prioritaires sur les variables globales, donc \lstinline|x| globale est masquée par \lstinline|x| locale jusqu'à la fin de la fonction.
+
+Donc la ligne 3 ajoute 1 à \lstinline|x| locale, et la fonction renvoie 3. À la fin de l'exécution, \lstinline|x| vaut donc toujours 4, et \lstinline|y| vaut 3.
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Complétez le code de la fonction \lstinline|factorielle| ci-dessous, qui doit calculer la factorielle de \lstinline|n|. 
+
+Les parties à compléter sont remplacées par \lstinline|&&&&|.
+
+\begin{lstlisting}
+def factorielle(n):
+    facto = 1
+    for i in range(&&&&):
+        facto = facto * &&&&
+    return facto
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def factorielle(n):
+    facto = 1
+    for i in range(i):
+        facto = facto * (i+1)
+    return facto
+\end{lstlisting}
+Une autre solution possible est
+\begin{lstlisting}
+n = 6
+for i in range(n):
+    for j in range(i, n):
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Combien de tours de boucle fait le code ci-dessous ?
+
+\begin{lstlisting}
+n = 6
+for i in range(n):
+    for j in range(i, n):
+\end{lstlisting}
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}La boucle extérieure fait $n$ tours, et la boucle intérieure $n-i$ tours. Donc le nombre total de tours est :
+    
+$\displaystyle N =\sum_{i=0}^{n-1}\sum_{j=i}^{n-1} 1
+    = \sum_{i=0}^{n-1}(n-i) = n^2-\frac{n(n-1)}{2} = \frac{n(n+1)}{2} = 21$.
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Soit une liste \lstinline|ls = [-8, 3, 5, 0, 3, 7]|. Que vaut \lstinline|ls[2:4]| ?
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}C'est une liste à $4-2=2$ éléments qui vaut \lstinline|[5, 0]|.
+
+\newpage
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Écrivez une fonction \lstinline|maximum| qui reçoit une liste de nombre \lstinline|ls| en entrée et renvoie la valeur de son élément le plus grand en sortie.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}On commence par désigner le premier élément de la liste comme «candidat maximum», puis on parcourt la liste en mettant à jour ce candidat quand on en trouve un plus grand :
+
+\begin{lstlisting}
+def maximum(ls):
+    max_temp = ls[0]
+    for e in ls:
+        if e > max_temp:
+            max_temp = e
+    return max_temp
+\end{lstlisting}
+
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Écrivez une fonction \lstinline|nb_jours| qui reçoit en entrée un entier représentant un mois (1 pour janvier, 2 pour février, \dots) et renvoie le nombre de jours du mois en sortie. 
+
+On supposera que l'année est normale (non bissextile).
+
+\emph{Exemple :} \lstinline|mois(4)| renvoie 30. 
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}Les différents cas étant exclusifs entre eux, utilisez \lstinline|elif|.
+
+\begin{lstlisting}
+def nb_jours(mois):
+    if mois == 2:
+        return 28
+    elif mois in [4, 6, 9, 11]:
+        return 30
+    else:
+        return 31
+\end{lstlisting}
+
+Une autre solution
+
+\begin{lstlisting}
+def nb_jours(mois):
+    jours = [31, 28, 31, 30, 31, 31, 30, 31, 30, 31, 30, 31]
+    return jours[mois + 1]
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Écrivez une fonction \lstinline|signe| qui reçoit un entier \lstinline|n| en entrée, et renvoie \lstinline|1| s'il est strictement positif, \lstinline|-1| s'il est strictement négatif, \lstinline|0| s'il est nul.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}Là encore, utilisez \lstinline|elif|.
+
+\begin{lstlisting}
+def signe(n):
+    if n > 0:
+        return 1
+    elif n < 0:
+        return -1
+    else:
+        return 0
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Soit la suite définie par $u_{n+1}=u_n^2+u_n+2$ et $u_0=2$. Écrivez une fonction \lstinline|suite_u| qui reçoit un entier \lstinline|n| et renvoie en sortie la valeur du terme de rang \lstinline|n| de la suite.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}Comme on ne veut que le terme de rang \lstinline|n|, il n'est pas utile de stocker tous les termes précédents. On peut donc minimiser le nombre de variables utilisées en «recyclant» la même variable d'un tour de boucle à l'autre.
+
+\begin{lstlisting}
+def suite_u(n):
+    u = 2
+    for _ in range(1, n+1):
+        u = u**2+u+2
+    return u
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Problème : répartition des votes}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsubsection{Présentation du problème}
+%-------------------------------------------------------------------------------
+Lors des élections d'assemblées, il existe deux manières de désigner les vainqueurs.
+\begin{enumerate}
+    \item Le scrutin majoritaire découpe le corps électoral en petites entités dans chacune desquelles celui qui a le plus de voix remporte le siège. C'est le cas des élections législatives en France.
+    \item Le scrutin proportionnel attribue les sièges aux différentes listes selon leur nombre de voix. C'est le cas des élections européennes en France
+\end{enumerate}
+
+On peut aussi combiner les deux types. C'est le cas des élections municipales en France.
+
+\medskip
+
+Nous allons nous intéresser au partage des sièges dans le cas de proportionnelles : on doit allouer un nombre fini de sièges qu'on ne peut pas fractionner selon les résultats.
+
+Un exemple simple est celui de l'attribution de 10 sièges à deux listes notées $A$, $B$ et $C$ : la liste $A$ a réuni 4673 voix, la liste $B$ 3661 voix et la liste $C$ 1666 voix. 
+
+Doit-on élire 4 ou 5 candidats de la liste $A$ ? 3 ou 4 de la liste $B$ ? 1 ou 2 de la liste $C$ ?
+
+La réponse dépendra de la règle de partage qui est choisie (le choix, bien entendu, doit intervenir {\bf avant} les élections).
+
+Nous allons donner quelques règles possibles dans ce sujet et en écrire les algorithmes de calcul.
+
+\medskip
+
+On peut noter que ce problème se retrouve dans d'autres situations quand il s'agit de distribuer des ressources discrètes :
+\begin{itemize}
+    \item nombre de députés par état aux USA, en fonction de la population
+    \item affectations de professeurs dans les différentes académies, en fonction du nombre de lycéens
+    \item attributions de centres de calculs aux laboratoires universitaires, en fonction du nombre de thésards \dots
+\end{itemize}
+%-------------------------------------------------------------------------------
+\subsubsection{Notations}
+%-------------------------------------------------------------------------------
+Dans toute la suite les listes électorales sont supposées indexées par les entiers de 0 à $n-1$.
+
+On travaillera avec 2 objets :
+\begin{enumerate}
+    \item le nombre de sièges, qui sera représenté par \type{S},
+    \item les voix obtenues par chaque liste candidate qui seront représentées par une liste (tableau) \type{voix}. La liste électorale d'indice $i$ a reçu \type{voix[i]} suffrages.
+\end{enumerate}
+
+Le nombre de listes candidates n'est connu que par la longueur de \type{voix}.
+
+L'exemple ci-dessus correspond à \type{S0 = 10} et \type{voix0 = [4673, 3661, 1666]}.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Les incontestables}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Si on reprend l'exemple ci-dessus, on voit qu'il y a 10 sièges pour 10000 électeurs donc 1 siège pour 1000 électeurs. La liste $A$ qui rassemble 4673 électeurs doit donc pouvoir avoir au moins 4 sièges, la liste $B$ au moins 3 sièges et la liste $C$ au moins 1. Il restera alors 2 sièges à pourvoir.
+
+On peut généraliser ce calcul. 
+
+\begin{itemize}
+\item On calcule le nombre total de votes valides : \type{nE}.
+\item On calcule le quotient électoral : $QE$.
+
+C'est le nombre de votes divisé par le nombre de sièges.
+\item On crée une liste  \type{elus} de même taille que \type{voix}.
+\item Pour chaque $i$, \type{elus[i]} prend pour valeur la partie entière du rapport entre le nombre de voix de la liste candidate $i$ et le quotient électoral. C'est le nombre d'élus certains.
+\end{itemize}
+
+\newpage
+
+Voici le squelette de la fonction que l'on va écrire.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}[numbers = left]
+def base(voix, S):
+    n = len(voix)
+    nE = somme(voix)
+    QE = ***********
+    elus = [0]*n
+    for i in range(***):
+        elus[i] = ******
+    return elus
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+Les portions avec des \type{*} seront remplies et on va définir \type{somme}.
+
+\medskip
+
+La fonction partie entière existe sous le nom de \type{floor} dans le module \type{math}.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Donner l'instruction d'importation du module \type{math} qui permet d'utiliser la partie entière par \type{m.floor}.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+import math as m
+\end{lstlisting}
+\newpage
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = Ligne 3]\it
+Écrire une fonction \type{somme(liste)} qui renvoie la somme des termes de la liste passée en paramètre.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def somme(liste):
+    n = len(liste)
+    som = 0
+    for i in range(n):
+        som = som + liste[i]
+    return som
+\end{lstlisting}
+
+ou 
+
+\begin{lstlisting}
+def somme(liste):
+    som = 0
+    for x in liste:
+        som = som + x
+    return som
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+\smallskip
+\type{somme(voix0)} renvoie \type{10000}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title = {Lignes 4, 6 et 7}]\it
+Compléter les ligne 4, le calcul du quotient électoral, 6 et 7, le calcul du nombre d'élus certains.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def base(voix, S):
+    n = len(voix)
+    nE = somme(voix)
+    QE = nE/S
+    elus = [0]*n
+    for i in range(n):
+        elus[i] = m.floor(voix[i]/QE)
+    return elus
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+\smallskip
+\type{base(voix0, S0)} renvoie \type{[4, 3, 1]}.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Plus fort reste}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Après avoir pourvu les sièges certains, il va rester des sièges non encore attribués, sauf quand tous les résultats des listes candidates sont des multiples entiers du quotient électoral, ce qui est très peu probable. La première idée qui permet de distribuer les sièges restants de manière qui peut être équitable est le {\bf plus fort reste}.
+
+\begin{itemize}
+\item On attribue les sièges certains.
+\item On calcule, pour chaque liste candidate, le nombre de voix restantes. On l'obtient en ôtant au  nombre de voix obtenues $k$ fois le quotient électoral où $k$ est le nombre de sièges obtenus dans la méthode ci-dessus. Ces restes sont mémorisés dans une liste \type{reste}.
+\item On calcule le nombre de sièges à pourvoir \type{resteS} ; c'est le nombre total de siège moins la somme des nombres de sièges certains pour chaque liste candidate.
+\item On effectue alors \type{resteS} fois les opérations 
+\begin{itemize}
+\item on calcule l'indice du reste maximal : $i$
+\item on ajoute un siège à la liste candidate d'indice $i$
+\item on donne la valeur 0 à \type{reste[i]}.
+\end{itemize}
+\end{itemize}
+
+Dans l'exemple les restes forment la liste \type{[673, 661, 666]} : on attribue un siège supplémentaire à chacune des listes $A$ et $C$$.
+
+Les résultats sont alors \type{[5, 3, 2]}
+
+\newpage
+
+Voici une proposition pour la fonction, obtenue en étendant la fonction \type{base}
+%-------------------------------------------------------------------------------
+\begin{lstlisting}[numbers = left]
+def plusFortReste(voix, S):
+    n = len(voix)
+    nE = somme(voix)
+    QE = *****
+    elus = [0]*n
+    restes = [0]*n
+    for i in range(*****):
+        elus[i] = *****
+        restes[i] = *****
+    resteS = *****
+    for k in range(resteS):
+        i = indiceMax(restes)
+        elus[i] = *****
+        restes[i] = 0
+    return elus
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Écrire une fonction \type{indiceMax(liste)} qui renvoie le premier indice en lequel la liste atteint sa valeur maximale. 
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def indiceMax(liste):
+    n = len(liste)
+    maxi = 0
+    i_max = 0
+    for i in range(1, n):
+        if liste[i] > maxi:
+            maxi = liste[i]
+            i_max = i
+    return i_max
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+\smallskip
+\type{indiceMax([4, 3, 9, -2, 7, 11, 5, -3, 11, 8])} renvoie \type{5}.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Compléter le programme ci-dessus.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def plusFortReste(voix, S):
+    n = len(voix)
+    nE = somme(voix)
+    QE = nE/S
+    elus = [0]*n
+    restes = [0]*n
+    for i in range(n):
+        elus[i] = m.floor(voix[i]/QE)
+        restes[i] = voix[i] - elus[i]*QE
+    resteS = S - somme(elus)
+    for k in range(resteS):
+        i = indiceMax(restes)
+        elus[i] = elus[i] + 1
+        restes[i] = 0
+    return elus
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Paradoxe de l'Alabama}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Dans les années 1880, la méthode retenue pour le calcul du nombre de membres du congrès par état était celle du plus fort reste. Après le recensement de 1880, C. W. Seaton, chef de service au bureau de recensement américain, effectua des simulations du nombre de sièges à affecter à chaque État pour des chambres dont la taille varierait entre 275 et 350 sièges. Il découvrit alors un phénomène curieux.
+
+Nous allons illustrer ce phénomène avec un exemple simple.
+On se donne \type{voix1 = [4200, 4200, 1400]}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Calculer, à la main, \type{plusFortReste(voix1, 10)} et \type{plusFortReste(voix1, 11)}.
+
+Si on augmente le nombre de sièges, la troisième liste en perd un !
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+plusFortReste(voix1, 10) -> [4, 4, 2]
+plusFortReste(voix1, 11) -> [5, 5, 1]
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Plus fort quotient, méthode de Jefferson}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Pour éviter le paradoxe précédent, on peut attribuer les sièges restant à pourvoir non pas en fonction des restes mais en fonction des représentativités, on calcule à combien de voix correspondent les élus de chaque liste et on attribue les élus supplémentaires aux listex qui ont le plus grand taux.
+
+Le principal inconvénient est que le taux n'est pas calculable si une liste n'a pas encore d'élus.
+
+\medskip
+
+La méthode de Jefferson (ou de d'Hondt) modifie le taux calculé.
+\begin{itemize}
+\item On attribue les sièges certains.
+\item On calcule, pour chaque liste candidate, le quotient du nombre de voix par le nombre de sièges attribués {\bf augmenté de 1}. Ces rapports sont mémorisés dans une liste \type{quotients}.
+\item On calcule le nombre de sièges à pourvoir \type{resteS} ; c'est le nombre total de siège moins la somme des nombres de sièges certains pour chaque liste candidate.
+\item On effectue alors \type{resteS} fois les opérations 
+\begin{itemize}
+\item on calcule l'indice du quotient maximal : $i$
+\item on ajoute un siège à la liste candidate d'indice $i$
+\item on change la valeur de \type{quotients[i]} en tenant compte de l'élu supplémentaire (inutile de modifier les autres quotients, ils sont inchangés).
+\end{itemize}
+\end{itemize}
+Voici ce que donne la distribution pour l'exemple initial.
+
+\begin{center}
+\begin{tabular}{c|ccc}
+                             & liste $A$ & liste $B$ & liste $C$ \\
+\hline
+voix                         & 4673      & 3661      & 1666      \\
+certains                     &  4        & 3         &   1       \\
+\hline
+quotient                     &  934.6    & 915.25    &  833.0    \\
+élus après le premier calcul &  5        & 3         &  1        \\
+quotient                     &  778.83   &  915.25   &  833.0    \\
+élus après le deuxième calcul&  5        & 4         &  1        \\
+\end{tabular}
+\end{center}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Écrire une fonction \type{Jefferson(voix, S)} qui attribue les sièges selon cette méthode.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def Jefferson(voix, S):
+    n = len(voix)
+    nE = somme(voix)
+    QE = nE/S
+    elus = [0]*n
+    quotients = [0]*n
+    for i in range(n):
+        elus[i] = m.floor(voix[i]/QE)
+        quotients[i] = voix[i]/(elus[i] + 1)
+    resteS = S - somme(elus)
+    for k in range(resteS):
+        i = indiceMax(quotients)
+        elus[i] = elus[i] + 1
+        quotients[i] = voix[i]/(elus[i] + 1)
+    return elus
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\subsection{Plus fort quotient, méthode de Huntington-Hill}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Une autre méthode est utilisée aux états-unis pour déterminer le nombre d'élus au congrès pour chaque état. Elle est applicable pour des élections si le nombre de listes est faible devant le nombre de sièges. On peut obtenir ce résultat en définissant un seuil de résultat en-dessous duquel une liste n'aura aucun élu.
+
+Elle ne part pas des élus certains.
+
+\medskip
+
+\begin{itemize}
+\item On attribue un siège à chaque liste : \type{elus = [1]*n}
+\item Il reste \type{S1 = S - n} sièges à pourvoir.
+\item On calcule, pour chaque liste candidate, le quotient $\displaystyle \frac{\type{voix[i]}}{\sqrt{e_i(e_i+1)}}$ 
+où $e_i$ est la valeur de \type{elus[i]}. Ces rapports sont mémorisés dans une liste \type{quotients}.
+\item On attribue les \type{S1} sièges un-par-un en l'attribuant à la liste qui a le plus fort quotient et en modifiant ensuite ce quotient.
+\end{itemize}
+Voici ce que donne la distribution pour \type{voix =  [4540, 3560, 1900]} et \type{S = 10}.
+
+\begin{center} 
+\begin{tabular}{c|ccc}
+          & liste $A$ & liste $B$ & liste $C$ \\
+\hline
+voix      & 4673      & 3661      & 1666      \\
+élus      &  1        & 1         &   1    \\
+\hline
+quotient  & 3304.31   & 2588.72   & 1178.04  \\
+élus      &  2        & 1         &  1        \\
+\hline
+quotient  & 1907.74   & 2588.72   & 1178.04   \\
+élus      &  2        & 2         &  1        \\
+\hline
+quotient  & 1907.74   & 1494.60   & 1178.04   \\
+élus      &  3        & 2         &  1        \\
+\hline
+quotient  & 1348.98   & 1494.60   & 1178.04   \\
+élus      &  3        & 3         &  1        \\
+\hline
+quotient  &  1348.98  & 1056.84   & 1178.04   \\
+élus      &  4        & 3         &  1        \\
+\hline
+quotient  &  1044.91  & 1056.84   & 1178.04   \\
+élus      &  4        & 3         &  2        \\
+\hline
+quotient  &  1044.91  & 1056.84   &  680.14   \\
+élus      &  4        & 4         &  2        \\
+\end{tabular}
+\end{center}
+
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}\it
+Écrire une fonction \type{HH(voix, S)} qui attribue les sièges selon cette méthode.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def HH(voix, S):
+    n = len(voix)
+    elus = [1]*n
+    quotients = [0]*n
+    for i in range(n):
+        quotients[i] = voix[i]/2**0.5
+    S1 = S - n
+    for k in range(S1):
+        i = indiceMax(quotients)
+        elus[i] = elus[i] + 1
+        e = elus[i]
+        quotients[i] = voix[i]/(e*(e+1))**0.5
+    return elus
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+
+
+
+

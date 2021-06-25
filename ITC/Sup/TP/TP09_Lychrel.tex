@@ -1,0 +1,299 @@
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\chapter{Jeux sur les chiffres}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\thispagestyle{empty}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+
+\vskip -2cm
+
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\section{Retournement} 
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+Dans cette partie, on étudie le retournement d'un nombre : par exemple 147 devient 741.
+
+Pour retourner un nombre, on propose l'algorithme suivant :
+\begin{enumerate}
+    \item on calcule la liste de ses chiffres, par exemple 147 donne \type{[1, 4, 7]},
+    \item on retourne cette liste, on obtient ici,  \type{[7, 4, 1]}, 
+    \item on revient à l'entier associé à la liste $(7*10 + 4)*10 + 1 = 741$
+\end{enumerate}
+
+La clé pour le calcul des chiffres est de remarquer que le chiffre des unités de $n$ est \type{n\%10} et que les autres chiffres sont obtenus à partir de \type{n//10} ;  on recommence ensuite.
+
+Dans le cas de 741, 
+\begin{itemize}
+    \item le chiffre des unités est \type{1 = 741\%10} et les autres chiffres proviennent de \type{74 = 741//10}
+   \item le chiffre des dizaines est \type{4 = 74\%10} et les chiffres suvants se calculent avec \type{7 = 74//10}
+   \item le chiffre des centaines est \type{7 = 7\%10} et il reste \type{0 = 7//10} donc on s'arrête.
+\end{itemize}
+
+On remarque que les chiffres sont calculés "à l'envers" ; on doit déterminer leur nombre afin de définir un tableau de taille adaptée et le remplir de gauche à droite.
+
+\medskip
+
+Pour calculer le nombre de chiffres de $n$, on remarque que si $n$ admet $p$ chiffres alors \type{n//10} en admet $p-1$ ; on divise donc par 10 tant qu'on peut, c'est-à-dire tant que $n$ est non nul en ajoutant 1 à chaque étape au nombre de chiffres.
+
+On notera qu'il est cohérent de considérer que 0 s'écrit avec 0 chiffre.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title= Nombre de chiffres]\it
+Écrire une fonction \type{nb\_chiffres(n)} qui calcule le nombre de chiffres de $n$.
+
+On supposera que $n$, sans avoir besoin de le prouver, est un entier positif.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer} 
+\begin{lstlisting}
+def nb_chiffres(n):
+    p = 0
+    while n > 0:
+        p = p + 1
+        n = n//10
+    return p
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+
+Pour calculer les chiffres de $n$, on a vu qu'on remplissait une liste à partir de la droite ; si $p$ est le nombre de chiffres, on calcule d'abord le chiffre des unités que l'on place à la position $p-1$, puis on calcule le chiffre à la position $p-2$ jusqu'à 0.
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title= Chiffres]\it
+Écrire une fonction \type{chiffres(n)} qui calcule les chiffres de $n$ sous forme d'une liste.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer} 
+\begin{lstlisting}
+def chiffres(n):
+    p = nb_chiffres(n)
+    chf = [0]*p
+    for i in range(p):
+        c = n%10 
+        n = n//10
+        chf[p-1-i] = c
+    return chf
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+On a besoin de convertir une liste de chiffres en un nombre.
+
+La méthode suggéré ci-dessus est la méthode de Hörner qui minimise les calculs.
+
+On peut l'écrire de la façon suivante.
+%-------------------------------------------------------------------------------
+\begin{lstlisting}
+def nombre(liste):
+    p = len(liste)
+    n = 0
+    for i in range(p):
+        n = 10*n + liste[i]
+    return n
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+On pourra vérifier qu'on a bien \type{nombre(chiffres(n)) = n} pour quelques valeurs de $n$.
+
+\smallskip
+
+Pour retourner une liste, on pourra utiliser
+\begin{lstlisting}
+etsil = liste[ : : -1]
+\end{lstlisting}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\begin{Exercise}[title= Retournement d'un entier]\it
+Écrire une fonction \type{retournement(n)} qui le nombre obtenu par retournement de $n$.
+\end{Exercise}
+%-------------------------------------------------------------------------------
+\begin{Answer} 
+\begin{lstlisting}
+def retournement(n):
+    liste = chiffres(n)
+    etsil = liste[ : : -1]
+    return nombre(etsil)
+\end{lstlisting}
+\end{Answer}
+%-------------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\section{Nombres de Lychrel}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+Un nombre est un palindrome s'il est égal à son nombre retourné.
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}[title= Test de palindrome]\it 
+Écrire une fonction \type{test(n)} qui renvoie  \type{True} ou \type{False} selon que $n$ est un palindrome ou non.
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def test(n):
+    m = retournement(n)
+    return n == m
+\end{lstlisting}
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+
+On définit une suite $(u_n)$ par son premier terme, $u_0$, et par la relation de récurrence :
+
+$u_{n+1}$ est la somme de $u_n$ et du miroir de $u_n$.
+
+Par exemple si on pose $u_0=79$ alors $u_1=79+97=176$, $u_2 = 176+671=847$, $u_3 = 847+748=1595$, $u_4=1595+5951=7546$, $u_5=7546+6457=14003$ et $u_6=14003+30041=44044$.
+
+On remarque que $u_6$ est un palindrome.
+
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}[title= Calcul des termes de la suite]\it 
+Écrire une fonction \type{suite(u0, n)} qui calcule la valeur de $u_n$ pour la suite de premier terme $u_0$ définie ci-dessus.
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def suite(u0, n):
+    u = u0
+    for i in range(n):
+        u = u + retournement(u)
+    return u
+\end{lstlisting}
+\newpage
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+Si on part de $u_0=28$ alors $u_1=28+82=110$, $u_2=110+11=121$ qui est aussi un palindrome.
+
+En fait la suite parvient souvent à un nombre palindrome rapidement : les nombres qui ne semblent pas aboutir à un palindrome sont appelés nombres de {\bf Lychrel}. Le plus petit nombre de Lychrel est 196. 
+
+On admettra que pour $a < 10000$, $an$ est un nombre de Lychrel si et seulement si aucun des termes $u_n$ pour $0\le n < 25$ n'est un palindrome.
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}\it Combien y-a-t-il de nombres de Lychrel inférieurs à 1000 ?
+
+On affichera ces nombres à l'écran.
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+nb = 0
+for a in range(1, 1000):
+    u = a
+    n = 0
+    while n < 50 and not test(u):
+        u = u + retournement(u)
+        n = n + 1
+    if n == 50:
+        print(a)
+        nb = nb + 1
+print(nb)
+\end{lstlisting}
+Il y en a 13.
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}\it Déterminer le premier entier $a$ tel que la suite $(u_n)$ de premier terme $a$ n'aboutit à un palindrome que pour $u_{24}$. On admettra que cela advient entre 1  et 195.
+
+On donnera aussi la valeur de $u_{24}$.
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+for a in range(1, 196):
+    u = a
+    n = 0
+    while not test(u):
+        u = u + retournement(u)
+        n = n + 1
+    if n == 24:
+        print(a)
+        print(u)
+        break
+\end{lstlisting}
+Pour $a = 89$, $u_{24} = 8813200023188$
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\section{Exercices tirés du projet Euler}
+%------------------------------------------------------------
+%------------------------------------------------------------
+\begin{Exercise}[title={Projet Euler 20}]\it
+Que vaut la somme des chiffres de 100! ?
+
+Python manie les entiers sans limitation.
+\end{Exercise}
+%------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+def facto(n):
+    f = 1
+    for i in range(n):
+        f = f*(i+1)
+    return f
+    
+l = chiffres(facto(100))
+somme = 0
+for x in l:
+    somme = somme + x
+print("La somme des chiffres de 100! est",somme)
+\end{lstlisting}
+648
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+On peut remarquer que $145 = !1+!4+!5$. Il existe un second entier vérifiant cette propriété d'être la somme des factorielles de ses chiffres (en dehors des cas triviaux $1 = !1$ et $2=!2$).
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}[title = {Projet Euler 34}]\it 
+Déterminer l'entier $n> 145$ qui est la somme des factorielles de ses chiffres.
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+fact = [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880]
+for n in range(10000, 100000):
+    l = chiffres(n)
+    s = 0
+    for x in l:
+        s = s + fact[x]
+    if n ==  s:
+        print(n)
+        break
+\end{lstlisting}
+40585
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
+\begin{Exercise}[title = {Projet Euler 56}]\it 
+Quelle est la somme des chiffres maximale pour les entiers de la forme $a^b$ avec $a$ et $b$ entiers, $a< 100$ et $b < 100$. 
+\end{Exercise}
+%--------------------------------------------------------------------------
+\begin{Answer}
+\begin{lstlisting}
+max = 1
+a_max = 1
+b_max = 1
+for a in range(100):
+    for b in range(101):
+        s = sum_c(a**b)
+        if s > max:
+            print(a, b, s)
+            max = s
+            a_max = a
+            b_max = b
+print(a_max, b_max, max)
+\end{lstlisting}
+La somme est 972 pour $99^{95}$.
+\end{Answer}
+%--------------------------------------------------------------------------
+%--------------------------------------------------------------------------
